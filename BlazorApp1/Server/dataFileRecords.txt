@@ -1,0 +1,1 @@
+[{"Id":0,"Name":"First id expense","Description":null,"Amount":100.0,"TransactionDate":"2021-11-25T00:00:00+01:00"},{"Id":0,"Name":"Fuel","Description":"Orlen","Amount":87.99,"TransactionDate":"2021-11-17T00:00:00"}]

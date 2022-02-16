@@ -1,0 +1,16 @@
+﻿@page "/settings"
+@using System.Globalization
+
+<h3>User settings</h3>
+
+<p>Select currency:</p>
+<select>
+    @foreach (var item in CultureInfo.GetCultures(CultureTypes.AllCultures))
+    {
+        <option>@item.Name</option>
+    }
+</select>
+
+@code {
+
+}

@@ -1,0 +1,328 @@
+﻿@page "/tracker"
+@using BlazorApp.Server.Services
+@using BlazorApp1.Client.Models
+@using BlazorApp1.Client.Services
+@using BlazorApp1.Client.Components
+@using BlazorApp1.Shared
+@using Newtonsoft.Json
+@using System.Linq
+@using System.Globalization
+@using System.Net.Http.Headers
+@using System.Text
+@using System.IO
+@inject HttpClient http
+@inject IJSRuntime JS
+@inject ILocalStorageService _localStorage
+@inject IHttpTrackerService _httpTracker
+
+<h1>Financial Dashboard</h1>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
+}
+
+@if (_getTableLoading)
+{
+    <p><em>Loading...</em></p>
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (_emptyTable)
+{
+    <p>The table is empty, you can add a new record <a href="/kj">here</a></p>
+}
+else
+{
+    <div class="d-flex flex-row align-items-center">
+        <h5>Select date:</h5>
+        <div width="20%" class="ms-2">
+            <select class="form-select" @bind="SelectedYearByUser">
+                @foreach (var item in _listOfYearsForSelect)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </div>
+        <div width="20%" class="ms-2">
+            <select class="form-select" @bind="SelectedMonthByUser">
+                @foreach (var item in _listOfMonthsForSelect)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_str[(int)TypesInRecord.Name]</button>
+                </th>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">Desc @_str[(int)TypesInRecord.CategoryName]</button>
+                </th>
+                <th width="15%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amout @_str[(int)TypesInRecord.Amount]</button>
+                </th>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Date))">Date @_str[(int)TypesInRecord.Date]</button>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (_listOfRecords != null)
+            {
+                @foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                {
+                    <tr>
+                        <td class="align-middle" width="25%">@item.Name</td>
+                        <td class="align-middle" width="25%">@item.CategoryName</td>
+                        <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                        <td class="align-middle" width="25%">@item.Date.ToShortDateString()</td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
+                        </td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Summary:</td>
+                <td></td>
+                <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+            </tr>
+        </tfoot>
+    </table>
+}
+@if (DeleteDialogOpen &&
+_recordToDelete != null)
+{
+    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" Title="Are you sure?" Text=@($"Do you want delete this: {_recordToDelete.Name}?") OnClose="@CloseDeleteDialog"></ConfirmDeleteDialog>
+}
+@if (EditFormOpen && _editRecord != null)
+{
+    <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord"></RecordFormDialog>
+}
+
+<button @onclick="DownloadFileFromStream">
+    Download File From Stream
+</button>
+
+@code {
+    private Stream GetFileStream()
+    {
+        XmlGenerateService xmlGenerateService = new();
+
+        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords);
+        var fileStream = new MemoryStream(randomBinaryData);
+
+        return fileStream;
+    }
+
+    private async Task DownloadFileFromStream()
+    {
+        var fileStream = GetFileStream();
+        var fileName = $"Report_{DateTime.Today.ToString("Y")}.xlsx";
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+    private string? _errorMessage;
+    private RecordItemDto? _recordToDelete;
+    private List<RecordItemDto> _listOfRecords = new List<RecordItemDto>();
+    private List<string> _listOfYearsForSelect = new List<string>();
+    private List<string> _listOfMonthsForSelect = new List<string>();
+    private Dictionary<TypesInRecord, string> _setOrderByArrow = new Dictionary<TypesInRecord, string>
+    {
+        {TypesInRecord.Name, ""},
+        {TypesInRecord.CategoryName, ""},
+        {TypesInRecord.Amount, ""},
+        {TypesInRecord.Date, ""}
+    };
+    private string[] _str = { "", "", "", "" };
+    private decimal _sumOfMonthlyAmounts = 0;
+    private string _selectedYearByUser = String.Empty;
+    private string _selectedMonthByUser = String.Empty;
+    private RecordItemDto? _editRecord = null;
+    private TypesInRecord? _sortClickDesc = null;
+    private bool _getTableLoading = true;
+    private bool _emptyTable = true;
+
+    private string? SelectedYearByUser
+    {
+        get { return _selectedYearByUser; }
+        set
+        {
+            _selectedYearByUser = value == null ? String.Empty : value;
+            _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecords, _selectedYearByUser);
+            if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")) &&
+                    _listOfMonthsForSelect.FirstOrDefault(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")), String.Empty).ToString() != String.Empty)
+                SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US"))).ToString();
+            else
+                SelectedMonthByUser = _listOfMonthsForSelect.FirstOrDefault(String.Empty);
+        }
+    }
+
+    private string SelectedMonthByUser
+    {
+        get { return _selectedMonthByUser; }
+        set
+        {
+            _selectedMonthByUser = value == null ? String.Empty : value;
+            _sumOfMonthlyAmounts = 0;
+            foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+            {
+                _sumOfMonthlyAmounts += item.Amount;
+            }
+        }
+    }
+
+    private bool DeleteDialogOpen { get; set; }
+    private bool EditFormOpen { get; set; }
+
+    private void SortButtonClick(TypesInRecord sortBy)
+    {
+        SortArrayService.SortByType(sortBy, _sortClickDesc == sortBy, ref _listOfRecords, ref _str);
+        if (_sortClickDesc == sortBy)
+            _sortClickDesc = null;
+        else
+            _sortClickDesc = sortBy;
+    }
+
+    private async Task CloseDeleteDialog(bool deleteConfirmed)
+    {
+        if (deleteConfirmed && _recordToDelete != null)
+        {
+            await Delete(_recordToDelete.Id);
+        }
+        DeleteDialogOpen = false;
+        StateHasChanged();
+    }
+
+    private async void OpenDeleteDialog(RecordItemDto record)
+    {
+        DeleteDialogOpen = true;
+        _recordToDelete = record;
+        await GetTable();
+        StateHasChanged();
+    }
+
+    private void ReturnedRecord(RecordItemDto recordItemDto)
+    {
+        _editRecord = recordItemDto;
+    }
+
+    private async Task CloseEditForm(bool editConfirmed)
+    {
+        DeleteDialogOpen = false;
+        if (editConfirmed && _editRecord != null)
+        {
+            await Update();
+        }
+        _editRecord = null;
+        await GetTable();
+        StateHasChanged();
+    }
+
+    private void OpenEditForm(RecordItemDto record)
+    {
+        EditFormOpen = true;
+        _editRecord = record;
+        StateHasChanged();
+    }
+
+    private async Task GetTable()
+    {
+        try
+        {
+            var responseMessage = await _httpTracker.GetListOfItems("/api/tracker/");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _listOfRecords = JsonConvert.DeserializeObject<List<RecordItemDto>>(jsonResponse) ?? new List<RecordItemDto>();
+            }
+            else
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        if (_listOfRecords == null) return;
+
+        if (_listOfRecords.Count == 0)
+            _emptyTable = true;
+        else
+            _emptyTable = false;
+
+        _listOfYearsForSelect = SortArrayService.GetAllYearsFromListOfRecords(_listOfRecords);
+        SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
+
+        _sortClickDesc = null;
+        SortButtonClick(TypesInRecord.Date);
+        _getTableLoading = false;
+    }
+
+    private async Task Delete(int id)
+    {
+        var tempYear = _selectedYearByUser;
+        var tempMonth = _selectedMonthByUser;
+
+        try
+        {
+            var response = await _httpTracker.DeleteItem(id, "/api/tracker/");
+            if (response == null) return;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                _errorMessage = await response.Content.ReadAsStringAsync();
+
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        await GetTable();
+        SelectedYearByUser = tempYear;
+        SelectedMonthByUser = tempMonth;
+    }
+
+    private async Task Update()
+    {
+        try
+        {
+            if (_editRecord == null) return;
+            var response = await _httpTracker.UpdateItem(_editRecord, "/api/tracker/");
+            if (response == null) return;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                _errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _errorMessage = null;
+        await GetTable();
+    }
+    }

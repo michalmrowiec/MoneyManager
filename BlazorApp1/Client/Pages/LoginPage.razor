@@ -1,0 +1,87 @@
+﻿@page "/login"
+@using BlazorApp.Server.Services
+@using BlazorApp1.Shared
+@using Newtonsoft.Json
+@inject HttpClient http;
+@inject NavigationManager navigationManager;
+@inject ILocalStorageService _localStorage
+@inject AppState appState
+
+<div class="col-md-6 offset-md-3 mt-5">
+    <div class="alert alert-info">
+        Username: test<br />
+        Password: test
+    </div>
+    <div class="card">
+        <h4 class="card-header">Blazor WebAssembly JWT Login Example</h4>
+        <div class="card-body">
+            <EditForm Model="@loginUserDto" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label>Username</label>
+                    <InputText @bind-Value="loginUserDto.Email" class="form-control" />
+                    <ValidationMessage For="@(() => loginUserDto.Email)" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <InputText @bind-Value="loginUserDto.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => loginUserDto.Password)" />
+                </div>
+                <button class="btn btn-primary">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Login
+                </button>
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-danger mt-3 mb-0">@error</div>
+                }
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginUserDto loginUserDto = new LoginUserDto();
+    private bool loading;
+    private string error;
+
+    protected override void OnInitialized()
+    {
+        // redirect to home if already logged in
+
+    }
+
+    private async void HandleValidSubmit()
+    {
+        loading = true;
+        try
+        {
+            var result = await http.PostAsJsonAsync("/api/account/login", loginUserDto);
+            UserToken token = new UserToken();
+            //token.Token = await result.Content.ReadAsStringAsync();
+
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                token = JsonConvert.DeserializeObject<UserToken>(await result.Content.ReadAsStringAsync());
+                await _localStorage.SetItem<UserToken>("user", token);
+                appState.LoggedIn = true;
+                navigationManager.NavigateTo("tracker");
+            }
+            else
+            {
+                error = await result.Content.ReadAsStringAsync();
+                loading = false;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            loading = false;
+            StateHasChanged();
+        }
+    }
+}

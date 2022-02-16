@@ -1,0 +1,90 @@
+﻿@using BlazorApp.Server.Services
+@using BlazorApp1.Client.Services
+@using BlazorApp1.Shared
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+@inject IHttpTrackerService _httpService
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Title</h4>
+                <button type="button" class="btn-close" @onclick="@ModalCancel"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@_categoryItem" OnInvalidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="form-floating mb-2">
+                        <InputText id="name" class="form-control" @bind-Value="_categoryItem.Name" />
+                        <ValidationMessage For="@(() => _categoryItem.Name)" />
+                        <label for="floatingInput">Name</label>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-outline-success mb-3" type="submit" @onclick="HandleValidSubmit">Submit</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public TypeOfModalDialog TypeOfModal { get; set; }
+
+    /// <summary>
+    /// Returns true if the category has been created or updated, returns false if it has been canceled or if an error occurs.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public CategoryItemDto CategoryItem
+    {
+        get { return _categoryItem; }
+        set
+        {
+            if (value is null)
+                _categoryItem = new CategoryItemDto();
+            else
+                _categoryItem = value;
+        }
+    }
+
+    private CategoryItemDto _categoryItem = new();
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        HttpResponseMessage response = new();
+
+        switch (TypeOfModal)
+        {
+            case TypeOfModalDialog.Create:
+                response = await _httpService.CreateItem(_categoryItem, "/api/category/");
+                break;
+            case TypeOfModalDialog.Update:
+                response = await _httpService.UpdateItem(_categoryItem, "/api/category/");
+                break;
+        }
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Created || response.StatusCode == System.Net.HttpStatusCode.OK)
+            await OnClose.InvokeAsync(true);
+        else
+            await OnClose.InvokeAsync(false);
+    }
+
+    public enum TypeOfModalDialog
+    {
+        Create,
+        Update
+    }
+}

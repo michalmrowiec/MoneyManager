@@ -1,0 +1,75 @@
+﻿@using BlazorApp.Server.Services
+@using BlazorApp1.Shared
+@inherits LayoutComponentBase
+@inject ILocalStorageService _localStorage
+@inject AppState appState
+@implements IDisposable
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @if (appState.LoggedIn)
+            {
+                <div class="me-3">Hello <b>@userName</b></div>
+                <a @onclick="Logout" href="">Logout</a>
+            }
+            else
+            {
+                <a href="login">Login</a>
+                <a href="register">Register</a>
+            }
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private string? userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserToken user = await _localStorage.GetItem<UserToken>("user");
+        if (user is not null)
+        {
+            appState.LoggedIn = true;
+        }
+    }
+
+    private async void Logout()
+    {
+        await _localStorage.RemoveItem("user");
+        appState.LoggedIn = false;
+    }
+
+    private async void ChceckIfLoggedIn()
+    {
+        UserToken userToken = await _localStorage.GetItem<UserToken>("user");
+        if (userToken is not null)
+        {
+            userName = userToken.Name;
+        }
+        else
+            userName = null;
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        appState.OnChange += ChceckIfLoggedIn;
+        appState.OnChange += StateHasChanged;
+    }
+
+    void IDisposable.Dispose()
+    {
+        appState.OnChange -= ChceckIfLoggedIn;
+        appState.OnChange -= StateHasChanged;
+    }
+}
