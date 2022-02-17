@@ -29,31 +29,42 @@
         <span class="visually-hidden">Loading...</span>
     </div>
 }
-else if (_emptyTable)
+else if (_listOfRecords.Count == 0)
 {
-    <p>The table is empty, you can add a new record <a href="/kj">here</a></p>
+    <p>The table is empty, you can add a new record <a href="/addrecord">here</a></p>
 }
 else
 {
-    <div class="d-flex flex-row align-items-center">
-        <h5>Select date:</h5>
-        <div width="20%" class="ms-2">
-            <select class="form-select" @bind="SelectedYearByUser">
-                @foreach (var item in _listOfYearsForSelect)
-                {
-                    <option value="@item">@item</option>
-                }
-            </select>
+    <div class="d-flex justify-content-between">
+        <div class="d-flex flex-row align-items-center">
+            <h5>Select date:</h5>
+            <div width="20%" class="ms-2">
+                <select class="form-select" @bind="SelectedYearByUser">
+                    @foreach (var item in _listOfYearsForSelect)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+            </div>
+            <div width="20%" class="ms-2">
+                <select class="form-select" @bind="SelectedMonthByUser">
+                    @foreach (var item in _listOfMonthsForSelect)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+            </div>
         </div>
-        <div width="20%" class="ms-2">
-            <select class="form-select" @bind="SelectedMonthByUser">
-                @foreach (var item in _listOfMonthsForSelect)
-                {
-                    <option value="@item">@item</option>
-                }
+
+        <div>
+            <select class="form-select" @bind="@TableViewSelected">
+                <option value="@TableView.ExpensesAndIncomes">Expenses and Incomes</option>
+                <option value="@TableView.OnlyExpenses">Expenses</option>
+                <option value="@TableView.OnlyIncomes">Incomes</option>
             </select>
         </div>
     </div>
+
 
     <table class="table table-striped">
         <thead>
@@ -106,44 +117,28 @@ else
             </tr>
         </tfoot>
     </table>
+
+    <button class="btn btn-sm btn-primary" @onclick="DownloadFileFromStream">
+        Download xlsx report
+    </button>
 }
+
 @if (DeleteDialogOpen &&
 _recordToDelete != null)
 {
     <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" Title="Are you sure?" Text=@($"Do you want delete this: {_recordToDelete.Name}?") OnClose="@CloseDeleteDialog"></ConfirmDeleteDialog>
 }
+
 @if (EditFormOpen && _editRecord != null)
 {
     <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord"></RecordFormDialog>
 }
 
-<button @onclick="DownloadFileFromStream">
-    Download File From Stream
-</button>
-
 @code {
-    private Stream GetFileStream()
-    {
-        XmlGenerateService xmlGenerateService = new();
-
-        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords);
-        var fileStream = new MemoryStream(randomBinaryData);
-
-        return fileStream;
-    }
-
-    private async Task DownloadFileFromStream()
-    {
-        var fileStream = GetFileStream();
-        var fileName = $"Report_{DateTime.Today.ToString("Y")}.xlsx";
-
-        using var streamRef = new DotNetStreamReference(stream: fileStream);
-
-        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-    }
     private string? _errorMessage;
     private RecordItemDto? _recordToDelete;
     private List<RecordItemDto> _listOfRecords = new List<RecordItemDto>();
+    private List<RecordItemDto> _listOfRecordsTemp = new List<RecordItemDto>();
     private List<string> _listOfYearsForSelect = new List<string>();
     private List<string> _listOfMonthsForSelect = new List<string>();
     private Dictionary<TypesInRecord, string> _setOrderByArrow = new Dictionary<TypesInRecord, string>
@@ -160,7 +155,7 @@ _recordToDelete != null)
     private RecordItemDto? _editRecord = null;
     private TypesInRecord? _sortClickDesc = null;
     private bool _getTableLoading = true;
-    private bool _emptyTable = true;
+    private TableView _tableViewSelected = TableView.ExpensesAndIncomes;
 
     private string? SelectedYearByUser
     {
@@ -176,23 +171,53 @@ _recordToDelete != null)
                 SelectedMonthByUser = _listOfMonthsForSelect.FirstOrDefault(String.Empty);
         }
     }
-
     private string SelectedMonthByUser
     {
         get { return _selectedMonthByUser; }
         set
         {
             _selectedMonthByUser = value == null ? String.Empty : value;
-            _sumOfMonthlyAmounts = 0;
-            foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+        }
+    }
+    private bool DeleteDialogOpen { get; set; }
+    private bool EditFormOpen { get; set; }
+
+    private TableView TableViewSelected
+    {
+        get { return _tableViewSelected; }
+        set
+        {
+            _tableViewSelected = value;
+
+            switch (_tableViewSelected)
             {
-                _sumOfMonthlyAmounts += item.Amount;
+                case TableView.OnlyExpenses:
+                    _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount < 0).ToList();
+                    _sumOfMonthlyAmounts = 0;
+                    foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                    {
+                        _sumOfMonthlyAmounts += item.Amount;
+                    }
+                    break;
+                case TableView.OnlyIncomes:
+                    _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount >= 0).ToList();
+                    _sumOfMonthlyAmounts = 0;
+                    foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                    {
+                        _sumOfMonthlyAmounts += item.Amount;
+                    }
+                    break;
+                default:
+                    _listOfRecords = _listOfRecordsTemp;
+                    _sumOfMonthlyAmounts = 0;
+                    foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                    {
+                        _sumOfMonthlyAmounts += item.Amount;
+                    }
+                    break;
             }
         }
     }
-
-    private bool DeleteDialogOpen { get; set; }
-    private bool EditFormOpen { get; set; }
 
     private void SortButtonClick(TypesInRecord sortBy)
     {
@@ -210,6 +235,7 @@ _recordToDelete != null)
             await Delete(_recordToDelete.Id);
         }
         DeleteDialogOpen = false;
+        await GetTable();
         StateHasChanged();
     }
 
@@ -245,6 +271,26 @@ _recordToDelete != null)
         StateHasChanged();
     }
 
+    private Stream GetFileStream()
+    {
+        XmlGenerateService xmlGenerateService = new();
+
+        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords);
+        var fileStream = new MemoryStream(randomBinaryData);
+
+        return fileStream;
+    }
+
+    private async Task DownloadFileFromStream()
+    {
+        var fileStream = GetFileStream();
+        var fileName = $"Report_{DateTime.Today.ToString("Y")}.xlsx";
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+
     private async Task GetTable()
     {
         try
@@ -266,10 +312,17 @@ _recordToDelete != null)
 
         if (_listOfRecords == null) return;
 
-        if (_listOfRecords.Count == 0)
-            _emptyTable = true;
-        else
-            _emptyTable = false;
+        _listOfRecordsTemp = _listOfRecords;
+
+        switch (_tableViewSelected)
+        {
+            case TableView.OnlyExpenses:
+                _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount < 0).ToList();
+                break;
+            case TableView.OnlyIncomes:
+                _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount >= 0).ToList();
+                break;
+        }
 
         _listOfYearsForSelect = SortArrayService.GetAllYearsFromListOfRecords(_listOfRecords);
         SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
@@ -277,13 +330,17 @@ _recordToDelete != null)
         _sortClickDesc = null;
         SortButtonClick(TypesInRecord.Date);
         _getTableLoading = false;
+        StateHasChanged();
+
+        _sumOfMonthlyAmounts = 0;
+        foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+        {
+            _sumOfMonthlyAmounts += item.Amount;
+        }
     }
 
     private async Task Delete(int id)
     {
-        var tempYear = _selectedYearByUser;
-        var tempMonth = _selectedMonthByUser;
-
         try
         {
             var response = await _httpTracker.DeleteItem(id, "/api/tracker/");
@@ -296,10 +353,6 @@ _recordToDelete != null)
         {
             _errorMessage = ex.Message;
         }
-
-        await GetTable();
-        SelectedYearByUser = tempYear;
-        SelectedMonthByUser = tempMonth;
     }
 
     private async Task Update()
@@ -324,5 +377,12 @@ _recordToDelete != null)
     {
         _errorMessage = null;
         await GetTable();
+    }
+
+    enum TableView
+    {
+        OnlyExpenses,
+        OnlyIncomes,
+        ExpensesAndIncomes
     }
     }
