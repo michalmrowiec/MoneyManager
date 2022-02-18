@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp1.Client.UnitTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp1.Server.IntegrationTests", "BlazorApp1.Server.IntegrationTests\BlazorApp1.Server.IntegrationTests.csproj", "{0AE9146E-1C4D-48E3-B019-D45906811970}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CDBDFA34-B404-4A80-9CD5-FDEE8EACCAB0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,10 +42,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{190774C9-B1A0-4B83-8493-18C9227806AB} = {CDBDFA34-B404-4A80-9CD5-FDEE8EACCAB0}
-		{0AE9146E-1C4D-48E3-B019-D45906811970} = {CDBDFA34-B404-4A80-9CD5-FDEE8EACCAB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D391693F-2F54-4670-A671-932FEE90FB72}
