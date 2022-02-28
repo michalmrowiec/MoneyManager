@@ -1,0 +1,68 @@
+﻿@using MoneyManager.Shared
+@using System.Globalization
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Catgory is in use</h4>
+                <button type="button" class="btn-close" @onclick="@ModalCancel"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th width="25%">Name</th>
+                            <th width="25%">Category</th>
+                            <th width="25%">Amount</th>
+                            <th width="25%">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ListOfRecords != null)
+                        {
+                            @foreach (var item in ListOfRecords)
+                            {
+                                <tr>
+                                    <td class="align-middle" width="25%">@item.Name</td>
+                                    <td class="align-middle" width="25%">@item.CategoryName</td>
+                                    <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                                    <td class="align-middle" width="25%">@item.TransactionDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                <p>The category will be removed from the above records.</p>
+                <p>Are you sure you want to delete?</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="@ModalCancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick=@ModalDelete>Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnDelete { get; set; }
+
+    [Parameter]
+    public List<RecordItemDto>? ListOfRecords { get; set; }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task ModalDelete()
+    {
+        return OnDelete.InvokeAsync(true);
+    }
+}

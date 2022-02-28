@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>df9f5e28-84c4-4f04-a3ec-3ecef8923036</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\MoneyManager.Application\MoneyManager.Application.csproj" />
+    <ProjectReference Include="..\..\Core\MoneyManager.Domain\MoneyManager.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\MoneyManager.Infractructure\MoneyManager.Infractructure.csproj" />
+  </ItemGroup>
+
+</Project>

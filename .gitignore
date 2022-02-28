@@ -4,7 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 #Private files
-BlazorApp1/Server/appsettings.json
+src/Server/appsettings.json
+src/API/MoneyManager.BaseAPI/appsettings.json
+*/appsettings.json
 
 # User-specific files
 *.rsuser

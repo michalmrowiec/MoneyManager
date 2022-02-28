@@ -1,0 +1,56 @@
+﻿@page "/addrecord"
+@using MoneyManager.Client.Components
+@using MoneyManager.Client.Services
+@using MoneyManager.Shared
+@using System.Net
+@inject IHttpTrackerService _httpService
+
+<button class="btn btn-primary" @onclick="@(x => OpenDeleteDialog())">Add new record</button>
+<div>
+    <p>@_error</p>
+</div>
+
+@if (DeleteDialogOpen)
+{
+    <RecordFormDialog Title="Add new record" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord"></RecordFormDialog>
+}
+
+@code {
+    private RecordItemDto? _recordItem;
+    private string? _error;
+
+    private bool DeleteDialogOpen { get; set; }
+
+    protected async Task CloseDeleteDialog(bool deleteConfirmed)
+    {
+        if (deleteConfirmed && _recordItem != null)
+        {
+            try
+            {
+                var response = await _httpService.CreateItem(_recordItem, "/api/tracker/");
+                if (response == null) return;
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    _error = await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _error = ex.Message;
+            }
+        }
+        DeleteDialogOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteDialog()
+    {
+        DeleteDialogOpen = true;
+        StateHasChanged();
+    }
+
+    private void ReturnedRecord(RecordItemDto recordItemDto)
+    {
+        _recordItem = recordItemDto;
+    }
+}
