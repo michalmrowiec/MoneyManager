@@ -40,7 +40,7 @@ namespace MoneyManager.Infractructure.Repositories.Items
             return await _dbContext.Set<T>().FindAsync(itemId);
         }
 
-        public async Task UpdateAsync(int userId, T entity)
+        public virtual async Task UpdateAsync(T entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();

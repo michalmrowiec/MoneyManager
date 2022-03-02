@@ -50,5 +50,14 @@ namespace MoneyManager.Infractructure.Repositories.Items
         {
             return await _dbContext.RecordItems.FirstAsync(x => x.UserId == userId && x.Id == itemId);
         }
+
+        //public override async Task UpdateAsync(Record entity)
+        //{
+        //    var record = await _dbContext.RecordItems.FindAsync(entity.Id);
+        //    if(record == null)
+        //        return;
+        //    _dbContext.Entry(entity).CurrentValues.SetValues(record);
+        //    await _dbContext.SaveChangesAsync();
+        //}
     }
 }

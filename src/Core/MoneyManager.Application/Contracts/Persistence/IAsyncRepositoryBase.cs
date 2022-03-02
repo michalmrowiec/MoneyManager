@@ -10,7 +10,7 @@ namespace MoneyManager.Application.Contracts.Persistence
     {
         Task<T> GetByIdAsync(int userId, int itemId);
         Task<T> AddAsync(T entity);
-        Task UpdateAsync(int userId, T entity);
+        Task UpdateAsync(T entity);
         Task DeleteAsync(int userId, T entity);
     }
 }

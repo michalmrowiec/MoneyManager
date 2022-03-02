@@ -8,7 +8,7 @@ namespace MoneyManager.Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/category")]
+    [Route("aapi/category")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

@@ -25,6 +25,7 @@ namespace MoneyManager.BaseAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateRecord([FromBody] CreateRecordCommand recordItem)
         {
+            recordItem.UserId = GetUserId();
             await _mediator.Send(recordItem);
             return Created("", null);
         }
@@ -52,6 +53,7 @@ namespace MoneyManager.BaseAPI.Controllers
         [HttpPatch]
         public async Task<ActionResult> UpdateRecord([FromBody] UpdateRecordCommand recordItem)
         {
+            recordItem.UserId = GetUserId();
             await _mediator.Send(recordItem);
             return Ok();
         }
