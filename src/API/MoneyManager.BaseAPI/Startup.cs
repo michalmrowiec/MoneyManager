@@ -2,7 +2,7 @@
 using MoneyManager.Application;
 using MoneyManager.Infractructure;
 
-namespace MoneyManager.BaseAPI
+namespace MoneyManager.API
 {
     public class Startup
     {

@@ -14,7 +14,7 @@ namespace MoneyManager.Application.Functions.Records
                 .WithMessage("{PropertyName} must not exceed 25 characters");
 
             RuleFor(x => x.Amount)
-                .NotEmpty()
+                .NotNull()
                 .WithMessage("{PropertyName} is required");
         }
     }

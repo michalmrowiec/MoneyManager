@@ -8,7 +8,7 @@ using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Application.Functions.Categories.Queries.GetAllCategories;
 using System.Security.Claims;
 
-namespace MoneyManager.BaseAPI.Controllers
+namespace MoneyManager.API.Controllers
 {
     [Authorize]
     [ApiController]
@@ -24,6 +24,7 @@ namespace MoneyManager.BaseAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryCommand createCategoryCommand)
         {
+            createCategoryCommand.UserId = GetUserId();
             await _mediator.Send(createCategoryCommand);
             return Created("", null);
         }

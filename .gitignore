@@ -6,6 +6,7 @@
 #Private files
 src/Server/appsettings.json
 src/API/MoneyManager.BaseAPI/appsettings.json
+src/API/MoneyManager.API/appsettings.json
 */appsettings.json
 
 # User-specific files

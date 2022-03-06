@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MoneyManager.BaseAPI
+namespace MoneyManager.API
 {
     public class ErrorHandlingMiddleware : IMiddleware
     {

@@ -11,6 +11,6 @@ namespace MoneyManager.Client.Models
         Name,
         CategoryName,
         Amount,
-        Date
+        TransactionDate
     }
 }

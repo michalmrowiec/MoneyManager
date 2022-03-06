@@ -14,6 +14,7 @@ namespace MoneyManager.Application.Mapper
         public MappingProfile()
         {
             CreateMap<Record, CreateRecordCommand>()
+                .ForMember(m => m.CategoryId, c => c.MapFrom(s => s.CategoryId))
                 .ReverseMap();
 
             CreateMap<Record, RecordDto>()
@@ -27,6 +28,7 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<Category, CreateCategoryCommand>()
+                .ForMember(m => m.Name, c => c.MapFrom(s => s.CategoryName))
                 .ReverseMap();
 
             CreateMap<Category, CategoryDto>()

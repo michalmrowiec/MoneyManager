@@ -78,7 +78,7 @@ else
                     <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amout @_str[(int)TypesInRecord.Amount]</button>
                 </th>
                 <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Date))">Date @_str[(int)TypesInRecord.Date]</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">Date @_str[(int)TypesInRecord.TransactionDate]</button>
                 </th>
                 <th width="5%">
                     <div></div>
@@ -145,7 +145,7 @@ _recordToDelete != null)
         {TypesInRecord.Name, ""},
         {TypesInRecord.CategoryName, ""},
         {TypesInRecord.Amount, ""},
-        {TypesInRecord.Date, ""}
+        {TypesInRecord.TransactionDate, ""}
     };
     private string[] _str = { "", "", "", "" };
     private decimal _sumOfMonthlyAmounts = 0;
@@ -327,7 +327,7 @@ _recordToDelete != null)
         SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
 
         _sortClickDesc = null;
-        SortButtonClick(TypesInRecord.Date);
+        SortButtonClick(TypesInRecord.TransactionDate);
         _getTableLoading = false;
         StateHasChanged();
 

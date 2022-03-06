@@ -50,11 +50,10 @@ namespace MoneyManager.Infractructure
                 options.UseSqlServer(configuration.GetConnectionString("TrackerDbConnectionPc")));
 
             services.AddScoped(typeof(IItemAsyncRepositoryBase<>), typeof(ItemRepositoryBase<>));
-            services.AddScoped(typeof(IUserAsyncRepository), typeof(UserRepository)); //?
+            services.AddScoped(typeof(IUserAsyncRepository), typeof(UserRepository));
 
             services.AddScoped<IRecordRepsitory, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            //...
 
             return services;
         }

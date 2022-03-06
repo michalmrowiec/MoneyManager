@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MoneyManager.BaseAPI.Controllers
+namespace MoneyManager.API.Controllers
 {
     [Authorize]
     [ApiController]

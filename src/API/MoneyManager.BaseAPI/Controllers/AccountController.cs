@@ -4,7 +4,7 @@ using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
 using MoneyManager.Domain.Authentication;
 
-namespace MoneyManager.BaseAPI.Controllers
+namespace MoneyManager.API.Controllers
 {
     [ApiController]
     [Route("api/account")]

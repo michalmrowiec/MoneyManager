@@ -149,7 +149,7 @@ namespace MoneyManager.Client.UnitTests.Services
             },
             new object[]
             {
-                TypesInRecord.Date,
+                TypesInRecord.TransactionDate,
                 new List<RecordItemDto>
                 {
 
