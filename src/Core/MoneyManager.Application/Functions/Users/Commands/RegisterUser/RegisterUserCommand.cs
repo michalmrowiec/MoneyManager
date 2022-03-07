@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
 {
-    public class RegisterUserCommand : IRequest<UserToken>
+    public class RegisterUserCommand : IRequest<RegisterUserCommandResponse>
     {
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;

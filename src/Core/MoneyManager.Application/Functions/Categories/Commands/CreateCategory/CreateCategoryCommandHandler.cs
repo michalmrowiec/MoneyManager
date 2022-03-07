@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using MoneyManager.Application.Contracts.Persistence.Items;
+using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,9 @@ namespace MoneyManager.Application.Functions.Categories.Commands.CreateCategory
 
             category = await _categoryRepository.AddAsync(category);
 
-            return new CreateCategoryCommandResponse(category.Id);
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+
+            return new CreateCategoryCommandResponse(categoryDto);
         }
     }
 }

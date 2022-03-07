@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
 {
-    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, UserToken>
+    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, RegisterUserCommandResponse>
     {
         private readonly IUserAsyncRepository _userAsyncRepository;
         private readonly IMapper _mapper;
@@ -21,10 +21,20 @@ namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
             _mapper = mapper;
         }
 
-        public async Task<UserToken> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+        public async Task<RegisterUserCommandResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
+            var validator = new RegisterUserCommandValidator();
+            var validatorResult = await validator.ValidateAsync(request);
+
+
+            if (!validatorResult.IsValid)
+                return new RegisterUserCommandResponse(validatorResult);
+
             var registerUser = _mapper.Map<Domain.Authentication.RegisterUser>(request);
-            return await _userAsyncRepository.Register(registerUser);
+
+            var userToken = await _userAsyncRepository.Register(registerUser);
+
+            return new RegisterUserCommandResponse(userToken);
         }
     }
 }

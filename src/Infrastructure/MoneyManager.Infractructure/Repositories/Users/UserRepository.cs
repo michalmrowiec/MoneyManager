@@ -82,18 +82,20 @@ namespace MoneyManager.Infractructure.Repositories.Users
         {
             var user = _dbContext.Users.FirstOrDefault(user => user.Email == loginUser.Email);
 
-            //if (user is null)
-            //{
-            //    _logger.LogError($"Was tried login to not existing account with email: {loginUser.Email}");
-            //    throw new BadRequestException("Invalid email or password");
-            //}
+            if (user is null)
+            {
+                //_logger.LogError($"Was tried login to not existing account with email: {loginUser.Email}");
+                //throw new BadRequestException("Invalid email or password");
+                return Task.FromResult(new UserToken());
+            }
 
             var veryfication = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginUser.Password);
-            //if (veryfication == PasswordVerificationResult.Failed)
-            //{
-            //    _logger.LogError($"Was tried login with wrong password with emial: {loginUser.Email}");
-            //    throw new BadRequestException("Invalid email or password");
-            //}
+            if (veryfication == PasswordVerificationResult.Failed)
+            {
+                //_logger.LogError($"Was tried login with wrong password with emial: {loginUser.Email}");
+                //throw new BadRequestException("Invalid email or password");
+                return Task.FromResult(new UserToken());
+            }
 
             var claims = new List<Claim>()
             {

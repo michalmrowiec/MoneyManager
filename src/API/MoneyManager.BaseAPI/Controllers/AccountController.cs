@@ -20,14 +20,20 @@ namespace MoneyManager.API.Controllers
         [Route("register")]
         public async Task<ActionResult<UserToken>> RegisterUser([FromBody] RegisterUserCommand registerUserDto)
         {
-            return Ok(await _mediator.Send(registerUserDto));
+            var response = await _mediator.Send(registerUserDto);
+            if(!response.Success)
+                return BadRequest(response);
+            return Ok(response.UserToken);
         }
 
         [HttpPost]
         [Route("login")]
         public async Task<ActionResult<UserToken>> LoginUser([FromBody] LoginUserCommand loginUserDto)
         {
-            return Ok(await _mediator.Send(loginUserDto));
+            var response = await _mediator.Send(loginUserDto);
+            if(!response.Success)
+                return BadRequest(response);
+            return Ok(response.UserToken);
         }
     }
 }

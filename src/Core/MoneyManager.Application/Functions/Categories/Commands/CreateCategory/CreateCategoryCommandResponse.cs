@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Application.Responses;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace MoneyManager.Application.Functions.Categories.Commands.CreateCategory
 {
     public class CreateCategoryCommandResponse : BaseResponse
     {
-        public int? CategoryId { get; set; }
+        public CategoryDto? CategoryDto { get; set; }
         public CreateCategoryCommandResponse() : base()
         { }
 
@@ -23,9 +24,9 @@ namespace MoneyManager.Application.Functions.Categories.Commands.CreateCategory
         public CreateCategoryCommandResponse(string message, bool success) : base(message, success)
         { }
 
-        public CreateCategoryCommandResponse(int categoryId)
+        public CreateCategoryCommandResponse(CategoryDto categoryDto)
         {
-            CategoryId = categoryId;
+            CategoryDto = categoryDto;
         }
     }
 }

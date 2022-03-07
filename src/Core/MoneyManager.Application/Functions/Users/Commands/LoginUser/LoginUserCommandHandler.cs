@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Functions.Users.Commands.LoginUser
 {
-    public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, UserToken>
+    public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, LoginUserCommandResponse>
     {
         private readonly IUserAsyncRepository _userAsyncRepository;
         private readonly IMapper _mapper;
@@ -21,10 +21,16 @@ namespace MoneyManager.Application.Functions.Users.Commands.LoginUser
             _mapper = mapper;
         }
 
-        public async Task<UserToken> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+        public async Task<LoginUserCommandResponse> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
             var loginUser = _mapper.Map<Domain.Authentication.LoginUser>(request);
-            return await _userAsyncRepository.Login(loginUser);
+            var userToken = await _userAsyncRepository.Login(loginUser);
+
+            if (userToken.Email is null)
+                return new LoginUserCommandResponse("", false);
+
+            return new LoginUserCommandResponse(userToken);
+
         }
     }
 }

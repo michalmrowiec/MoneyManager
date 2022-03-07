@@ -1,10 +1,10 @@
-﻿using MoneyManager.Server.Entities;
-using MoneyManager.Shared;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MoneyManager.Infractructure;
+using MoneyManager.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace MoneyManager.Server.IntegrationTests.ControllerTests
+namespace MoneyManager.API.IntegrationTests.ControllerTests
 {
     public class CategoryControllerTests : IClassFixture<WebApplicationFactory<Startup>>
     {
@@ -27,19 +27,24 @@ namespace MoneyManager.Server.IntegrationTests.ControllerTests
             {
                 builder.ConfigureServices(services =>
                 {
-                    var dbContextOptions = services
-                    .SingleOrDefault(service => service.ServiceType == typeof(DbContextOptions<TrackerDbContext>));
+                    var ef = services.SingleOrDefault(services => services.ServiceType == typeof(EFRegistration));
+                    if (ef != null) services.Remove(ef);
 
-                    if (dbContextOptions != null) services.Remove(dbContextOptions);
+                    var db = services.SingleOrDefault(services => services.ServiceType == typeof(DbContextOptions<MoneyManagerContext>));
+                    if (db != null) services.Remove(db);
 
+                    // thanks this line, while processed query which require authentication (for endpoints with atrubute [Authorize])
+                    // execute evaluation will be delegate for FakePolicyEvaluatro class
                     services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>();
 
+                    // register user filter
                     services.AddMvc(option => option.Filters.Add(new FakeUserFilter()));
 
-                    services.AddDbContext<TrackerDbContext>(options => options.UseInMemoryDatabase(_dbName));
+                    // add fake memory db
+                    services.AddDbContext<MoneyManagerContext>(options => options.UseInMemoryDatabase(_dbName));
                 });
             })
-                .CreateClient();
+            .CreateClient();
         }
 
         public static IEnumerable<object[]> TestCategories => new List<object[]>

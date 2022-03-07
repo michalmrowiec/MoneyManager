@@ -25,8 +25,8 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryCommand createCategoryCommand)
         {
             createCategoryCommand.UserId = GetUserId();
-            await _mediator.Send(createCategoryCommand);
-            return Created("", null);
+            var category = await _mediator.Send(createCategoryCommand);
+            return Created("", category.CategoryDto);
         }
 
         [HttpGet]
