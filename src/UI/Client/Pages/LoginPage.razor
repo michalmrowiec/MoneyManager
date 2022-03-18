@@ -1,6 +1,6 @@
 ﻿@page "/login"
 @using MoneyManager.Client.Services
-@using MoneyManager.Shared
+@using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @inject HttpClient http;
 @inject NavigationManager navigationManager;
@@ -15,17 +15,17 @@
     <div class="card">
         <h4 class="card-header">Blazor WebAssembly JWT Login Example</h4>
         <div class="card-body">
-            <EditForm Model="@loginUserDto" OnValidSubmit="HandleValidSubmit">
+            <EditForm Model="@LoginUserVM" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <div class="form-group">
                     <label>Username</label>
-                    <InputText @bind-Value="loginUserDto.Email" class="form-control" />
-                    <ValidationMessage For="@(() => loginUserDto.Email)" />
+                    <InputText @bind-Value="LoginUserVM.Email" class="form-control" />
+                    <ValidationMessage For="@(() => LoginUserVM.Email)" />
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <InputText @bind-Value="loginUserDto.Password" type="password" class="form-control" />
-                    <ValidationMessage For="@(() => loginUserDto.Password)" />
+                    <InputText @bind-Value="LoginUserVM.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => LoginUserVM.Password)" />
                 </div>
                 <button class="btn btn-primary">
                     @if (loading)
@@ -44,7 +44,7 @@
 </div>
 
 @code {
-    private LoginUserDto loginUserDto = new LoginUserDto();
+    private LoginUserVM LoginUserVM = new LoginUserVM();
     private bool loading;
     private string? error;
 
@@ -59,14 +59,14 @@
         loading = true;
         try
         {
-            var result = await http.PostAsJsonAsync("/api/account/login", loginUserDto);
-            UserToken token = new UserToken();
+            var result = await http.PostAsJsonAsync("/api/account/login", LoginUserVM);
+            UserTokenVM token = new UserTokenVM();
             //token.Token = await result.Content.ReadAsStringAsync();
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                token = JsonConvert.DeserializeObject<UserToken>(await result.Content.ReadAsStringAsync());
-                await _localStorage.SetItem<UserToken>("user", token);
+                token = JsonConvert.DeserializeObject<UserTokenVM>(await result.Content.ReadAsStringAsync());
+                await _localStorage.SetItem<UserTokenVM>("user", token);
                 appState.LoggedIn = true;
                 navigationManager.NavigateTo("tracker");
             }

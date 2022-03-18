@@ -2,7 +2,7 @@
 @using MoneyManager.Client.Models
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.Components
-@using MoneyManager.Shared
+@using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @using System.Linq
 @using System.Globalization
@@ -135,9 +135,9 @@ _recordToDelete != null)
 
 @code {
     private string? _errorMessage;
-    private RecordItemDto? _recordToDelete;
-    private List<RecordItemDto> _listOfRecords = new List<RecordItemDto>();
-    private List<RecordItemDto> _listOfRecordsTemp = new List<RecordItemDto>();
+    private RecordVM? _recordToDelete;
+    private List<RecordVM> _listOfRecords = new List<RecordVM>();
+    private List<RecordVM> _listOfRecordsTemp = new List<RecordVM>();
     private List<string> _listOfYearsForSelect = new List<string>();
     private List<string> _listOfMonthsForSelect = new List<string>();
     private Dictionary<TypesInRecord, string> _setOrderByArrow = new Dictionary<TypesInRecord, string>
@@ -151,7 +151,7 @@ _recordToDelete != null)
     private decimal _sumOfMonthlyAmounts = 0;
     private string _selectedYearByUser = String.Empty;
     private string _selectedMonthByUser = String.Empty;
-    private RecordItemDto? _editRecord = null;
+    private RecordVM? _editRecord = null;
     private TypesInRecord? _sortClickDesc = null;
     private bool _getTableLoading = true;
     private TableView _tableViewSelected = TableView.ExpensesAndIncomes;
@@ -238,7 +238,7 @@ _recordToDelete != null)
         StateHasChanged();
     }
 
-    private async void OpenDeleteDialog(RecordItemDto record)
+    private async void OpenDeleteDialog(RecordVM record)
     {
         DeleteDialogOpen = true;
         _recordToDelete = record;
@@ -246,9 +246,9 @@ _recordToDelete != null)
         StateHasChanged();
     }
 
-    private void ReturnedRecord(RecordItemDto recordItemDto)
+    private void ReturnedRecord(RecordVM RecordVM)
     {
-        _editRecord = recordItemDto;
+        _editRecord = RecordVM;
     }
 
     private async Task CloseEditForm(bool editConfirmed)
@@ -263,7 +263,7 @@ _recordToDelete != null)
         StateHasChanged();
     }
 
-    private void OpenEditForm(RecordItemDto record)
+    private void OpenEditForm(RecordVM record)
     {
         EditFormOpen = true;
         _editRecord = record;
@@ -299,7 +299,7 @@ _recordToDelete != null)
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
-                _listOfRecords = JsonConvert.DeserializeObject<List<RecordItemDto>>(jsonResponse) ?? new List<RecordItemDto>();
+                _listOfRecords = JsonConvert.DeserializeObject<List<RecordVM>>(jsonResponse) ?? new List<RecordVM>();
             }
             else
                 _errorMessage = await responseMessage.Content.ReadAsStringAsync();

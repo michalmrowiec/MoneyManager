@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MoneyManager.Application.Functions.Users.Commands.LoginUser;
+using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
+using MoneyManager.Domain.Authentication;
 using MoneyManager.Infractructure;
-using MoneyManager.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,64 +43,64 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
         }
         public static IEnumerable<object[]> TestRegisterUsers_ValidModel => new List<object[]>
         {
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test1@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test2@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test3@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test1@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test2@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test3@test.com", Password = "qwerty", RepeatPassword = "qwerty" } },
         };
         public static IEnumerable<object[]> TestRegisterUsers_InvalidModel => new List<object[]>
         {
-            new object[] { new RegisterUserDto { Name = "", Email = "test@test0.com", Password = "qwerty", RepeatPassword = "qwerty" } },
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test1@test0.com", Password = "qwert", RepeatPassword = "qwerty" } },
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test2@test0.com", Password = "qwerty", RepeatPassword = " " } },
-            new object[] { new RegisterUserDto { Name = "Test", Email = "test3est", Password = "qwerty", RepeatPassword = "qwerty" } },
-            new object[] { new RegisterUserDto { Name = "Test above 25 character test", Email = "test4@test0.com", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "", Email = "test@test0.com", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test1@test0.com", Password = "qwert", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test2@test0.com", Password = "qwerty", RepeatPassword = " " } },
+            new object[] { new RegisterUserCommand { Name = "Test", Email = "test3est", Password = "qwerty", RepeatPassword = "qwerty" } },
+            new object[] { new RegisterUserCommand { Name = "Test above 25 character test", Email = "test4@test0.com", Password = "qwerty", RepeatPassword = "qwerty" } },
         };
         public static IEnumerable<object[]> TestLoginUsers_ValidModel => new List<object[]>
         {
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test01@test.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test01@test.com", Password = "qwerty" }
+                new RegisterUserCommand { Name = "Test", Email = "test01@test.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test01@test.com", Password = "qwerty" }
             },
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test02@test.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test02@test.com", Password = "qwerty" }
+                new RegisterUserCommand { Name = "Test", Email = "test02@test.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test02@test.com", Password = "qwerty" }
             },
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test03@test.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test03@test.com", Password = "qwerty" }
+                new RegisterUserCommand { Name = "Test", Email = "test03@test.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test03@test.com", Password = "qwerty" }
             }
         };
         public static IEnumerable<object[]> TestLoginUsers_InvalidModel => new List<object[]>
         {
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test01@test3.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test01@testERROR3.com", Password = "qwerty" }
+                new RegisterUserCommand { Name = "Test", Email = "test01@test3.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test01@testERROR3.com", Password = "qwerty" }
             },
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test02@test3.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test02@test3.com", Password = "qwert" }
+                new RegisterUserCommand { Name = "Test", Email = "test02@test3.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test02@test3.com", Password = "qwert" }
             },
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test03@tes3t.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test03@test3.com", Password = "qwerty" }
+                new RegisterUserCommand { Name = "Test", Email = "test03@tes3t.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test03@test3.com", Password = "qwerty" }
             },
             new object[]
             {
-                new RegisterUserDto { Name = "Test", Email = "test04@tes3t.com", Password = "qwerty", RepeatPassword = "qwerty" },
-                new LoginUserDto { Email = "test", Password = "qwerty" }
+                new RegisterUserCommand { Name = "Test", Email = "test04@tes3t.com", Password = "qwerty", RepeatPassword = "qwerty" },
+                new LoginUserCommand { Email = "test", Password = "qwerty" }
             }
         };
 
         [Theory]
         [MemberData(nameof(TestRegisterUsers_ValidModel))]
-        public async Task CreateUser_WithValidModel_ReturnsOkStatus(RegisterUserDto user)
+        public async Task CreateUser_WithValidModel_ReturnsOkStatus(RegisterUserCommand user)
         {
             var json = JsonConvert.SerializeObject(user);
             var httpContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
@@ -110,7 +112,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
 
         [Theory]
         [MemberData(nameof(TestRegisterUsers_InvalidModel))]
-        public async Task CreateUser_WithInvalidModel_ReturnsBadRequest(RegisterUserDto user)
+        public async Task CreateUser_WithInvalidModel_ReturnsBadRequest(RegisterUserCommand user)
         {
             var json = JsonConvert.SerializeObject(user);
             var httpContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
@@ -122,7 +124,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
 
         [Theory]
         [MemberData(nameof(TestLoginUsers_ValidModel))]
-        public async Task LoginUser_ForExistUserWithValidModel_ReturnsOkStatusWithUserToken(RegisterUserDto registerUser, LoginUserDto loginUser)
+        public async Task LoginUser_ForExistUserWithValidModel_ReturnsOkStatusWithUserToken(RegisterUserCommand registerUser, LoginUserCommand loginUser)
         {
             var registerJson = JsonConvert.SerializeObject(registerUser);
             var registerHttpContent = new StringContent(registerJson, UnicodeEncoding.UTF8, "application/json");
@@ -144,7 +146,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
 
         [Theory]
         [MemberData(nameof(TestLoginUsers_InvalidModel))]
-        public async Task LoginUser_ForExistUserWithInvalidModel_ReturnsBadRequest(RegisterUserDto registerUser, LoginUserDto loginUser)
+        public async Task LoginUser_ForExistUserWithInvalidModel_ReturnsBadRequest(RegisterUserCommand registerUser, LoginUserCommand loginUser)
         {
             var registerJson = JsonConvert.SerializeObject(registerUser);
             var registerHttpContent = new StringContent(registerJson, UnicodeEncoding.UTF8, "application/json");

@@ -1,5 +1,5 @@
 ﻿@page "/register"
-@using MoneyManager.Shared
+@using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @inject HttpClient http;
 @inject NavigationManager navigationManager;
@@ -12,27 +12,27 @@
     <div class="card">
         <h4 class="card-header">Blazor WebAssembly JWT Login Example</h4>
         <div class="card-body">
-            <EditForm Model="@registerUserDto" OnValidSubmit="HandleValidSubmit">
+            <EditForm Model="@RegisterUserVM" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <div class="form-group">
                     <label>Username</label>
-                    <InputText @bind-Value="registerUserDto.Name" class="form-control" />
-                    <ValidationMessage For="@(() => registerUserDto.Name)" />
+                    <InputText @bind-Value="RegisterUserVM.Name" class="form-control" />
+                    <ValidationMessage For="@(() => RegisterUserVM.Name)" />
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <InputText @bind-Value="registerUserDto.Email" class="form-control" />
-                    <ValidationMessage For="@(() => registerUserDto.Email)" />
+                    <InputText @bind-Value="RegisterUserVM.Email" class="form-control" />
+                    <ValidationMessage For="@(() => RegisterUserVM.Email)" />
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <InputText @bind-Value="registerUserDto.Password" type="password" class="form-control" />
-                    <ValidationMessage For="@(() => registerUserDto.Password)" />
+                    <InputText @bind-Value="RegisterUserVM.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => RegisterUserVM.Password)" />
                 </div>
                 <div class="form-group">
                     <label>Repeat password</label>
-                    <InputText @bind-Value="registerUserDto.RepeatPassword" type="password" class="form-control" />
-                    <ValidationMessage For="@(() => registerUserDto.RepeatPassword)" />
+                    <InputText @bind-Value="RegisterUserVM.RepeatPassword" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => RegisterUserVM.RepeatPassword)" />
                 </div>
                 <button class="btn btn-primary">
                     @if (loading)
@@ -51,7 +51,7 @@
 </div>
 
 @code {
-    private RegisterUserDto registerUserDto = new RegisterUserDto();
+    private RegisterUserVM RegisterUserVM = new RegisterUserVM();
     private bool loading;
     private string? error;
 
@@ -66,7 +66,7 @@
         loading = true;
         try
         {
-            var result = await http.PostAsJsonAsync("api/account/register", registerUserDto);
+            var result = await http.PostAsJsonAsync("api/account/register", RegisterUserVM);
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
                 navigationManager.NavigateTo("login");

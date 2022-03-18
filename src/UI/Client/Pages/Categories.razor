@@ -2,7 +2,7 @@
 @using MoneyManager.Client.Components
 @using MoneyManager.Client.Models
 @using MoneyManager.Client.Services
-@using MoneyManager.Shared
+@using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @inject IHttpTrackerService _httpTracker
 
@@ -72,16 +72,16 @@ else
 
 @code {
     private string? _errorMessage;
-    private CategoryItemDto? _categoryToDelete;
-    private CategoryItemDto? _categoryToUpdate;
-    private List<CategoryItemDto>? _categories;
+    private CategoryVM? _categoryToDelete;
+    private CategoryVM? _categoryToUpdate;
+    private List<CategoryVM>? _categories;
     private CategoryFormDialog.TypeOfModalDialog _typeOfModalDialog;
     private string[] _setOrderByArrow = { "" };
 
     public bool DeleteDialogOpen { get; set; }
     public bool CategoryFormOpen { get; set; }
     public bool ReferenceToCategoryOpen { get; set; }
-    public List<RecordItemDto>? ReferenceToCategoryListOfRecords { get; set; }
+    public List<RecordVM>? ReferenceToCategoryListOfRecords { get; set; }
 
     private void CloseReferenceToCategoryDialog()
     {
@@ -89,20 +89,20 @@ else
         StateHasChanged();
     }
 
-    private async Task<List<RecordItemDto>?> CheckCategoryReference(int categoryId)
+    private async Task<List<RecordVM>?> CheckCategoryReference(int categoryId)
     {
         var recordWithCategoryToDelete = await _httpTracker.GetRecordsForCategoryId(categoryId, "/api/tracker/cat/");
         var rwct = await recordWithCategoryToDelete.Content.ReadAsStringAsync();
-        var listRe = JsonConvert.DeserializeObject<List<RecordItemDto>>(rwct) ?? new List<RecordItemDto>();
+        var listRe = JsonConvert.DeserializeObject<List<RecordVM>>(rwct) ?? new List<RecordVM>();
         if (listRe.Capacity == 0)
             return null;
         return listRe;
 
     }
 
-    private async Task OpenDeleteDialog(CategoryItemDto category)
+    private async Task OpenDeleteDialog(CategoryVM category)
     {
-        List<RecordItemDto>? recordsReference = await CheckCategoryReference(category.Id);
+        List<RecordVM>? recordsReference = await CheckCategoryReference(category.Id);
         _categoryToDelete = category;
         if (recordsReference is null)
         {
@@ -166,7 +166,7 @@ else
         StateHasChanged();
     }
 
-    private void OpenEditCategoryDialog(CategoryItemDto category)
+    private void OpenEditCategoryDialog(CategoryVM category)
     {
         _typeOfModalDialog = CategoryFormDialog.TypeOfModalDialog.Update;
         CategoryFormOpen = true;
@@ -190,7 +190,7 @@ else
     {
         var respond = await _httpTracker.GetListOfItems("/api/category");
         var json = await respond.Content.ReadAsStringAsync();
-        _categories = JsonConvert.DeserializeObject<List<CategoryItemDto>>(json);
+        _categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 
         _setOrderByArrow[0] = "";
         SortButtonClick(TypesInRecord.Name);

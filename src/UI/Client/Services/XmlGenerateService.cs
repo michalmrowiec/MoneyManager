@@ -1,4 +1,4 @@
-﻿using MoneyManager.Shared;
+﻿using MoneyManager.Client.ViewModels;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -7,7 +7,7 @@ namespace MoneyManager.Client.Services
 {
     public class XmlGenerateService
     {
-        public byte[] CreateXmlDoc(List<RecordItemDto> data)
+        public byte[] CreateXmlDoc(List<RecordVM> data)
         {
             byte[] byteArray;
             using (MemoryStream mem = new MemoryStream())
@@ -43,7 +43,7 @@ namespace MoneyManager.Client.Services
 
         }
 
-        private static void WriteToExcel(WorksheetPart worksheetPart, List<RecordItemDto> data)
+        private static void WriteToExcel(WorksheetPart worksheetPart, List<RecordVM> data)
         {
             SheetData sheetData = worksheetPart.Worksheet.AppendChild(new SheetData());
 

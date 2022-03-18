@@ -1,4 +1,4 @@
-﻿@using MoneyManager.Shared
+﻿@using MoneyManager.Client.ViewModels
 @using System.Globalization
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -54,7 +54,7 @@
     public EventCallback<bool> OnDelete { get; set; }
 
     [Parameter]
-    public List<RecordItemDto>? ListOfRecords { get; set; }
+    public List<RecordVM>? ListOfRecords { get; set; }
 
     private Task ModalCancel()
     {

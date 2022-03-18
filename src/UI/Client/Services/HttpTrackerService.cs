@@ -1,4 +1,4 @@
-﻿using MoneyManager.Shared;
+﻿using MoneyManager.Client.ViewModels;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
@@ -27,7 +27,7 @@ namespace MoneyManager.Client.Services
         {
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
-                var token = await _localStorage.GetItem<UserToken>("user");
+                var token = await _localStorage.GetItem<UserTokenVM>("user");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
 
                 return await _http.SendAsync(request);
@@ -38,7 +38,7 @@ namespace MoneyManager.Client.Services
         {
             using (var request = new HttpRequestMessage(HttpMethod.Delete, uri + id))
             {
-                var token = await _localStorage.GetItem<UserToken>("user");
+                var token = await _localStorage.GetItem<UserTokenVM>("user");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
 
                 return await _http.SendAsync(request);
@@ -50,7 +50,7 @@ namespace MoneyManager.Client.Services
             var postJson = new StringContent(JsonConvert.SerializeObject(record), Encoding.UTF8, "application/json");
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
-                var token = await _localStorage.GetItem<UserToken>("user");
+                var token = await _localStorage.GetItem<UserTokenVM>("user");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
                 request.Content = postJson;
                 return await _http.SendAsync(request);
@@ -62,7 +62,7 @@ namespace MoneyManager.Client.Services
             var patchJson = new StringContent(JsonConvert.SerializeObject(record), Encoding.UTF8, "application/json");
             using (var request = new HttpRequestMessage(HttpMethod.Patch, uri))
             {
-                var token = await _localStorage.GetItem<UserToken>("user");
+                var token = await _localStorage.GetItem<UserTokenVM>("user");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
                 request.Content = patchJson;
                 return await _http.SendAsync(request);
@@ -73,7 +73,7 @@ namespace MoneyManager.Client.Services
         {
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri + categoryId))
             {
-                var token = await _localStorage.GetItem<UserToken>("user");
+                var token = await _localStorage.GetItem<UserTokenVM>("user");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
 
                 return await _http.SendAsync(request);

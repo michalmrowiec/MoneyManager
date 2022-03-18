@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\API\MoneyManager.BaseAPI\MoneyManager.API.csproj" />
-    <ProjectReference Include="..\..\src\Shared\MoneyManager.Shared.csproj" />
   </ItemGroup>
 
 </Project>

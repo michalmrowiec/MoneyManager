@@ -1,5 +1,5 @@
 ﻿@using MoneyManager.Client.Services
-@using MoneyManager.Shared
+@using MoneyManager.Client.ViewModels
 @using System.Net.Http.Headers
 @using Newtonsoft.Json
 @inject IHttpTrackerService _httpService
@@ -42,19 +42,19 @@
     public EventCallback<bool> OnClose { get; set; }
 
     [Parameter]
-    public CategoryItemDto CategoryItem
+    public CategoryVM CategoryItem
     {
         get { return _categoryItem; }
         set
         {
             if (value is null)
-                _categoryItem = new CategoryItemDto();
+                _categoryItem = new CategoryVM();
             else
                 _categoryItem = value;
         }
     }
 
-    private CategoryItemDto _categoryItem = new();
+    private CategoryVM _categoryItem = new();
 
     private Task ModalCancel()
     {

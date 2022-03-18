@@ -1,5 +1,5 @@
 ﻿@using MoneyManager.Client.Services
-@using MoneyManager.Shared
+@using MoneyManager.Client.ViewModels
 @inherits LayoutComponentBase
 @inject ILocalStorageService _localStorage
 @inject AppState appState
@@ -36,7 +36,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        UserToken user = await _localStorage.GetItem<UserToken>("user");
+        UserTokenVM user = await _localStorage.GetItem<UserTokenVM>("user");
         if (user is not null)
         {
             appState.LoggedIn = true;
@@ -51,10 +51,10 @@
 
     private async void ChceckIfLoggedIn()
     {
-        UserToken userToken = await _localStorage.GetItem<UserToken>("user");
-        if (userToken is not null)
+        UserTokenVM UserTokenVM = await _localStorage.GetItem<UserTokenVM>("user");
+        if (UserTokenVM is not null)
         {
-            userName = userToken.Name;
+            userName = UserTokenVM.Name;
         }
         else
             userName = null;

@@ -1,7 +1,7 @@
 ﻿@using MoneyManager.Client.Services
-@using MoneyManager.Shared
 @using System.Net.Http.Headers
 @using Newtonsoft.Json
+@using MoneyManager.Client.ViewModels
 @inject IHttpTrackerService _httpService
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
@@ -103,7 +103,7 @@
     public EventCallback<bool> OnClose { get; set; }
 
     [Parameter]
-    public RecordItemDto? RecordToFill
+    public RecordVM? RecordToFill
     {
         set
         {
@@ -120,13 +120,13 @@
     }
 
     [Parameter]
-    public EventCallback<RecordItemDto> FormRecordItem { get; set; }
+    public EventCallback<RecordVM> FormRecordItem { get; set; }
 
-    private RecordItemDto formRecordItem = new RecordItemDto() { TransactionDate = DateTime.Today };
+    private RecordVM formRecordItem = new RecordVM() { TransactionDate = DateTime.Today };
     private bool formRocordIsIncome = false;
     private int? _selectedCategoryId;
     private bool _loadingCategories = true;
-    List<CategoryItemDto> _categories = new();
+    List<CategoryVM> _categories = new();
     public int? SelectedCategory
     {
         get { return _selectedCategoryId; }
@@ -157,7 +157,7 @@
         var respond = await _httpService.GetListOfItems("/api/category/");
         if (respond == null) return;
         var json = await respond.Content.ReadAsStringAsync();
-        var categories = JsonConvert.DeserializeObject<List<CategoryItemDto>>(json);
+        var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 
         if (categories is not null)
         {

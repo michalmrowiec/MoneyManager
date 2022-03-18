@@ -1,8 +1,8 @@
 ﻿@page "/addrecord"
 @using MoneyManager.Client.Components
 @using MoneyManager.Client.Services
-@using MoneyManager.Shared
 @using System.Net
+@using MoneyManager.Client.ViewModels
 @inject IHttpTrackerService _httpService
 
 <button class="btn btn-primary" @onclick="@(x => OpenDeleteDialog())">Add new record</button>
@@ -16,7 +16,7 @@
 }
 
 @code {
-    private RecordItemDto? _recordItem;
+    private RecordVM? _recordItem;
     private string? _error;
 
     private bool DeleteDialogOpen { get; set; }
@@ -49,8 +49,8 @@
         StateHasChanged();
     }
 
-    private void ReturnedRecord(RecordItemDto recordItemDto)
+    private void ReturnedRecord(RecordVM RecordVM)
     {
-        _recordItem = recordItemDto;
+        _recordItem = RecordVM;
     }
 }
