@@ -1,5 +1,4 @@
-﻿using MoneyManager.Shared;
-using MediatR;
+﻿using MediatR;
 
 namespace MoneyManager.Application.Functions.Records
 {

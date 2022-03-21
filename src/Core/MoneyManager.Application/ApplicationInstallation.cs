@@ -1,9 +1,7 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Domain.Entities;
-using MoneyManager.Server.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

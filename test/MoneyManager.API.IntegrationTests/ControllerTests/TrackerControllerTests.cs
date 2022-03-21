@@ -7,7 +7,6 @@ using MoneyManager.API.IntegrationTests.ControllerTests.ControllerTestUtils;
 using MoneyManager.Application.Functions.Categories.Commands.CreateCategory;
 using MoneyManager.Application.Functions.Records;
 using MoneyManager.Infractructure;
-using MoneyManager.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -157,13 +156,13 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
                     new CreateRecordCommand { Id = 5, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
                 },
                 new CreateRecordCommand { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11) },
-                new List<CreateRecordCommand>
+                new List<RecordDto>
                 {
-                    new CreateRecordCommand { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01) },
-                    new CreateRecordCommand { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11) },
-                    new CreateRecordCommand { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30) },
-                    new CreateRecordCommand { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M },
-                    new CreateRecordCommand { Id = 5, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
+                    new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01) },
+                    new RecordDto { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11) },
+                    new RecordDto { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30) },
+                    new RecordDto { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M },
+                    new RecordDto { Id = 5, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
                 }
             },
             new object[]
@@ -179,15 +178,15 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
                     new CreateRecordCommand { Id = 88, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
                 },
                 new CreateRecordCommand { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
-                new List<CreateRecordCommand>
+                new List<RecordDto>
                 {
-                    new CreateRecordCommand { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01) },
-                    new CreateRecordCommand { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -79228162514264337593543950335M, TransactionDate = new DateTime(2013, 07, 11) },
-                    new CreateRecordCommand { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30) },
-                    new CreateRecordCommand { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M },
-                    new CreateRecordCommand { Id = 6, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
-                    new CreateRecordCommand { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
-                    new CreateRecordCommand { Id = 88, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
+                    new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01) },
+                    new RecordDto { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -79228162514264337593543950335M, TransactionDate = new DateTime(2013, 07, 11) },
+                    new RecordDto { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30) },
+                    new RecordDto { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M },
+                    new RecordDto { Id = 6, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
+                    new RecordDto { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
+                    new RecordDto { Id = 88, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
                 }
             }
         };
@@ -251,7 +250,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
         [Theory]
         [MemberData(nameof(Test_ListOfRecordsToUpdate))]
         public async Task UpdateRecord_ForExistRecordAndValidData_ReturnsOkStatus
-            (List<CreateRecordCommand> CreateRecordCommands, CreateRecordCommand recordToUpdate, List<CreateRecordCommand> updatedRecords)
+            (List<CreateRecordCommand> CreateRecordCommands, CreateRecordCommand recordToUpdate, List<RecordDto> updatedRecords)
         {
             await TestUtils.PostRecordsByList(_httpClient, CreateRecordCommands, "/api/tracker");
 
@@ -264,7 +263,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
             var records = JsonConvert.DeserializeObject<List<RecordDto>>(jsonResponseGetAllRecords);
 
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-            //records.Should().BeEquivalentTo(updatedRecords);
+            records.Should().BeEquivalentTo(updatedRecords);
         }
     }
 }

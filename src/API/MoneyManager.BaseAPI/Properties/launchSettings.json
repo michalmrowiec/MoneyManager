@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "MoneyManager.Server": {
+    "MoneyManager.API": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Server\MoneyManager.Server.csproj" />
     <ProjectReference Include="..\MoneyManager.Domain\MoneyManager.Domain.csproj" />
   </ItemGroup>
 

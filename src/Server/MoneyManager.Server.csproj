@@ -23,7 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\MoneyManager.Domain\MoneyManager.Domain.csproj" />
     <ProjectReference Include="..\UI\Client\MoneyManager.Client.csproj" />
-    <ProjectReference Include="..\Shared\MoneyManager.Shared.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

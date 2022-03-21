@@ -1,5 +1,4 @@
-﻿using MoneyManager.Server.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,21 +19,21 @@ namespace MoneyManager.API
             {
                 await next.Invoke(context);
             }
-            catch (BadRequestException badRequestException)
-            {
-                context.Response.StatusCode = 400;
-                await context.Response.WriteAsync(badRequestException.Message);
-            }
-            catch (NotFoundException notFoundException)
-            {
-                context.Response.StatusCode = 404;
-                await context.Response.WriteAsync(notFoundException.Message);
-            }
-            catch (InternalServerErrorException internalServerErrorException)
-            {
-                context.Response.StatusCode = 500;
-                await context.Response.WriteAsync(internalServerErrorException.Message);
-            }
+            //catch (BadRequestException badRequestException)
+            //{
+            //    context.Response.StatusCode = 400;
+            //    await context.Response.WriteAsync(badRequestException.Message);
+            //}
+            //catch (NotFoundException notFoundException)
+            //{
+            //    context.Response.StatusCode = 404;
+            //    await context.Response.WriteAsync(notFoundException.Message);
+            //}
+            //catch (InternalServerErrorException internalServerErrorException)
+            //{
+            //    context.Response.StatusCode = 500;
+            //    await context.Response.WriteAsync(internalServerErrorException.Message);
+            //}
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);

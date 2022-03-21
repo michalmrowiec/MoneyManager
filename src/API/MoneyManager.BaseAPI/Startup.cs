@@ -21,7 +21,7 @@ namespace MoneyManager.API
             services.AddHttpContextAccessor();
             services.AddControllersWithViews();
             services.AddRazorPages();
-            //services.AddMediatR(typeof(Startup));
+            services.AddMediatR(typeof(Startup));
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
