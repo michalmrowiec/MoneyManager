@@ -12,15 +12,15 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.UpdateRec
     {
 		public int Id { get; set; }
 		public CreateRecordCommand Record { get; set; } = null!;
-		public bool RecurringActive { get; set; }
+		public bool IsActive { get; set; }
 
-		public DateTime? NextDate { get; set; }
+		public DateTime NextDate { get; set; }
 
-		public int? RepeatAfterDays { get; set; }
-		public int? RepeatEveryDayOfMonth { get; set; }
+		//public int? RepeatAfterDays { get; set; }
+		public int RepeatEveryDayOfMonth { get; set; }
 
-		public DateTime? EndDate { get; set; }
-		public int? AmountOfTimes { get; set; }
+		//public DateTime? EndDate { get; set; }
+		//public int? AmountOfTimes { get; set; }
 
 		public int UserId { get; set; }
 	}
