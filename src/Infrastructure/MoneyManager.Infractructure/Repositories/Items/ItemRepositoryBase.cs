@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Infractructure.Repositories.Items
 {
-    public class ItemRepositoryBase<T> : IItemAsyncRepositoryBase<T> where T : class
+    internal class ItemRepositoryBase<T> : IItemAsyncRepositoryBase<T> where T : class
     {
         protected readonly MoneyManagerContext _dbContext;
         public ItemRepositoryBase(MoneyManagerContext moneyManagerContext)
