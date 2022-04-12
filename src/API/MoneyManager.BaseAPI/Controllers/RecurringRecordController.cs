@@ -27,9 +27,11 @@ namespace MoneyManager.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> ExecuteRecurringRecords()
+        [Route("ex/{date?}")]
+        public async Task<ActionResult> ExecuteRecurringRecords([FromRoute] string? date = null)
         {
-            return Ok(await _mediator.Send(new ExecuteRecurringRecordsCommand(GetUserId())));
+            DateTime dateTime = date is null ? DateTime.Now : DateTime.ParseExact(date, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+            return Ok(await _mediator.Send(new ExecuteRecurringRecordsCommand(GetUserId(), dateTime)));
         }
 
         private int GetUserId()

@@ -15,11 +15,13 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRec
     {
         private readonly IRecurringRecordRepository _recurringRecordRepository;
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public CreateRecurringRecordCommandHandler(IRecurringRecordRepository recurringRecordRepository, IMapper mapper)
+        public CreateRecurringRecordCommandHandler(IRecurringRecordRepository recurringRecordRepository, IMapper mapper, IMediator mediator)
         {
             _recurringRecordRepository = recurringRecordRepository;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
         public async Task<CreateRecurringRecordCommandResponse> Handle(CreateRecurringRecordCommand request, CancellationToken cancellationToken)
@@ -33,6 +35,11 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRec
             var recurringRecord = _mapper.Map<RecurringRecord>(request);
 
             recurringRecord = await _recurringRecordRepository.AddAsync(recurringRecord);
+
+            if (request.TransactionDate is not null)
+            {
+                await _mediator.Send(new CreateRecordCommand { Name = request.Name, Amount = request.Amount, CategoryId = request.CategoryId, TransactionDate = (DateTime)request.TransactionDate, UserId = request.UserId });
+            }
 
             return new CreateRecurringRecordCommandResponse(recurringRecord.Id);
         }

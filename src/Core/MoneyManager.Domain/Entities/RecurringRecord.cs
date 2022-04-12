@@ -9,14 +9,17 @@ namespace MoneyManager.Domain.Entities
     public class RecurringRecord
     {
 		public int Id { get; set; }
-		public Record Record { get; set; } = null!;
 		public bool IsActive { get; set; }
-
 		public DateTime NextDate { get; set; }
-
-		//public int? RepeatAfterDays { get; set; }
 		public int RepeatEveryDayOfMonth { get; set; }
 
+		public string Name { get; set; } = null!;
+		public decimal Amount { get; set; }
+		public DateTime? TransactionDate { get; set; }
+		public int? CategoryId { get; set; }
+		public virtual Category? Category { get; set; }
+
+		//public int? RepeatAfterDays { get; set; }
 		//public DateTime? EndDate { get; set; }
 		//public int? AmountOfTimes { get; set; }
 

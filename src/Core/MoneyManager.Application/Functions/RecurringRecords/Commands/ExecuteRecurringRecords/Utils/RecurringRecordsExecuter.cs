@@ -16,31 +16,36 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
     /// </summary>
     internal class RecurringRecordsExecuter
     {
-        private readonly IMediator _mediator;
-
-        public RecurringRecordsExecuter(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private List<RecurringRecord> _recurringRecordsToUpdate = new();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="recurringRecord"></param>
+        /// <param name="referenceDate">Schould be DataTime.Today or DataTime.Now</param>
         /// <returns>List of records for past months</returns>
-        internal List<CreateRecordCommand> GetListOfRecordsAndUpdateReccuringRecord(RecurringRecord recurringRecord)
+        internal List<CreateRecordCommand> GetListOfRecordsAndUpdateReccuringRecord(RecurringRecord recurringRecord, DateTime referenceDate)
         {
             List<CreateRecordCommand> listOfRecords = new();
-            var recordWithNextDate = new CreateRecordCommand
+            listOfRecords.Add(new CreateRecordCommand
             {
-                Name = recurringRecord.Record.Name,
-                CategoryName = recurringRecord.Record.Category.CategoryName,
-                Amount = recurringRecord.Record.Amount,
+                Name = recurringRecord.Name,
+                //CategoryName = recurringRecord.Category.CategoryName,
+                Amount = recurringRecord.Amount,
                 TransactionDate = recurringRecord.NextDate,
-                CategoryId = recurringRecord.Record.CategoryId,
-                UserId = recurringRecord.Record.UserId,
-            };
-            listOfRecords.Add(recordWithNextDate);
+                CategoryId = recurringRecord.CategoryId,
+                UserId = recurringRecord.UserId
+            });
+            //var recordWithNextDate = new CreateRecordCommand
+            //{
+            //    Name = recurringRecord.Record.Name,
+            //    CategoryName = recurringRecord.Record.Category.CategoryName,
+            //    Amount = recurringRecord.Record.Amount,
+            //    TransactionDate = recurringRecord.NextDate,
+            //    CategoryId = recurringRecord.Record.CategoryId,
+            //    UserId = recurringRecord.UserId,
+            //};
+            //listOfRecords.Add(recordWithNextDate);
 
 
             DateTime nextDate = recurringRecord.NextDate;
@@ -49,14 +54,36 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
             {
                 nextDate = nextDate.AddMonths(1);
 
-                if (nextDate <= DateTime.Today)
+                if (nextDate <= referenceDate)
                 {
-                    recordWithNextDate.TransactionDate = nextDate;
+                    var recordWithNextDate = new CreateRecordCommand
+                    {
+                        Name = recurringRecord.Name,
+                        //CategoryName = recurringRecord.Category.CategoryName,
+                        Amount = recurringRecord.Amount,
+                        TransactionDate = nextDate,
+                        CategoryId = recurringRecord.CategoryId,
+                        UserId = recurringRecord.UserId,
+                    };
+                    //recordWithNextDate.TransactionDate = nextDate;
                     listOfRecords.Add(recordWithNextDate);
                 }
                 else
                 {
-                    UpdateNextDateForRecurringRecord(recurringRecord, nextDate);
+                    var recurringRecordTuUpdate = new RecurringRecord
+                    {
+                        Id = recurringRecord.Id,
+                        IsActive = recurringRecord.IsActive,
+                        NextDate = nextDate,
+                        RepeatEveryDayOfMonth = recurringRecord.RepeatEveryDayOfMonth,
+                        Name = recurringRecord.Name,
+                        Amount = recurringRecord.Amount,
+                        TransactionDate = recurringRecord.TransactionDate,
+                        CategoryId = recurringRecord.CategoryId,
+                        UserId = recurringRecord.UserId
+                    };
+                    _recurringRecordsToUpdate.Add(recurringRecordTuUpdate);
+                    //UpdateNextDateForRecurringRecord(recurringRecord, nextDate);
                     break;
                 }
             }
@@ -64,26 +91,24 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
             return listOfRecords;
         }
 
-        private void UpdateNextDateForRecurringRecord(RecurringRecord recurringRecord, DateTime nextDate)
+        internal void UpdateNextDateForRecurringRecords(IMediator mediator)
         {
-            var recurringRecordWithUpdatedNextDate = new UpdateRecurringRecordCommand
+            foreach (var recurringRecord in _recurringRecordsToUpdate)
             {
-                Id = recurringRecord.Id,
-                IsActive = true,
-                Record =
-                            {
-                                Id = recurringRecord.Record.Id,
-                                Name = recurringRecord.Record.Name,
-                                Amount = recurringRecord.Record.Amount,
-                                TransactionDate = recurringRecord.Record.TransactionDate,
-                                CategoryId = recurringRecord.Record.CategoryId,
-                                UserId = recurringRecord.Record.UserId,
-                            },
-                NextDate = nextDate,
-                RepeatEveryDayOfMonth = recurringRecord.RepeatEveryDayOfMonth,
-                UserId = recurringRecord.Record.UserId
-            };
-            _mediator.Send(recurringRecordWithUpdatedNextDate);
+                var recurringRecordWithUpdatedNextDate = new UpdateRecurringRecordCommand
+                {
+                    Id = recurringRecord.Id,
+                    IsActive = true,
+                    Name = recurringRecord.Name,
+                    Amount = recurringRecord.Amount,
+                    TransactionDate = recurringRecord.TransactionDate,
+                    CategoryId = recurringRecord.CategoryId,
+                    NextDate = recurringRecord.NextDate,
+                    RepeatEveryDayOfMonth = recurringRecord.RepeatEveryDayOfMonth,
+                    UserId = recurringRecord.UserId
+                };
+                mediator.Send(recurringRecordWithUpdatedNextDate);
+            }
         }
     }
 }

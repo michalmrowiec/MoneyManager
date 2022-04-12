@@ -6,11 +6,12 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRec
     {
         public CreateRecurringRecordCommandValidator()
         {
-            RuleFor(x => x.RepeatAfterDays)
-                .GreaterThanOrEqualTo(1);
+            /*RuleFor(x => x.RepeatAfterDays)
+                .GreaterThanOrEqualTo(1);*/
 
             RuleFor(x => x.RepeatEveryDayOfMonth)
-                .GreaterThanOrEqualTo(1);
+                .GreaterThanOrEqualTo(1)
+                .LessThanOrEqualTo(31);
         }
     }
 }

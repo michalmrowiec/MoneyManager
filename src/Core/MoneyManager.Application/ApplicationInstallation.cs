@@ -18,6 +18,8 @@ namespace MoneyManager.Application
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
+            services.AddMediatR(typeof(ApplicationInstallation));
+
             return services;
         }
     }

@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRecurringRecords
 {
-    public record ExecuteRecurringRecordsCommand(int UserId) : IRequest;
+    public record ExecuteRecurringRecordsCommand(int UserId, DateTime ComparisonDate) : IRequest;
 }

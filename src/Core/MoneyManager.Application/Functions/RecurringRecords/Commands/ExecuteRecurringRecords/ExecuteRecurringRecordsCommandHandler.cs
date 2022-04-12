@@ -28,13 +28,14 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
             var recurringRecords = await _recurringRecordRepository.GetAllAsync(request.UserId);
             recurringRecords = recurringRecords.Where(x => x.IsActive == true).ToList();
 
-            var executer = new RecurringRecordsExecuter(_mediator);
+            var executer = new RecurringRecordsExecuter();
 
             foreach (var recurringRecod in recurringRecords)
             {
-                if (recurringRecod.NextDate <= DateTime.Today)
+                if (recurringRecod.NextDate <= request.ComparisonDate)
                 {
-                    List<CreateRecordCommand> recordsToCreate = executer.GetListOfRecordsAndUpdateReccuringRecord(recurringRecod);
+                    List<CreateRecordCommand> recordsToCreate = executer.GetListOfRecordsAndUpdateReccuringRecord(recurringRecod, request.ComparisonDate);
+                    executer.UpdateNextDateForRecurringRecords(_mediator);
                     foreach (var record in recordsToCreate)
                     {
                         await _mediator.Send(record);
