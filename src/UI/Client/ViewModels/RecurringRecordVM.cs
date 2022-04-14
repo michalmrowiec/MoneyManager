@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.ViewModels
 {
-    public class RecordVM : IRecord
+    public class RecurringRecordVM
     {
         public int Id { get; set; }
+        public bool IsActive { get; set; }
         [Required]
-        [MinLength(2, ErrorMessage = "Name is too short.")]
-        [StringLength(25,ErrorMessage = "Name is too long.")]
+        public DateTime NextDate { get; set; }
+        [Required]
+        [Range(1, 32, ErrorMessage = "The number must be a day of the month 1-32")]
+        public int RepeatEveryDayOfMonth { get; set; }
+
+        [Required]
+        [StringLength(25, ErrorMessage = "Name is too long.")]
         public string Name { get; set; } = null!;
         public string? CategoryName { get; set; }
         [Required]

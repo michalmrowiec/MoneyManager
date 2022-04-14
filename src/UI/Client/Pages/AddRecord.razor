@@ -12,11 +12,12 @@
 
 @if (DeleteDialogOpen)
 {
-    <RecordFormDialog Title="Add new record" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord"></RecordFormDialog>
+    <RecordFormDialog Title="Add new record" RecurringRecordsPanel="true" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord" RecurringRecordItem="ReturnedRecurringRecord"></RecordFormDialog>
 }
 
 @code {
     private RecordVM? _recordItem;
+    private RecurringRecordVM? _recurringRecordItem;
     private string? _error;
 
     private bool DeleteDialogOpen { get; set; }
@@ -28,6 +29,22 @@
             try
             {
                 var response = await _httpService.CreateItem(_recordItem, "/api/tracker/");
+                if (response == null) return;
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    _error = await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _error = ex.Message;
+            }
+        }
+        if (deleteConfirmed && _recurringRecordItem != null)
+        {
+            try
+            {
+                var response = await _httpService.CreateItem(_recurringRecordItem, "api/recurring");
                 if (response == null) return;
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
@@ -52,5 +69,10 @@
     private void ReturnedRecord(RecordVM RecordVM)
     {
         _recordItem = RecordVM;
+    }
+
+    private void ReturnedRecurringRecord(RecurringRecordVM RecurringRecordVM)
+    {
+        _recurringRecordItem = RecurringRecordVM;
     }
 }
