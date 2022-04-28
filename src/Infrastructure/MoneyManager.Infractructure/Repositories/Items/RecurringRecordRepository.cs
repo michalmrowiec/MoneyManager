@@ -1,4 +1,5 @@
-﻿using MoneyManager.Application.Contracts.Persistence.Items;
+﻿using Microsoft.EntityFrameworkCore;
+using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,11 @@ namespace MoneyManager.Infractructure.Repositories.Items
     {
         public RecurringRecordRepository(MoneyManagerContext moneyManagerContext) : base(moneyManagerContext)
         {
+        }
+
+        public override async Task<RecurringRecord> GetByIdAsync(int userId, int itemId)
+        {
+            return await _dbContext.RecurringRecords.FirstAsync(x => x.UserId == userId && x.Id == itemId);
         }
     }
 }

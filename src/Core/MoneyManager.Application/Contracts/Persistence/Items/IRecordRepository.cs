@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Contracts.Persistence.Items
 {
-    public interface IRecordRepsitory : IItemAsyncRepositoryBase<Record>
+    public interface IRecordRepository : IItemAsyncRepositoryBase<Record>
     {
         Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId);
     }

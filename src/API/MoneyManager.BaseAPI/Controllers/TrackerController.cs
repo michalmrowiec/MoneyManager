@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoneyManager.Application.Functions.Records;
+using MoneyManager.Application.Functions.Records.Queries.GetRecordById;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,12 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult<List<RecordDto>>> GetAllRecords()
         {
             return Ok(await _mediator.Send(new GetAllRecordsQuery(GetUserId())));
+        }
+
+        [HttpGet("{recordId}")]
+        public async Task<ActionResult<RecordDto>> GetRecordById([FromRoute] int recordId)
+        {
+            return Ok(await _mediator.Send(new GetRecordByIdQuery(GetUserId(), recordId)));
         }
 
         [HttpGet]

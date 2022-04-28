@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Infractructure.Repositories.Items
 {
-    internal class RecordRepository : ItemRepositoryBase<Record>, IRecordRepsitory
+    internal class RecordRepository : ItemRepositoryBase<Record>, IRecordRepository
     {
         public RecordRepository(MoneyManagerContext dbContext) : base(dbContext)
         { }

@@ -6,6 +6,7 @@ using MoneyManager.Application.Functions.Categories.Commands.DeleteCategory;
 using MoneyManager.Application.Functions.Categories.Commands.UpdateCategory;
 using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Application.Functions.Categories.Queries.GetAllCategories;
+using MoneyManager.Application.Functions.Categories.Queries.GetCategoryById;
 using System.Security.Claims;
 
 namespace MoneyManager.API.Controllers
@@ -27,6 +28,12 @@ namespace MoneyManager.API.Controllers
             createCategoryCommand.UserId = GetUserId();
             var category = await _mediator.Send(createCategoryCommand);
             return Created("", category.CategoryDto);
+        }
+
+        [HttpGet("{categoryId}")]
+        public async Task<ActionResult<CategoryDto>> GetRecordById([FromRoute] int categoryId)
+        {
+            return Ok(await _mediator.Send(new GetCategoryByIdQuery(GetUserId(), categoryId)));
         }
 
         [HttpGet]
