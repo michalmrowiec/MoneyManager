@@ -2,7 +2,7 @@
 @using System.Net.Http.Headers
 @using Newtonsoft.Json
 @using MoneyManager.Client.ViewModels
-@inject IHttpTrackerService _httpService
+@inject IHttpRecordService _httpService
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog">
@@ -79,13 +79,21 @@
                                 </Tooltip>
                             </div>
                         </div>
+                    }
 
 
-                        @if (RecurringRecordFormOpen)
+                    @if ((RecurringRecordsPanel && RecurringRecordFormOpen) || TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                    {
+                        <div class="form-floating mb-2">
+                            <text class="form-control">@recurringRecord.NextDate.ToShortDateString()</text>
+                            <label for="floatingInput">Estimated next date</label>
+                        </div>
+
+                        if (TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
                         {
-                            <div class="form-floating mb-2">
-                                <text class="form-control">@recurringRecord.NextDate.ToShortDateString()</text>
-                                <label for="floatingInput">Estimated next date</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="RecurringRecordIsActive" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">Is active</label>
                             </div>
                         }
                     }
@@ -141,10 +149,29 @@
             {
                 formRecordItem = value;
 
+                _selectedCategoryId = formRecordItem.CategoryId;
+
                 if (value.Amount > 0)
                     formRocordIsIncome = true;
                 else
                     formRocordIsIncome = false;
+            }
+        }
+    }
+
+    [Parameter]
+    public RecurringRecordVM? RecurringRecordToFill
+    {
+        set
+        {
+            if (value is not null)
+            {
+                RecurringRecordIsActive = value.IsActive;
+                recurringRecord = value;
+                formRecordItem.Name = value.Name;
+                formRecordItem.Amount = value.Amount;
+                formRecordItem.TransactionDate = value.TransactionDate;
+                _selectedCategoryId = value.CategoryId;
             }
         }
     }
@@ -165,9 +192,11 @@
             recurringRecord.RepeatEveryDayOfMonth = value.Day;
         }
     }
+
     private bool RecurringRecordFormOpen { get; set; } = false;
+    private bool RecurringRecordIsActive { get; set; }
     private RecurringRecordVM recurringRecord = new RecurringRecordVM() { IsActive = true };
-    private RecordVM formRecordItem = new RecordVM(); //{ TransactionDate = DateTime.Today };
+    private RecordVM formRecordItem = new RecordVM();
     private bool formRocordIsIncome = false;
     private int? _selectedCategoryId;
     private bool _loadingCategories = true;
@@ -192,13 +221,15 @@
 
         formRecordItem.CategoryId = _selectedCategoryId;
 
-        if (RecurringRecordFormOpen)
+        if (RecurringRecordFormOpen || TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
         {
             recurringRecord.Name = formRecordItem.Name;
             recurringRecord.Amount = formRecordItem.Amount;
             recurringRecord.CategoryId = formRecordItem.CategoryId;
             recurringRecord.CategoryName = formRecordItem.CategoryName;
             recurringRecord.TransactionDate = formRecordItem.TransactionDate;
+            if(TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                recurringRecord.IsActive = RecurringRecordIsActive;
             RecurringRecordItem.InvokeAsync(recurringRecord);
         }
         else
@@ -222,7 +253,8 @@
         {
             _categories = categories;
             //var it = _categories.First();
-            _selectedCategoryId = _categories.First().Id;
+            if(_selectedCategoryId is null)
+                _selectedCategoryId = _categories.First().Id;
         }
         _loadingCategories = false;
         StateHasChanged();
@@ -235,14 +267,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        TransactionDate = DateTime.Today;
+        if(TypeOfDialog == TypeOfRecordFormlDialog.AddRecord)
+            TransactionDate = DateTime.Today;
         recurringRecord.RepeatEveryDayOfMonth = 1;
         await GetCategory();
     }
 
     public enum TypeOfRecordFormlDialog
     {
-        Record,
-        RecurringRecord
+        AddRecord,
+        RecurringRecord,
+        EditRecurringRecord,
+        EditRecord
     }
 }

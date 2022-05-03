@@ -3,7 +3,7 @@
 @using MoneyManager.Client.Services
 @using System.Net
 @using MoneyManager.Client.ViewModels
-@inject IHttpTrackerService _httpService
+@inject IHttpRecordService _httpService
 
 <button class="btn btn-primary" @onclick="@(x => OpenDeleteDialog())">Add new record</button>
 <div>
@@ -12,7 +12,7 @@
 
 @if (DeleteDialogOpen)
 {
-    <RecordFormDialog Title="Add new record" RecurringRecordsPanel="true" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord" RecurringRecordItem="ReturnedRecurringRecord"></RecordFormDialog>
+    <RecordFormDialog Title="Add new record" RecurringRecordsPanel="true" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord" RecurringRecordItem="ReturnedRecurringRecord" TypeOfDialog="RecordFormDialog.TypeOfRecordFormlDialog.AddRecord"></RecordFormDialog>
 }
 
 @code {

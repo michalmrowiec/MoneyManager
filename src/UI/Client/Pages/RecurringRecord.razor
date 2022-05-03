@@ -1,0 +1,204 @@
+﻿@page "/recurring"
+@using MoneyManager.Client.Components
+@using MoneyManager.Client.Models
+@using MoneyManager.Client.Services
+@using MoneyManager.Client.ViewModels
+@using Newtonsoft.Json
+@using System.Globalization
+@inject IHttpRecordService _httpService
+
+<h1>Recurring Records</h1>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
+}
+
+@if (_getTableLoading)
+{
+    <p><em>Loading...</em></p>
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (_listOfRecurringRecords.Count == 0)
+{
+    <p>The table is empty, you can add a new record <a href="onet.pl">here</a></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.IsActive))">Status @_str[(int)TypesInRecord.IsActive]</button>
+                </th>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_str[(int)TypesInRecord.Name]</button>
+                </th>
+                <th width="15%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amount @_str[(int)TypesInRecord.Amount]</button>
+                </th>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.NextDate))">Next date @_str[(int)TypesInRecord.NextDate]</button>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (_listOfRecurringRecords != null)
+            {
+                @foreach (var item in _listOfRecurringRecords)
+                {
+                    <tr>
+                        @if (item.IsActive)
+                        {
+                            <td class="align-middle" width="25%">Active</td>
+                        }
+                        else
+                        {
+                            <td class="align-middle" width="25%">Dezactive</td>
+                        }
+                        <td class="align-middle" width="25%">@item.Name</td>
+                        <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                        <td class="align-middle" width="25%">@item.NextDate.ToShortDateString()</td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenRecordPreview(item))">Show</button>
+                        </td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
+                        </td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn-close" @*@onclick="@(x => OpenDeleteDialog(item))" *@></button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    @if (RecordPreviewOpen)
+    {
+        <RecordPreviewDialog Title="Recurring record preview" TypeD="RecordPreviewDialog.TypeOfDialog.RecurringRecord" RecurrinRecordVM="_recordPreview" OnClose="CloseRecordPreview"></RecordPreviewDialog>
+    }
+
+    @if (EditFormOpen && _editRecord != null)
+    {
+        <RecordFormDialog Title="Edit Recurring Record" OnClose="CloseEditForm" RecurringRecordItem="ReturnedRecord" RecurringRecordToFill="_editRecord" TypeOfDialog="RecordFormDialog.TypeOfRecordFormlDialog.EditRecurringRecord" RecurringRecordsPanel="false"></RecordFormDialog>
+    }
+}
+
+@code {
+    private string? _errorMessage;
+    private List<RecurringRecordVM> _listOfRecurringRecords = new();
+    private string[] _str = { "", "", "", "", "", "" }; //caused number of types in enum for Record and RecurringRecord
+    private TypesInRecord? _sortClickDesc = null;
+    private bool _getTableLoading = true;
+    private RecurringRecordVM? _editRecord = null;
+    private bool EditFormOpen { get; set; }
+    private RecurringRecordVM? _recordPreview = null;
+    private bool RecordPreviewOpen { get; set; }
+
+    private void OpenRecordPreview(RecurringRecordVM recurringRecord)
+    {
+        _recordPreview = recurringRecord;
+        RecordPreviewOpen = true;
+        StateHasChanged();
+    }
+
+    private void CloseRecordPreview(bool editConfirmed)
+    {
+        RecordPreviewOpen = false;
+        _recordPreview = null;
+        StateHasChanged();
+    }
+
+    private void ReturnedRecord(RecurringRecordVM RecordVM)
+    {
+        _editRecord = RecordVM;
+    }
+
+    private void OpenEditForm(RecurringRecordVM record)
+    {
+        EditFormOpen = true;
+        _editRecord = record;
+        StateHasChanged();
+    }
+
+    private async Task CloseEditForm(bool editConfirmed)
+    {
+        if (editConfirmed && _editRecord != null)
+        {
+            await Update();
+        }
+        _editRecord = null;
+        await GetRecurringRecord();
+        StateHasChanged();
+    }
+
+    private void SortButtonClick(TypesInRecord sortBy)
+    {
+        SortArrayService.SortByType<RecurringRecordVM>(sortBy, _sortClickDesc == sortBy, ref _listOfRecurringRecords, ref _str);
+        if (_sortClickDesc == sortBy)
+            _sortClickDesc = null;
+        else
+            _sortClickDesc = sortBy;
+    }
+
+    private async Task Update()
+    {
+        try
+        {
+            if (_editRecord == null) return;
+            var response = await _httpService.UpdateItem(_editRecord, "/api/recurring");
+            if (response == null) return;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                _errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private async Task GetRecurringRecord()
+    {
+        try
+        {
+            var responseMessage = await _httpService.GetListOfItems("api/recurring");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _listOfRecurringRecords = JsonConvert.DeserializeObject<List<RecurringRecordVM>>(jsonResponse) ?? new List<RecurringRecordVM>();
+            }
+            else
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        _sortClickDesc = null;
+        SortButtonClick(TypesInRecord.NextDate);
+        _getTableLoading = false;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _errorMessage = null;
+        await GetRecurringRecord();
+    }
+}

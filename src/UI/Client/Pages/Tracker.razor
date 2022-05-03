@@ -12,7 +12,7 @@
 @inject HttpClient http
 @inject IJSRuntime JS
 @inject ILocalStorageService _localStorage
-@inject IHttpTrackerService _httpTracker
+@inject IHttpRecordService _httpTracker
 
 <h1>Financial Dashboard</h1>
 
@@ -69,16 +69,24 @@ else
         <thead>
             <tr>
                 <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_str[(int)TypesInRecord.Name]</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
+                        Name @_str[(int)TypesInRecord.Name]
+                    </button>
                 </th>
                 <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">Desc @_str[(int)TypesInRecord.CategoryName]</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                        Desc @_str[(int)TypesInRecord.CategoryName]
+                    </button>
                 </th>
                 <th width="15%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amout @_str[(int)TypesInRecord.Amount]</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
+                        Amout @_str[(int)TypesInRecord.Amount]
+                    </button>
                 </th>
                 <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">Date @_str[(int)TypesInRecord.TransactionDate]</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
+                        Date @_str[(int)TypesInRecord.TransactionDate]
+                    </button>
                 </th>
                 <th width="5%">
                     <div></div>
@@ -130,16 +138,16 @@ _recordToDelete != null)
 
 @if (EditFormOpen && _editRecord != null)
 {
-    <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord"></RecordFormDialog>
+    <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord" TypeOfDialog="RecordFormDialog.TypeOfRecordFormlDialog.EditRecord"></RecordFormDialog>
 }
 
 @code {
     private string? _errorMessage;
     private RecordVM? _recordToDelete;
-    private List<RecordVM> _listOfRecords = new List<RecordVM>();
-    private List<RecordVM> _listOfRecordsTemp = new List<RecordVM>();
-    private List<string> _listOfYearsForSelect = new List<string>();
-    private List<string> _listOfMonthsForSelect = new List<string>();
+    private List<RecordVM> _listOfRecords = new();
+    private List<RecordVM> _listOfRecordsTemp = new();
+    private List<string> _listOfYearsForSelect = new();
+    private List<string> _listOfMonthsForSelect = new();
     private Dictionary<TypesInRecord, string> _setOrderByArrow = new Dictionary<TypesInRecord, string>
     {
         {TypesInRecord.Name, ""},
@@ -258,8 +266,8 @@ _recordToDelete != null)
         {
             await Update();
         }
-        _editRecord = null;
         await GetTable();
+        _editRecord = null;
         StateHasChanged();
     }
 
@@ -323,8 +331,11 @@ _recordToDelete != null)
                 break;
         }
 
-        _listOfYearsForSelect = SortArrayService.GetAllYearsFromListOfRecords(_listOfRecords);
-        SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
+        if (_editRecord is null)
+        {
+            _listOfYearsForSelect = SortArrayService.GetAllYearsFromListOfRecords(_listOfRecords);
+            SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
+        }
 
         _sortClickDesc = null;
         SortButtonClick(TypesInRecord.TransactionDate);

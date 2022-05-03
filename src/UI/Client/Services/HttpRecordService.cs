@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MoneyManager.Client.Services
 {
-    public interface IHttpTrackerService
+    public interface IHttpRecordService
     {
         Task<HttpResponseMessage> GetListOfItems(string uri);
         Task<HttpResponseMessage> GetRecordsForCategoryId(int categoryId, string uri);
@@ -13,11 +13,11 @@ namespace MoneyManager.Client.Services
         Task<HttpResponseMessage> CreateItem<T>(T record, string uri);
         Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IRecord;
     }
-    public class HttpTrackerService : IHttpTrackerService
+    public class HttpRecordService : IHttpRecordService
     {
         private readonly HttpClient _http;
         private readonly ILocalStorageService _localStorage;
-        public HttpTrackerService(HttpClient http, ILocalStorageService localStorage)
+        public HttpRecordService(HttpClient http, ILocalStorageService localStorage)
         {
             _http = http;
             _localStorage = localStorage;
