@@ -1,5 +1,11 @@
-﻿<div class="tooltip-wrapper">
-    <span class="styleForSpan">@Text</span>
+﻿@using MoneyManager.Client.ViewModels
+<div class="tooltip-wrapper">
+    <span class="styleForSpan">
+        @RecurringRecordVM.Name
+        @RecurringRecordVM.Amount
+        @RecurringRecordVM.CategoryName
+        @RecurringRecordVM.TransactionDate
+    </span>
     @ChildContent
 </div>
 
@@ -7,34 +13,21 @@
     .tooltip-wrapper {
         position: relative;
         display: inline-block;
-        border-bottom: 1px dotted black;
-        cursor: help;
     }
 
     .styleForSpan {
         visibility: hidden;
         position: absolute;
         width: 160px;
-        bottom: 100%;
+        top: 100%;
         left: 50%;
         margin-left: -80px;
-        background-color: #363636;
-        color: #fff;
+        background: linear-gradient(180deg, #0a2464, #3a0647);
+        color: #f2f2f2;
         text-align: center;
         padding: 5px 0;
         border-radius: 6px;
         z-index: 1;
-    }
-
-    span::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #555 transparent transparent transparent;
     }
 
     .tooltip-wrapper:hover span {
@@ -44,5 +37,6 @@
 
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public string? Text { get; set; }
+    //[Parameter] public string? Text { get; set; }
+    [Parameter] public RecurringRecordVM RecurringRecordVM { get; set; } = new();
 }
