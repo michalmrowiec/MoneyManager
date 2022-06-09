@@ -51,8 +51,8 @@ namespace MoneyManager.Infractructure
 
             services.AddScoped(typeof(IItemAsyncRepositoryBase<>), typeof(ItemRepositoryBase<>));
             services.AddScoped(typeof(IUserAsyncRepository), typeof(UserRepository));
-
-            services.AddScoped<IRecordRepsitory, RecordRepository>();
+            services.AddScoped(typeof(IRecurringRecordRepository), typeof(RecurringRecordRepository));
+            services.AddScoped<IRecordRepository, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             return services;

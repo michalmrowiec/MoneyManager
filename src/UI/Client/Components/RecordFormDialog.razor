@@ -2,7 +2,7 @@
 @using System.Net.Http.Headers
 @using Newtonsoft.Json
 @using MoneyManager.Client.ViewModels
-@inject IHttpTrackerService _httpService
+@inject IHttpRecordService _httpService
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog">
@@ -62,9 +62,41 @@
                     </InputRadioGroup>
 
                     <div class="form-floating mb-2">
-                        <InputDate id="date" class="form-control" @bind-Value="formRecordItem.TransactionDate"></InputDate>
+                        <InputDate id="date" class="form-control" @bind-Value="TransactionDate"></InputDate>
                         <label for="floatingTextarea">Transaction date</label>
                     </div>
+
+                    @if (RecurringRecordsPanel)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind-value="RecurringRecordFormOpen" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">Recurring Record</label>
+                            </div>
+                            <div>
+                                <Tooltip Text="The record will appear in the table on this date. The transaction will repeat itself automatically every month until you turn it off in the Recurring Records tab.">
+                                    ?
+                                </Tooltip>
+                            </div>
+                        </div>
+                    }
+
+
+                    @if ((RecurringRecordsPanel && RecurringRecordFormOpen) || TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                    {
+                        <div class="form-floating mb-2">
+                            <text class="form-control">@recurringRecord.NextDate.ToShortDateString()</text>
+                            <label for="floatingInput">Estimated next date</label>
+                        </div>
+
+                        if (TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="RecurringRecordIsActive" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">Is active</label>
+                            </div>
+                        }
+                    }
 
                     <div class="d-flex justify-content-end">
                         <button class="btn btn-outline-success mb-3" type="submit">Submit</button>
@@ -100,6 +132,12 @@
     public string? Title { get; set; }
 
     [Parameter]
+    public TypeOfRecordFormlDialog TypeOfDialog { get; set; }
+
+    [Parameter]
+    public bool RecurringRecordsPanel { get; set; } = false;
+
+    [Parameter]
     public EventCallback<bool> OnClose { get; set; }
 
     [Parameter]
@@ -111,6 +149,8 @@
             {
                 formRecordItem = value;
 
+                _selectedCategoryId = formRecordItem.CategoryId;
+
                 if (value.Amount > 0)
                     formRocordIsIncome = true;
                 else
@@ -120,9 +160,43 @@
     }
 
     [Parameter]
+    public RecurringRecordVM? RecurringRecordToFill
+    {
+        set
+        {
+            if (value is not null)
+            {
+                RecurringRecordIsActive = value.IsActive;
+                recurringRecord = value;
+                formRecordItem.Name = value.Name;
+                formRecordItem.Amount = value.Amount;
+                formRecordItem.TransactionDate = value.TransactionDate;
+                _selectedCategoryId = value.CategoryId;
+            }
+        }
+    }
+
+    [Parameter]
     public EventCallback<RecordVM> FormRecordItem { get; set; }
 
-    private RecordVM formRecordItem = new RecordVM() { TransactionDate = DateTime.Today };
+    [Parameter]
+    public EventCallback<RecurringRecordVM> RecurringRecordItem { get; set; }
+
+    private DateTime TransactionDate
+    {
+        get { return formRecordItem.TransactionDate; }
+        set
+        {
+            formRecordItem.TransactionDate = value;
+            recurringRecord.NextDate = formRecordItem.TransactionDate.AddMonths(1);
+            recurringRecord.RepeatEveryDayOfMonth = value.Day;
+        }
+    }
+
+    private bool RecurringRecordFormOpen { get; set; } = false;
+    private bool RecurringRecordIsActive { get; set; }
+    private RecurringRecordVM recurringRecord = new RecurringRecordVM() { IsActive = true };
+    private RecordVM formRecordItem = new RecordVM();
     private bool formRocordIsIncome = false;
     private int? _selectedCategoryId;
     private bool _loadingCategories = true;
@@ -147,7 +221,23 @@
 
         formRecordItem.CategoryId = _selectedCategoryId;
 
-        FormRecordItem.InvokeAsync(formRecordItem);
+        if (RecurringRecordFormOpen || TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+        {
+            recurringRecord.Name = formRecordItem.Name;
+            recurringRecord.Amount = formRecordItem.Amount;
+            recurringRecord.CategoryId = formRecordItem.CategoryId;
+            recurringRecord.CategoryName = formRecordItem.CategoryName;
+            recurringRecord.TransactionDate = formRecordItem.TransactionDate;
+            if(TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                recurringRecord.IsActive = RecurringRecordIsActive;
+            RecurringRecordItem.InvokeAsync(recurringRecord);
+        }
+        else
+        {
+            RecurringRecordItem.InvokeAsync(null);
+            FormRecordItem.InvokeAsync(formRecordItem);
+        }
+
         return OnClose.InvokeAsync(true);
     }
 
@@ -163,14 +253,31 @@
         {
             _categories = categories;
             //var it = _categories.First();
-            _selectedCategoryId = _categories.First().Id;
+            if(_selectedCategoryId is null)
+                _selectedCategoryId = _categories.First().Id;
         }
         _loadingCategories = false;
         StateHasChanged();
     }
 
+    private DateTime NextDateCalc(int day)
+    {
+        return new DateTime(formRecordItem.TransactionDate.Year, formRecordItem.TransactionDate.AddMonths(1).Month, day);
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        if(TypeOfDialog == TypeOfRecordFormlDialog.AddRecord)
+            TransactionDate = DateTime.Today;
+        recurringRecord.RepeatEveryDayOfMonth = 1;
         await GetCategory();
+    }
+
+    public enum TypeOfRecordFormlDialog
+    {
+        AddRecord,
+        RecurringRecord,
+        EditRecurringRecord,
+        EditRecord
     }
 }

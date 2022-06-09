@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyManager.API.IntegrationTests", "test\MoneyManager.API.IntegrationTests\MoneyManager.API.IntegrationTests.csproj", "{FFDEE137-DA14-4266-8BF2-F910F28FFBAB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyManager.Application.UnitTests", "test\MoneyManager.Application.UnitTests\MoneyManager.Application.UnitTests.csproj", "{157C86A6-D37A-457F-9EF2-3712A05029AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{FFDEE137-DA14-4266-8BF2-F910F28FFBAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFDEE137-DA14-4266-8BF2-F910F28FFBAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFDEE137-DA14-4266-8BF2-F910F28FFBAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{157C86A6-D37A-457F-9EF2-3712A05029AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157C86A6-D37A-457F-9EF2-3712A05029AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157C86A6-D37A-457F-9EF2-3712A05029AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157C86A6-D37A-457F-9EF2-3712A05029AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +93,7 @@ Global
 		{731B90CD-E410-410B-9FC1-D9B0F7FABFB7} = {A959911C-A873-4D77-BB96-0F2D1CDCE760}
 		{3B533F60-AEBB-436C-AF5F-99866EC715C8} = {731B90CD-E410-410B-9FC1-D9B0F7FABFB7}
 		{FFDEE137-DA14-4266-8BF2-F910F28FFBAB} = {BDDC7ADE-778B-48F2-893E-E23A8E29B832}
+		{157C86A6-D37A-457F-9EF2-3712A05029AE} = {BDDC7ADE-778B-48F2-893E-E23A8E29B832}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D391693F-2F54-4670-A671-932FEE90FB72}

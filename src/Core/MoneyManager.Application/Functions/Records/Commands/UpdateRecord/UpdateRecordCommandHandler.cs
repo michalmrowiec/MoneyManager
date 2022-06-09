@@ -7,10 +7,10 @@ namespace MoneyManager.Application.Functions.Records
 {
     public class UpdateRecordCommandHandler : IRequestHandler<UpdateRecordCommand>
     {
-        private readonly IRecordRepsitory _recordRepository;
+        private readonly IRecordRepository _recordRepository;
         private readonly IMapper _mapper;
 
-        public UpdateRecordCommandHandler(IRecordRepsitory recordRepsitory, IMapper mapper)
+        public UpdateRecordCommandHandler(IRecordRepository recordRepsitory, IMapper mapper)
         {
             _recordRepository = recordRepsitory;
             _mapper = mapper;

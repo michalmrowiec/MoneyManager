@@ -8,10 +8,10 @@ namespace MoneyManager.Application.Functions.Records
 {
     public class CreateRecordCommandHandler : IRequestHandler<CreateRecordCommand, CreateRecordCommandResponse>
     {
-        private readonly IRecordRepsitory _recordRepsitory;
+        private readonly IRecordRepository _recordRepsitory;
         private readonly IMapper _mapper;
 
-        public CreateRecordCommandHandler(IRecordRepsitory recordRepsitory, IMapper mapper)
+        public CreateRecordCommandHandler(IRecordRepository recordRepsitory, IMapper mapper)
         {
             _recordRepsitory = recordRepsitory;
             _mapper = mapper;

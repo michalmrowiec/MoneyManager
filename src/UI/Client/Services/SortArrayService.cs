@@ -49,6 +49,12 @@ namespace MoneyManager.Client.Services
                 listOfRecords = listOfRecords.OrderBy(x => propertyInfo.GetValue(x)).ToList<T>();
         }
 
+        /// <summary>
+        /// Set sort arrow in name of row
+        /// </summary>
+        /// <param name="type">Sort on the given type</param>
+        /// <param name="descending">true - descending | false - ascending</param>
+        /// <param name="str">Array of strings for arrow</param>
         private static void SetArrow(TypesInRecord type, bool descending, ref string[] str)
         {
             for (int i = 0; i < str.Length; i++)

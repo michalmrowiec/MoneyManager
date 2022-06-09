@@ -17,12 +17,12 @@ namespace MoneyManager.Server.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("MoneyManager.Server.Entities.Category", b =>
+            modelBuilder.Entity("MoneyManager.Domain.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,7 +34,7 @@ namespace MoneyManager.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -44,7 +44,7 @@ namespace MoneyManager.Server.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("MoneyManager.Server.Entities.RecordItem", b =>
+            modelBuilder.Entity("MoneyManager.Domain.Entities.Record", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,8 +60,7 @@ namespace MoneyManager.Server.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
@@ -78,7 +77,49 @@ namespace MoneyManager.Server.Migrations
                     b.ToTable("RecordItems");
                 });
 
-            modelBuilder.Entity("MoneyManager.Server.Entities.User", b =>
+            modelBuilder.Entity("MoneyManager.Domain.Entities.RecurringRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("NextDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RepeatEveryDayOfMonth")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RecurringRecords");
+                });
+
+            modelBuilder.Entity("MoneyManager.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,22 +144,24 @@ namespace MoneyManager.Server.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("MoneyManager.Server.Entities.Category", b =>
+            modelBuilder.Entity("MoneyManager.Domain.Entities.Category", b =>
                 {
-                    b.HasOne("MoneyManager.Server.Entities.User", "User")
+                    b.HasOne("MoneyManager.Domain.Entities.User", "User")
                         .WithMany("Categories")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MoneyManager.Server.Entities.RecordItem", b =>
+            modelBuilder.Entity("MoneyManager.Domain.Entities.Record", b =>
                 {
-                    b.HasOne("MoneyManager.Server.Entities.Category", "Category")
+                    b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
-                    b.HasOne("MoneyManager.Server.Entities.User", "User")
+                    b.HasOne("MoneyManager.Domain.Entities.User", "User")
                         .WithMany("Records")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -129,11 +172,30 @@ namespace MoneyManager.Server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MoneyManager.Server.Entities.User", b =>
+            modelBuilder.Entity("MoneyManager.Domain.Entities.RecurringRecord", b =>
+                {
+                    b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("MoneyManager.Domain.Entities.User", "User")
+                        .WithMany("RecurringRecords")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MoneyManager.Domain.Entities.User", b =>
                 {
                     b.Navigation("Categories");
 
                     b.Navigation("Records");
+
+                    b.Navigation("RecurringRecords");
                 });
 #pragma warning restore 612, 618
         }

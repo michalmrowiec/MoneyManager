@@ -6,10 +6,10 @@ namespace MoneyManager.Application.Functions.Records
 {
     public class GetAllRecordsQueryHandler : IRequestHandler<GetAllRecordsQuery, List<RecordDto>>
     {
-        private readonly IRecordRepsitory _recordRepository;
+        private readonly IRecordRepository _recordRepository;
         private readonly IMapper _mapper;
 
-        public GetAllRecordsQueryHandler(IRecordRepsitory recordRepsitory, IMapper mapper)
+        public GetAllRecordsQueryHandler(IRecordRepository recordRepsitory, IMapper mapper)
         {
             _recordRepository = recordRepsitory;
             _mapper = mapper;

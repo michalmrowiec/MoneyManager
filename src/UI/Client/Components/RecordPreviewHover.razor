@@ -1,0 +1,42 @@
+﻿@using MoneyManager.Client.ViewModels
+<div class="tooltip-wrapper">
+    <span class="styleForSpan">
+        @RecurringRecordVM.Name
+        @RecurringRecordVM.Amount
+        @RecurringRecordVM.CategoryName
+        @RecurringRecordVM.TransactionDate
+    </span>
+    @ChildContent
+</div>
+
+<style>
+    .tooltip-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .styleForSpan {
+        visibility: hidden;
+        position: absolute;
+        width: 160px;
+        top: 100%;
+        left: 50%;
+        margin-left: -80px;
+        background: linear-gradient(180deg, #0a2464, #3a0647);
+        color: #f2f2f2;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+        z-index: 1;
+    }
+
+    .tooltip-wrapper:hover span {
+        visibility: visible;
+    }
+</style>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    //[Parameter] public string? Text { get; set; }
+    [Parameter] public RecurringRecordVM RecurringRecordVM { get; set; } = new();
+}

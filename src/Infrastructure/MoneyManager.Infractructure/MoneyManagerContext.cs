@@ -18,5 +18,6 @@ namespace MoneyManager.Infractructure
         public DbSet<User> Users => Set<User>();
         public DbSet<Record> RecordItems => Set<Record>();
         public DbSet<Category> Categories => Set<Category>();
+        public DbSet<RecurringRecord> RecurringRecords => Set<RecurringRecord>();
     }
 }

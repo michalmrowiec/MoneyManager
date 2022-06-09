@@ -3,6 +3,9 @@ using MoneyManager.Application.Functions.Categories.Commands.CreateCategory;
 using MoneyManager.Application.Functions.Categories.Commands.UpdateCategory;
 using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Application.Functions.Records;
+using MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRecurringRecord;
+using MoneyManager.Application.Functions.RecurringRecords.Commands.UpdateRecurringRecord;
+using MoneyManager.Application.Functions.RecurringRecords.Queries;
 using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
 using MoneyManager.Domain.Authentication;
@@ -44,6 +47,15 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<LoginUser, LoginUserCommand>()
+                .ReverseMap();
+
+            CreateMap<RecurringRecord, CreateRecurringRecordCommand>()
+                .ReverseMap();
+
+            CreateMap<RecurringRecord, RecurringRecordDto>()
+                .ReverseMap();
+
+            CreateMap<RecurringRecord, UpdateRecurringRecordCommand>()
                 .ReverseMap();
         }
     }
