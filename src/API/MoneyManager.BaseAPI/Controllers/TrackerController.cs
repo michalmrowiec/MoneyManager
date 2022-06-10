@@ -57,7 +57,7 @@ namespace MoneyManager.API.Controllers
             return NoContent();
         }
 
-        [HttpPatch]
+        [HttpPut]
         public async Task<ActionResult> UpdateRecord([FromBody] UpdateRecordCommand recordItem)
         {
             recordItem.UserId = GetUserId();

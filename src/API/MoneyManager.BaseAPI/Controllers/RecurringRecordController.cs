@@ -51,7 +51,7 @@ namespace MoneyManager.API.Controllers
             return Ok(await _mediator.Send(new ExecuteRecurringRecordsCommand(GetUserId(), dateTime)));
         }
 
-        [HttpPatch]
+        [HttpPut]
         public async Task<ActionResult> UpdateRecurringRecord([FromBody] UpdateRecurringRecordCommand updateRecurringRecord)
         {
             updateRecurringRecord.UserId = GetUserId();

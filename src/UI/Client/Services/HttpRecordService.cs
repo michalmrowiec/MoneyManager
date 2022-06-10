@@ -60,7 +60,7 @@ namespace MoneyManager.Client.Services
         public async Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IRecord
         {
             var patchJson = new StringContent(JsonConvert.SerializeObject(record), Encoding.UTF8, "application/json");
-            using (var request = new HttpRequestMessage(HttpMethod.Patch, uri))
+            using (var request = new HttpRequestMessage(HttpMethod.Put, uri))
             {
                 var token = await _localStorage.GetItem<UserTokenVM>("user");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);

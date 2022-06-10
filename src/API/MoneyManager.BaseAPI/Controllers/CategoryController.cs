@@ -49,7 +49,7 @@ namespace MoneyManager.API.Controllers
             return NoContent();
         }
 
-        [HttpPatch]
+        [HttpPut]
         public async Task<ActionResult> UpdateRecord([FromBody] UpdateCategoryCammand categoryItem)
         {
             categoryItem.UserId = GetUserId();
