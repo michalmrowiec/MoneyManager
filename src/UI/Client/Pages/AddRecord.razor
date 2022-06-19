@@ -5,6 +5,8 @@
 @using MoneyManager.Client.ViewModels
 @inject IHttpRecordService _httpService
 
+<PageTitle>Add new record</PageTitle>
+
 <button class="btn btn-primary" @onclick="@(x => OpenDeleteDialog())">Add new record</button>
 <div>
     <p>@_error</p>

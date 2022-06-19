@@ -256,7 +256,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
 
             var jsonUpdate = JsonConvert.SerializeObject(recordToUpdate);
             var httpContentUpdate = new StringContent(jsonUpdate, UnicodeEncoding.UTF8, "application/json");
-            var response = await _httpClient.PatchAsync("/api/tracker", httpContentUpdate);
+            var response = await _httpClient.PutAsync("/api/tracker", httpContentUpdate);
 
             var responseGetAllRecords = await _httpClient.GetAsync("/api/tracker");
             var jsonResponseGetAllRecords = await responseGetAllRecords.Content.ReadAsStringAsync();

@@ -114,7 +114,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
             var httpContentUpdate = new StringContent(jsonUpdate, UnicodeEncoding.UTF8, "application/json");
 
             await _httpClient.PostAsync("/api/category", httpContentCreate);
-            var response = await _httpClient.PatchAsync("/api/category", httpContentUpdate);
+            var response = await _httpClient.PutAsync("/api/category", httpContentUpdate);
 
             var responseGetAllCategory = await _httpClient.GetAsync("/api/category");
             var jsonResponseGetAllCategories = await responseGetAllCategory.Content.ReadAsStringAsync();

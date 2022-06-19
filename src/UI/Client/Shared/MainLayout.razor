@@ -22,7 +22,6 @@
                 <a href="login">Login</a>
                 <a href="register">Register</a>
             }
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
 
         <article class="content px-4">
@@ -37,7 +36,7 @@
     protected override async Task OnInitializedAsync()
     {
         UserTokenVM user = await _localStorage.GetItem<UserTokenVM>("user");
-        if (user is not null)
+        if (user.Token is not null)
         {
             appState.LoggedIn = true;
         }
