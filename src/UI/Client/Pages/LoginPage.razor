@@ -3,9 +3,10 @@
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @inject HttpClient http;
-@inject NavigationManager navigationManager;
+@inject NavigationManager navigationManager
 @inject ILocalStorageService _localStorage
 @inject AppState appState
+@inject IHttpRecordService _httpService
 
 <PageTitle>Login</PageTitle>
 
@@ -67,6 +68,7 @@
                 await _localStorage.SetItem<UserTokenVM>("user", token);
                 appState.LoggedIn = true;
                 navigationManager.NavigateTo("tracker");
+                await _httpService.GetListOfItems("api/recurring/ex");
             }
             else
             {

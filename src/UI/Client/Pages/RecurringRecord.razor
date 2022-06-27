@@ -81,7 +81,7 @@ else
                             <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
                         </td>
                         <td class="align-middle" width="5%">
-                            <button class="btn-close" @*@onclick="@(x => OpenDeleteDialog(item))" *@></button>
+                            <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
                         </td>
                     </tr>
                 }
@@ -92,6 +92,11 @@ else
     @if (RecordPreviewOpen)
     {
         <RecordPreviewDialog Title="Recurring record preview" TypeD="RecordPreviewDialog.TypeOfDialog.RecurringRecord" RecurrinRecordVM="_recordPreview" OnClose="CloseRecordPreview"></RecordPreviewDialog>
+    }
+
+    @if (DeleteDialogOpen && _recordToDelete != null)
+    {
+        <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" Title="Are you sure?" Text=@($"Do you want delete this: {_recordToDelete.Name}?") OnClose="@CloseDeleteDialog"></ConfirmDeleteDialog>
     }
 
     @if (EditFormOpen && _editRecord != null)
@@ -111,6 +116,27 @@ else
     private bool EditFormOpen { get; set; }
     private RecurringRecordVM? _recordPreview = null;
     private bool RecordPreviewOpen { get; set; }
+    private bool DeleteDialogOpen { get; set; }
+    private RecurringRecordVM? _recordToDelete;
+
+    private async Task CloseDeleteDialog(bool deleteConfirmed)
+    {
+        if (deleteConfirmed && _recordToDelete != null)
+        {
+            await Delete(_recordToDelete.Id);
+        }
+        DeleteDialogOpen = false;
+        await GetRecurringRecord();
+        StateHasChanged();
+    }
+
+    private async void OpenDeleteDialog(RecurringRecordVM recurringRecord)
+    {
+        DeleteDialogOpen = true;
+        _recordToDelete = recurringRecord;
+        await GetRecurringRecord();
+        StateHasChanged();
+    }
 
     private void OpenRecordPreview(RecurringRecordVM recurringRecord)
     {
@@ -156,6 +182,22 @@ else
             _sortClickDesc = null;
         else
             _sortClickDesc = sortBy;
+    }
+
+    private async Task Delete(int id)
+    {
+        try
+        {
+            var response = await _httpService.DeleteItem(id, "/api/recurring/");
+            if (response == null) return;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                _errorMessage = await response.Content.ReadAsStringAsync();
+
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
     }
 
     private async Task Update()

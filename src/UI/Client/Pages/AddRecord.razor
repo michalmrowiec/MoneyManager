@@ -52,6 +52,7 @@
                 {
                     _error = await response.Content.ReadAsStringAsync();
                 }
+                await _httpService.GetListOfItems("api/recurring/ex");
             }
             catch (Exception ex)
             {

@@ -132,8 +132,7 @@ else
     </button>
 }
 
-@if (DeleteDialogOpen &&
-_recordToDelete != null)
+@if (DeleteDialogOpen && _recordToDelete != null)
 {
     <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" Title="Are you sure?" Text=@($"Do you want delete this: {_recordToDelete.Name}?") OnClose="@CloseDeleteDialog"></ConfirmDeleteDialog>
 }
@@ -150,13 +149,6 @@ _recordToDelete != null)
     private List<RecordVM> _listOfRecordsTemp = new();
     private List<string> _listOfYearsForSelect = new();
     private List<string> _listOfMonthsForSelect = new();
-    private Dictionary<TypesInRecord, string> _setOrderByArrow = new Dictionary<TypesInRecord, string>
-    {
-        {TypesInRecord.Name, ""},
-        {TypesInRecord.CategoryName, ""},
-        {TypesInRecord.Amount, ""},
-        {TypesInRecord.TransactionDate, ""}
-    };
     private string[] _str = { "", "", "", "" };
     private decimal _sumOfMonthlyAmounts = 0;
     private string _selectedYearByUser = String.Empty;
@@ -172,7 +164,7 @@ _recordToDelete != null)
         set
         {
             _selectedYearByUser = value == null ? String.Empty : value;
-            _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecords, _selectedYearByUser);
+            _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecordsTemp, _selectedYearByUser);
             if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")) &&
                     _listOfMonthsForSelect.FirstOrDefault(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")), String.Empty).ToString() != String.Empty)
                 SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US"))).ToString();
@@ -186,6 +178,7 @@ _recordToDelete != null)
         set
         {
             _selectedMonthByUser = value == null ? String.Empty : value;
+            UpdateSummary();
         }
     }
     private bool DeleteDialogOpen { get; set; }
@@ -202,29 +195,26 @@ _recordToDelete != null)
             {
                 case TableView.OnlyExpenses:
                     _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount < 0).ToList();
-                    _sumOfMonthlyAmounts = 0;
-                    foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
-                    {
-                        _sumOfMonthlyAmounts += item.Amount;
-                    }
+                    UpdateSummary();
                     break;
                 case TableView.OnlyIncomes:
                     _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount >= 0).ToList();
-                    _sumOfMonthlyAmounts = 0;
-                    foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
-                    {
-                        _sumOfMonthlyAmounts += item.Amount;
-                    }
+                    UpdateSummary();
                     break;
                 default:
                     _listOfRecords = _listOfRecordsTemp;
-                    _sumOfMonthlyAmounts = 0;
-                    foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
-                    {
-                        _sumOfMonthlyAmounts += item.Amount;
-                    }
+                    UpdateSummary();
                     break;
             }
+        }
+    }
+
+    private void UpdateSummary()
+    {
+        _sumOfMonthlyAmounts = 0;
+        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+        {
+            _sumOfMonthlyAmounts += item.Amount;
         }
     }
 
@@ -244,21 +234,20 @@ _recordToDelete != null)
             await Delete(_recordToDelete.Id);
         }
         DeleteDialogOpen = false;
-        await GetTable();
+        await GetTable(_selectedYearByUser, _selectedMonthByUser);
         StateHasChanged();
     }
 
-    private async void OpenDeleteDialog(RecordVM record)
+    private void OpenDeleteDialog(RecordVM record)
     {
         DeleteDialogOpen = true;
         _recordToDelete = record;
-        await GetTable();
         StateHasChanged();
     }
 
-    private void ReturnedRecord(RecordVM RecordVM)
+    private void ReturnedRecord(RecordVM recordVM)
     {
-        _editRecord = RecordVM;
+        _editRecord = recordVM;
     }
 
     private async Task CloseEditForm(bool editConfirmed)
@@ -268,7 +257,7 @@ _recordToDelete != null)
         {
             await Update();
         }
-        await GetTable();
+        await GetTable(_selectedYearByUser, _selectedMonthByUser);
         _editRecord = null;
         StateHasChanged();
     }
@@ -300,7 +289,7 @@ _recordToDelete != null)
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
 
-    private async Task GetTable()
+    private async Task GetTable(string? selectedYear = null, string? selectedMonth = null)
     {
         try
         {
@@ -339,16 +328,21 @@ _recordToDelete != null)
             SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
         }
 
+        if (selectedYear is not null && _listOfYearsForSelect.Contains(selectedYear))
+            if (selectedMonth is not null && _listOfMonthsForSelect.Contains(selectedMonth))
+            {
+                SelectedYearByUser = selectedYear;
+                SelectedMonthByUser = selectedMonth;
+            }
+
+
+
         _sortClickDesc = null;
         SortButtonClick(TypesInRecord.TransactionDate);
         _getTableLoading = false;
         StateHasChanged();
 
-        _sumOfMonthlyAmounts = 0;
-        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
-        {
-            _sumOfMonthlyAmounts += item.Amount;
-        }
+        UpdateSummary();
     }
 
     private async Task Delete(int id)
