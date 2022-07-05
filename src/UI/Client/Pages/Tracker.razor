@@ -168,6 +168,8 @@ else
             if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")) &&
                     _listOfMonthsForSelect.FirstOrDefault(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")), String.Empty).ToString() != String.Empty)
                 SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US"))).ToString();
+            else if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")))
+                SelectedMonthByUser = _listOfMonthsForSelect.LastOrDefault(String.Empty);
             else
                 SelectedMonthByUser = _listOfMonthsForSelect.FirstOrDefault(String.Empty);
         }
