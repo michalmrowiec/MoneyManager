@@ -14,16 +14,6 @@ namespace MoneyManager.Infractructure.Repositories.Items
         public RecordRepository(MoneyManagerContext dbContext) : base(dbContext)
         { }
 
-        public async Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId)
-        {
-            var records = await _dbContext.RecordItems.Where(x => x.UserId == userId && x.CategoryId == cateogryId).ToListAsync();
-            var category = _dbContext.Categories.Where(x => x.UserId == userId).First(x => x.Id == cateogryId);
-
-            records.ForEach(x => { x.CategoryId = category.Id; x.Category = category; });
-
-            return records;
-        }
-
         public override async Task<IList<Record>> GetAllAsync(int userId)
         {
             var records = await _dbContext.RecordItems.Where(x => x.UserId == userId).ToListAsync();
@@ -49,6 +39,21 @@ namespace MoneyManager.Infractructure.Repositories.Items
         public override async Task<Record> GetByIdAsync(int userId, int itemId)
         {
             return await _dbContext.RecordItems.FirstAsync(x => x.UserId == userId && x.Id == itemId);
+        }
+
+        public async Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId)
+        {
+            var records = await _dbContext.RecordItems.Where(x => x.UserId == userId && x.CategoryId == cateogryId).ToListAsync();
+            var category = _dbContext.Categories.Where(x => x.UserId == userId).First(x => x.Id == cateogryId);
+
+            records.ForEach(x => { x.CategoryId = category.Id; x.Category = category; });
+
+            return records;
+        }
+
+        public async Task<IList<Record>> GetRecordsForMonth(int userId, int year, int month)
+        {
+            return await _dbContext.RecordItems.Where(x => x.UserId == userId && (x.TransactionDate.Year == year && x.TransactionDate.Month == month)).ToListAsync();
         }
 
         //public override async Task UpdateAsync(Record entity)

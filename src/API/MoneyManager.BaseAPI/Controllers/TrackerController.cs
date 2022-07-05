@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoneyManager.Application.Functions.Records;
 using MoneyManager.Application.Functions.Records.Queries.GetRecordById;
+using MoneyManager.Application.Functions.Records.Queries.GetRecordsForMonth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,12 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult<List<RecordDto>>> GetAllRecords()
         {
             return Ok(await _mediator.Send(new GetAllRecordsQuery(GetUserId())));
+        }
+
+        [HttpGet("{year}/{month}")]
+        public async Task<ActionResult<List<RecordDto>>> GetRecordsForMonth([FromRoute] int year, [FromRoute] int month)
+        {
+            return Ok(await _mediator.Send(new GetRecordsForMonthQuery(GetUserId(), year, month)));
         }
 
         [HttpGet("{recordId}")]

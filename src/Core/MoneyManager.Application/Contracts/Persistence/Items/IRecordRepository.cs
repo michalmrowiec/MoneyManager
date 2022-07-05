@@ -10,5 +10,6 @@ namespace MoneyManager.Application.Contracts.Persistence.Items
     public interface IRecordRepository : IItemAsyncRepositoryBase<Record>
     {
         Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId);
+        Task<IList<Record>> GetRecordsForMonth(int userId, int year, int month);
     }
 }
