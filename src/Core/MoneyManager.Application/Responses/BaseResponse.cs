@@ -9,6 +9,8 @@ namespace MoneyManager.Application.Responses
 {
     public class BaseResponse
     {
+        private System.ComponentModel.DataAnnotations.ValidationResult validatorResult;
+
         public ResponseStatus Status { get; set; }
         public bool Success { get; set; }
         public string? Message { get; set; }
@@ -35,7 +37,7 @@ namespace MoneyManager.Application.Responses
 
         public BaseResponse(ValidationResult validationResult)
         {
-            ValidationErrors = new List<String>();
+            ValidationErrors = new List<string>();
             Success = validationResult.Errors.Count < 0;
             foreach (var item in validationResult.Errors)
             {
@@ -44,7 +46,10 @@ namespace MoneyManager.Application.Responses
 
         }
 
-
+        public BaseResponse(System.ComponentModel.DataAnnotations.ValidationResult validatorResult)
+        {
+            this.validatorResult = validatorResult;
+        }
     }
 
     public enum ResponseStatus

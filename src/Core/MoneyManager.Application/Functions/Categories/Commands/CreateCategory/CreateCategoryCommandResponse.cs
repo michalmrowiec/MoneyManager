@@ -11,7 +11,7 @@ namespace MoneyManager.Application.Functions.Categories.Commands.CreateCategory
 {
     public class CreateCategoryCommandResponse : BaseResponse
     {
-        public CategoryDto? CategoryDto { get; set; }
+        public int? CategoryId { get; set; }
         public CreateCategoryCommandResponse() : base()
         { }
 
@@ -24,9 +24,9 @@ namespace MoneyManager.Application.Functions.Categories.Commands.CreateCategory
         public CreateCategoryCommandResponse(string message, bool success) : base(message, success)
         { }
 
-        public CreateCategoryCommandResponse(CategoryDto categoryDto)
+        public CreateCategoryCommandResponse(int categoryId)
         {
-            CategoryDto = categoryDto;
+            CategoryId = categoryId;
         }
     }
 }

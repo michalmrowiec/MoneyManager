@@ -27,8 +27,8 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult> CreateRecord([FromBody] CreateRecordCommand recordItem)
         {
             recordItem.UserId = GetUserId();
-            await _mediator.Send(recordItem);
-            return Created("", null);
+            var record = await _mediator.Send(recordItem);
+            return Created("", record);
         }
 
         [HttpGet]
