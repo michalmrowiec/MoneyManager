@@ -16,6 +16,7 @@ namespace MoneyManager.Domain.Entities
 		public string Name { get; set; } = null!;
 		public decimal Amount { get; set; }
 		public DateTime? TransactionDate { get; set; }
+
 		public int? CategoryId { get; set; }
 		public virtual Category? Category { get; set; }
 

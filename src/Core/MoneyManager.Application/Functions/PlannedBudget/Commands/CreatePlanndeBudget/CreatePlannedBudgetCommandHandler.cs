@@ -26,6 +26,7 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlannd
                 return new CreatePlannedBudgetCommandResponse(validatorResult);
 
             var planndedBudget = _mapper.Map<Domain.Entities.PlannedBudget>(request);
+            planndedBudget.FilledAmount = 0;
 
             planndedBudget = await _plannedBudgetRepository.AddAsync(planndedBudget);
 

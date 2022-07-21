@@ -17,7 +17,8 @@ namespace MoneyManager.Server.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PlanForMonth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    FilledAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -27,8 +28,7 @@ namespace MoneyManager.Server.Migrations
                         name: "FK_PlannedBudgets_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_PlannedBudgets_Users_UserId",
                         column: x => x.UserId,

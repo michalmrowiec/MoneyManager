@@ -19,7 +19,7 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlannd
             RuleFor(x => x).Custom((value, context) =>
             {
                 var exist = mediator.Send(new GetPlannedBudgetsForMonthQuery(value.UserId, value.PlanForMonth.Year, value.PlanForMonth.Month)).Result;
-                if (exist.Count != 0 || exist != null)
+                if (exist.Count != 0 || exist == null)
                     context.AddFailure("PlanForMonth", "The planned budget for this month for this category already exists");
             });
         }
