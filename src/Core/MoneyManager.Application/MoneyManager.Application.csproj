@@ -19,4 +19,8 @@
     <ProjectReference Include="..\MoneyManager.Domain\MoneyManager.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Functions\PlannedBudget\Queries\GetPlannedBudgetById\" />
+  </ItemGroup>
+
 </Project>

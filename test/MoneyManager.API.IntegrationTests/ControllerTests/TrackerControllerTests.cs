@@ -45,8 +45,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
                     // add fake memory db
                     services.AddDbContext<MoneyManagerContext>(options => options.UseInMemoryDatabase(_dbName));
                 });
-            })
-            .CreateClient();
+            }).CreateClient();
         }
 
         public static IEnumerable<object[]> Test_SingleRecords => new List<object[]>
@@ -155,7 +154,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
                     new CreateRecordCommand { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M },
                     new CreateRecordCommand { Id = 5, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
                 },
-                new CreateRecordCommand { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11) },
+                new UpdateRecordCommand { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11), UserId = 1 },
                 new List<RecordDto>
                 {
                     new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01) },
@@ -177,7 +176,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
                     new CreateRecordCommand { Id = 779, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
                     new CreateRecordCommand { Id = 88, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) }
                 },
-                new CreateRecordCommand { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04) },
+                new UpdateRecordCommand { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), UserId = 1 },
                 new List<RecordDto>
                 {
                     new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01) },
@@ -250,7 +249,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
         [Theory]
         [MemberData(nameof(Test_ListOfRecordsToUpdate))]
         public async Task UpdateRecord_ForExistRecordAndValidData_ReturnsOkStatus
-            (List<CreateRecordCommand> CreateRecordCommands, CreateRecordCommand recordToUpdate, List<RecordDto> updatedRecords)
+            (List<CreateRecordCommand> CreateRecordCommands, UpdateRecordCommand recordToUpdate, List<RecordDto> updatedRecords)
         {
             await TestUtils.PostRecordsByList(_httpClient, CreateRecordCommands, "/api/tracker");
 

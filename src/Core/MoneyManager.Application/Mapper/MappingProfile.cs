@@ -3,6 +3,7 @@ using MoneyManager.Application.Functions.Categories.Commands.CreateCategory;
 using MoneyManager.Application.Functions.Categories.Commands.UpdateCategory;
 using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlanndeBudgetRecord;
+using MoneyManager.Application.Functions.PlannedBudget.Commands.UpdatePlannedBudget;
 using MoneyManager.Application.Functions.PlannedBudget.Queries;
 using MoneyManager.Application.Functions.Records;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRecurringRecord;
@@ -61,6 +62,9 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<PlannedBudget, CreatePlannedBudgetCommand>()
+                .ReverseMap();
+
+            CreateMap<PlannedBudget, UpdatePlannedBudgetCommand>()
                 .ReverseMap();
 
             CreateMap<PlannedBudget, PlannedBudgetDto>()

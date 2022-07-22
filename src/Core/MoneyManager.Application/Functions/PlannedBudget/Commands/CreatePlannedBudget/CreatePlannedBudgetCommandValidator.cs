@@ -19,7 +19,8 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlannd
             RuleFor(x => x).Custom((value, context) =>
             {
                 var exist = mediator.Send(new GetPlannedBudgetsForMonthQuery(value.UserId, value.PlanForMonth.Year, value.PlanForMonth.Month)).Result;
-                if (exist.Count != 0 || exist == null)
+
+                if (exist.Where(x => x.UserId == value.UserId && x.CategoryId == value.CategoryId).ToList().Count != 0)
                     context.AddFailure("PlanForMonth", "The planned budget for this month for this category already exists");
             });
         }

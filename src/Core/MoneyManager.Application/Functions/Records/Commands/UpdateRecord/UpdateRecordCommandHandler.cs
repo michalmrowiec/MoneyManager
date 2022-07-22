@@ -18,7 +18,6 @@ namespace MoneyManager.Application.Functions.Records
 
         public async Task<Unit> Handle(UpdateRecordCommand request, CancellationToken cancellationToken)
         {
-
             var record = _mapper.Map<Record>(request);
 
             await _recordRepository.UpdateAsync(record);

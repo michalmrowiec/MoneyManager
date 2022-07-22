@@ -17,6 +17,7 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlannd
             _mapper = mapper;
             _mediator = mediator;
         }
+
         public async Task<CreatePlannedBudgetCommandResponse> Handle(CreatePlannedBudgetCommand request, CancellationToken cancellationToken)
         {
             var validator = new CreatePlannedBudgetCommandValidator(_mediator);
