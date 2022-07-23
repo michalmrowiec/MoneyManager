@@ -1,4 +1,5 @@
 ﻿using MoneyManager.Client.ViewModels;
+using MoneyManager.Client.ViewModels.Interfaces;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;

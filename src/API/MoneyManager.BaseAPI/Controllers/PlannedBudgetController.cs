@@ -6,6 +6,7 @@ using MoneyManager.Application.Functions.PlannedBudget.Commands.DeletePlannedBud
 using MoneyManager.Application.Functions.PlannedBudget.Commands.UpdatePlannedBudget;
 using MoneyManager.Application.Functions.PlannedBudget.Queries;
 using MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllPlannedBudget;
+using MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllYearsWithMonths;
 using MoneyManager.Application.Functions.PlannedBudget.Queries.GetPlannedBudgetsForMonth;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,12 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult<List<PlannedBudgetDto>>> GetAllPlannedBudgets()
         {
             return Ok(await _mediator.Send(new GetAllPlannedBudgetQuery(GetUserId())));
+        }
+
+        [HttpGet("dates")]
+        public async Task<ActionResult<Dictionary<int, List<int>>>> GetAllYearsWithMonths()
+        {
+            return Ok(await _mediator.Send(new GetAllYearsWithMonthsQuery(GetUserId())));
         }
 
         [HttpDelete("{plannedBudgetId}")]

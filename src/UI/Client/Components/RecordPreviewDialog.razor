@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="form-floating mb-2">
-                        <InputDate id="date" class="form-control disabled" @bind-Value="_record.TransactionDate"></InputDate>
+                        <InputDate id="date" class="form-control disabled" @bind-Value="_record.Date"></InputDate>
                         <label for="floatingTextarea">Transaction date</label>
                     </div>
 
@@ -78,7 +78,7 @@
                 _record.Name = value.Name;
                 _record.CategoryName = value.CategoryName;
                 _record.Amount = value.Amount;
-                _record.TransactionDate = value.TransactionDate;
+                _record.Date = value.Date;
             }
         }
     }
@@ -93,7 +93,7 @@
                 _record.Name = value.Name;
                 _record.CategoryName = value.CategoryName;
                 _record.Amount = value.Amount;
-                _record.TransactionDate = value.TransactionDate;
+                _record.Date = value.Date;
                 _recurringRecord.NextDate = value.NextDate;
                 _recurringRecord.IsActive = value.IsActive;
             }

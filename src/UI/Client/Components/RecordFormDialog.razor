@@ -170,7 +170,7 @@
                 recurringRecord = value;
                 formRecordItem.Name = value.Name;
                 formRecordItem.Amount = value.Amount;
-                formRecordItem.TransactionDate = value.TransactionDate;
+                formRecordItem.Date = value.Date;
                 _selectedCategoryId = value.CategoryId;
             }
         }
@@ -184,11 +184,11 @@
 
     private DateTime TransactionDate
     {
-        get { return formRecordItem.TransactionDate; }
+        get { return formRecordItem.Date; }
         set
         {
-            formRecordItem.TransactionDate = value;
-            recurringRecord.NextDate = formRecordItem.TransactionDate.AddMonths(1);
+            formRecordItem.Date = value;
+            recurringRecord.NextDate = formRecordItem.Date.AddMonths(1);
             recurringRecord.RepeatEveryDayOfMonth = value.Day;
         }
     }
@@ -227,7 +227,7 @@
             recurringRecord.Amount = formRecordItem.Amount;
             recurringRecord.CategoryId = formRecordItem.CategoryId;
             recurringRecord.CategoryName = formRecordItem.CategoryName;
-            recurringRecord.TransactionDate = formRecordItem.TransactionDate;
+            recurringRecord.Date = formRecordItem.Date;
             if(TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
                 recurringRecord.IsActive = RecurringRecordIsActive;
             RecurringRecordItem.InvokeAsync(recurringRecord);
@@ -262,7 +262,7 @@
 
     private DateTime NextDateCalc(int day)
     {
-        return new DateTime(formRecordItem.TransactionDate.Year, formRecordItem.TransactionDate.AddMonths(1).Month, day);
+        return new DateTime(formRecordItem.Date.Year, formRecordItem.Date.AddMonths(1).Month, day);
     }
 
     protected override async Task OnInitializedAsync()
