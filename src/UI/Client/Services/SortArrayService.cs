@@ -10,7 +10,7 @@ namespace MoneyManager.Client.Services
     {
         internal static List<string> GetAllYearsFromListOfRecords<T>(List<T> records) where T : IRecordWithDate
         {
-            var years = records.Select(x => x.Date.ToString("yyyy"))
+            var years = records.Select(x => x.TransactionDate.ToString("yyyy"))
                 .Distinct()
                 .OrderByDescending(x => x)
                 .ToList();
@@ -19,9 +19,9 @@ namespace MoneyManager.Client.Services
 
         internal static List<string> GetAllMonthsFromListOfRecords<T>(List<T> records, string year) where T : IRecordWithDate
         {
-            var months = records.Where(x => x.Date.ToString("yyyy") == year)
-                .OrderBy(x => x.Date)
-                .Select(x => x.Date.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))
+            var months = records.Where(x => x.TransactionDate.ToString("yyyy") == year)
+                .OrderBy(x => x.TransactionDate)
+                .Select(x => x.TransactionDate.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))
                 .Distinct()
                 .ToList();
             return months;

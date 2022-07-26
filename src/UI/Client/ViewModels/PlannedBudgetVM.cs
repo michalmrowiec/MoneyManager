@@ -14,10 +14,10 @@ namespace MoneyManager.Client.ViewModels
         /// <summary>
         /// Plan For Month
         /// </summary>
-        public DateTime Date { get; set; }
+        public DateTime TransactionDate { get; set; }
         public decimal Amount { get; set; }
         public decimal FilledAmount { get; set; }
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         /// <summary>
         /// Category Name
         /// </summary>

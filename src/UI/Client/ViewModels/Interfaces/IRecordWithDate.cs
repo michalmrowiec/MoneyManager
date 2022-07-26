@@ -8,6 +8,6 @@ namespace MoneyManager.Client.ViewModels.Interfaces
 {
     public interface IRecordWithDate
     {
-        DateTime Date { get; set; }
+        DateTime TransactionDate { get; set; }
     }
 }

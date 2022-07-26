@@ -101,13 +101,13 @@ else
         <tbody>
             @if (_listOfRecords != null)
             {
-                @foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
                 {
                     <tr>
                         <td class="align-middle" width="25%">@item.Name</td>
                         <td class="align-middle" width="25%">@item.CategoryName</td>
                         <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="25%">@item.Date.ToShortDateString()</td>
+                        <td class="align-middle" width="25%">@item.TransactionDate.ToShortDateString()</td>
                         <td class="align-middle" width="5%">
                             <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
                         </td>
@@ -150,11 +150,11 @@ else
     private List<string> _listOfYearsForSelect = new();
     private List<string> _listOfMonthsForSelect = new();
     private string[] _str = { "", "", "", "" };
+    private TypesInRecord? _sortClickDesc = null;
     private decimal _sumOfMonthlyAmounts = 0;
     private string _selectedYearByUser = String.Empty;
     private string _selectedMonthByUser = String.Empty;
     private RecordVM? _editRecord = null;
-    private TypesInRecord? _sortClickDesc = null;
     private bool _getTableLoading = true;
     private TableView _tableViewSelected = TableView.ExpensesAndIncomes;
 
@@ -212,7 +212,7 @@ else
     private void UpdateSummary()
     {
         _sumOfMonthlyAmounts = 0;
-        foreach (var item in _listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
         {
             _sumOfMonthlyAmounts += item.Amount;
         }
@@ -273,7 +273,7 @@ else
     {
         XmlGenerateService xmlGenerateService = new();
 
-        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.Date.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList());
+        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList());
         var fileStream = new MemoryStream(randomBinaryData);
 
         return fileStream;
