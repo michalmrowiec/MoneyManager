@@ -103,7 +103,16 @@ else
             {
                 @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
                 {
-                    <tr>
+                    if (item.Amount > 0)
+                    {
+                        color = "green";
+                    }
+                    else
+                    {
+                        color = "red";
+                    }
+
+                    <tr class="text-color" style="color:@color;">
                         <td class="align-middle" width="25%">@item.Name</td>
                         <td class="align-middle" width="25%">@item.CategoryName</td>
                         <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
@@ -143,6 +152,7 @@ else
 }
 
 @code {
+    private string? color;
     private string? _errorMessage;
     private RecordVM? _recordToDelete;
     private List<RecordVM> _listOfRecords = new();

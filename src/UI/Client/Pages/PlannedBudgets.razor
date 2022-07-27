@@ -24,7 +24,7 @@
         <span class="visually-hidden">Loading...</span>
     </div>
 }
-else if (false@*_listOfPlannedBudgets.Count == 0*@)
+else if (_listOfPlannedBudgets.Count == 0)
 {
     <p>The table is empty, you can add a new record <a href="/#">here</a></p>
 }
@@ -34,7 +34,7 @@ else
         <div class="d-flex flex-row align-items-center">
             <h5>Select date:</h5>
             <div width="20%" class="ms-2">
-                <select class="form-select" @onchange="UpdYear">
+                <select class="form-select" value="@_selectedYearByUser" @onchange="UpdYear">
                     @foreach (var item in _listOfYearsForSelect)
                     {
                         <option value="@item">@item</option>
@@ -42,7 +42,7 @@ else
                 </select>
             </div>
             <div width="20%" class="ms-2">
-                <select class="form-select" @onchange="Upd">
+                <select class="form-select" value="@_selectedMonthByUser" @onchange="Upd">
                     @foreach (var item in _listOfMonthsForSelect)
                     {
                         <option value="@item">@(new DateTime(2022, item, 1).ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))</option>
@@ -50,14 +50,6 @@ else
                 </select>
             </div>
         </div>
-
-        @*        <div>
-    <select class="form-select" @bind="@TableViewSelected">
-    <option value="@TableView.ExpensesAndIncomes">Expenses and Incomes</option>
-    <option value="@TableView.OnlyExpenses">Expenses</option>
-    <option value="@TableView.OnlyIncomes">Incomes</option>
-    </select>
-    </div>*@
     </div>
 
     <table class="table table-striped">
@@ -113,6 +105,12 @@ else
         </tbody>
     </table>
 
+    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
+
+    if (AddEditFormOpen)
+    {
+        <PlannedBudgetDialog Title="Add Planned Budget" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
+    }
 }
 
 @code {
@@ -131,38 +129,87 @@ else
     private string[] _str = { "", "", "", "" };
     private TypesInRecord? _sortClickDesc = null;
 
+    private PlannedBudgetVM? _recordFromDialog;
+    public bool AddEditFormOpen { get; set; }
+
+    private void ReturnedPlannedBudget(PlannedBudgetVM plannedBudgetVM)
+    {
+        _recordFromDialog = plannedBudgetVM;
+    }
+
+    private void OpenAddEditForm(PlannedBudgetVM? plannedBudget = null)
+    {
+        AddEditFormOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task CloseDialog(bool editConfirmed)
+    {
+        AddEditFormOpen = false;
+        if (_recordFromDialog != null)
+        {
+            await CreatePlannedBudget();
+            await GetListOfYearsWithMonths();
+        }
+        _recordFromDialog = null;
+        StateHasChanged();
+    }
+
+    private async Task CreatePlannedBudget()
+    {
+        if (_recordFromDialog == null) return;
+
+        var plannedBudgetDto = new PlannedBudgetDto
+            {
+                Amount = _recordFromDialog.Amount,
+                CategoryId = _recordFromDialog.CategoryId,
+                PlanForMonth = _recordFromDialog.TransactionDate
+            };
+
+        try
+        {
+            var responseMessage = await _httpService.CreateItem(plannedBudgetDto, "/api/plannedbudget/");
+
+            if (responseMessage.StatusCode != System.Net.HttpStatusCode.Created)
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+    }
+
     private async Task UpdYear(ChangeEventArgs e)
     {
-        if (e.Value is not null)
+        if (e.Value is null) return;
+
+        int yearNr = int.Parse(e.Value.ToString() ?? _listOfYearsForSelect.Last().ToString());
+
+        _selectedYearByUser = yearNr;
+
+        _listOfMonthsForSelect = _listOfYearsWithMonths.First(x => x.Key == yearNr).Value;
+
+        var df = new ChangeEventArgs();
+
+        if (yearNr == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
         {
-            int yearNr = int.Parse(e.Value.ToString());
-
-            _selectedYearByUser = yearNr;
-
-            _listOfMonthsForSelect = _listOfYearsWithMonths.First(x => x.Key == yearNr).Value;
-
-            var df = new ChangeEventArgs();
-
-            if (yearNr == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
-            {
-                df.Value = _listOfMonthsForSelect.First(x => x == DateTime.Now.Month);
-            }
-            else
-            {
-                df.Value = _listOfMonthsForSelect.Last();
-            }
-
-            await Upd(df);
+            df.Value = DateTime.Now.Month;
         }
+        else
+        {
+            df.Value = _listOfMonthsForSelect.Last();
+        }
+
+        await Upd(df);
     }
 
     private async Task Upd(ChangeEventArgs e)
     {
-        if (e.Value is not null)
-        {
-            _selectedMonthByUser = int.Parse(e.Value.ToString());
-            await GetPlannedBudgetsForMonth();
-        }
+        if (e.Value is null) return;
+        _selectedMonthByUser = int.Parse(e.Value.ToString() ?? _listOfMonthsForSelect.Last().ToString());
+        await GetPlannedBudgetsForMonth();
+        StateHasChanged();
     }
 
     private void SortButtonClick(TypesInRecord sortBy)
@@ -176,8 +223,21 @@ else
 
     private async Task GetListOfYearsWithMonths()
     {
-        var res = await _httpService.GetListOfItems("/api/plannedbudget/dates/");
-        _listOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(await res.Content.ReadAsStringAsync()) ?? new();
+        try
+        {
+            var responseMessage = await _httpService.GetListOfItems("/api/plannedbudget/dates/");
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                _listOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(await responseMessage.Content.ReadAsStringAsync()) ?? new();
+            }
+            else
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+
+        }
         //ListOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>
         //(await _httpService.GetListOfItems("/api/plannedbudget/dates/").Result.Content.ReadAsStringAsync()) ?? new();
 
@@ -201,11 +261,7 @@ else
         var res = await _httpService
         .GetListOfItems($"api/plannedbudget/{_selectedYearByUser}/{_selectedMonthByUser}/");
         var json = await res.Content.ReadAsStringAsync();
-        //_listOfPlannedBudgets = JsonConvert.DeserializeObject<List<PlannedBudgetVM>>(json) ?? new();
         _listOfPlannedBudgetsDto = JsonConvert.DeserializeObject<List<PlannedBudgetDto>>(json) ?? new();
-
-        //_sortClickDesc = null;
-        //SortButtonClick(TypesInRecord.TransactionDate);
 
         await GetCategoriesForRecurringRecords();
 

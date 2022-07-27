@@ -17,7 +17,7 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllYearsWi
             Dictionary<int, List<int>> result = new();
 
             foreach (var year in years)
-                result.Add(year, all.Select(x => x.PlanForMonth).Where(x => x.Year == year).Select(x => x.Month).ToList());
+                result.Add(year, all.Select(x => x.PlanForMonth).Where(x => x.Year == year).Select(x => x.Month).Distinct().ToList());
 
             return result;
         }
