@@ -1,4 +1,5 @@
-﻿using MoneyManager.Client.ViewModels.Interfaces;
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using MoneyManager.Client.ViewModels.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.ViewModels
 {
-    public class PlannedBudgetVM : IRecord, IRecordWithDate
+    public class PlannedBudgetVM : IRecord, IId, IRecordWithDate
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

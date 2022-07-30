@@ -2,6 +2,7 @@
 @using System.Net.Http.Headers
 @using Newtonsoft.Json
 @using MoneyManager.Client.ViewModels
+@using static MoneyManager.Client.Components.RecordFormDialog
 @inject IHttpRecordService _httpService
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
@@ -90,12 +91,24 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Title of modal dialog.
+    /// </summary>
     [Parameter]
     public string? Title { get; set; }
 
+    /// <summary>
+    /// When modal dialog is closing, returns true.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
 
+    [Parameter]
+    public TypeOfFormlDialog TypeOfDialog { get; set; }
+
+    /// <summary>
+    /// Planned Budget to edit. Fills in the form fields with this record.
+    /// </summary>
     [Parameter]
     public PlannedBudgetVM? PlannedBudgetToFill
     {
@@ -115,6 +128,9 @@
         }
     }
 
+    /// <summary>
+    /// Returns the created or edited Planned Budget.
+    /// </summary>
     [Parameter]
     public EventCallback<PlannedBudgetVM> FormRecordItem { get; set; }
 
@@ -123,6 +139,7 @@
     private int? _selectedCategoryId;
     private bool _loadingCategories = true;
     List<CategoryVM> _categories = new();
+
     public int? SelectedCategory
     {
         get { return _selectedCategoryId; }
@@ -170,7 +187,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        formRecordItem.TransactionDate = new DateTime(DateTime.Now.Year, DateTime.Now.AddMonths(1).Month, 01);
+        if (TypeOfDialog is TypeOfFormlDialog.AddRecord)
+            formRecordItem.TransactionDate = new DateTime(DateTime.Now.Year, DateTime.Now.AddMonths(1).Month, 01);
+
         await GetCategory();
     }
 }

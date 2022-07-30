@@ -1,4 +1,5 @@
-﻿using MoneyManager.Client.ViewModels;
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using MoneyManager.Client.ViewModels;
 using MoneyManager.Client.ViewModels.Interfaces;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
@@ -12,7 +13,7 @@ namespace MoneyManager.Client.Services
         Task<HttpResponseMessage> GetRecordsForCategoryId(int categoryId, string uri);
         Task<HttpResponseMessage> DeleteItem(int id, string uri);
         Task<HttpResponseMessage> CreateItem<T>(T record, string uri);
-        Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IRecord;
+        Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IId;
     }
     public class HttpRecordService : IHttpRecordService
     {
@@ -58,7 +59,7 @@ namespace MoneyManager.Client.Services
             }
         }
 
-        public async Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IRecord
+        public async Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IId
         {
             var patchJson = new StringContent(JsonConvert.SerializeObject(record), Encoding.UTF8, "application/json");
             using (var request = new HttpRequestMessage(HttpMethod.Put, uri))

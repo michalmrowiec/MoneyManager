@@ -8,7 +8,7 @@ namespace MoneyManager.Client.ViewModels.Interfaces
 {
     public interface IRecord
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public string Name { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.ViewModels.Dtos
 {
-    public class PlannedBudgetDto
+    public class PlannedBudgetDto : IId
     {
         public int Id { get; set; }
         public DateTime PlanForMonth { get; set; }

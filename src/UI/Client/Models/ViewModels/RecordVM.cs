@@ -1,4 +1,5 @@
-﻿using MoneyManager.Client.ViewModels.Interfaces;
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using MoneyManager.Client.ViewModels.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.ViewModels
 {
-    public class RecordVM : IRecord, IRecordWithDate
+    public class RecordVM : IRecord, IId, IRecordWithDate
     {
         public int Id { get; set; }
         [Required]
