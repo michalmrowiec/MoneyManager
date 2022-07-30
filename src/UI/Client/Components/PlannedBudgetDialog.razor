@@ -118,15 +118,6 @@
     [Parameter]
     public EventCallback<PlannedBudgetVM> FormRecordItem { get; set; }
 
-    private DateTime TransactionDate
-    {
-        get { return formRecordItem.TransactionDate; }
-        set
-        {
-            formRecordItem.TransactionDate = value;
-        }
-    }
-
     private PlannedBudgetVM formRecordItem = new();
     private bool formRocordIsIncome = false;
     private int? _selectedCategoryId;

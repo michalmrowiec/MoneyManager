@@ -13,11 +13,13 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllYearsWi
         public async Task<Dictionary<int, List<int>>> Handle(GetAllYearsWithMonthsQuery request, CancellationToken cancellationToken)
         {
             var all = await _mediator.Send(new GetAllPlannedBudgetQuery(request.UserId));
+
             var years = all.Select(x => x.PlanForMonth.Year).Distinct();
+
             Dictionary<int, List<int>> result = new();
 
             foreach (var year in years)
-                result.Add(year, all.Select(x => x.PlanForMonth).Where(x => x.Year == year).Select(x => x.Month).Distinct().ToList());
+                result.Add(year, all.Select(x => x.PlanForMonth).Where(x => x.Year == year).Select(x => x.Month).Distinct().OrderBy(x => x).ToList());
 
             return result;
         }

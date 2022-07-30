@@ -34,7 +34,7 @@ else
         <div class="d-flex flex-row align-items-center">
             <h5>Select date:</h5>
             <div width="20%" class="ms-2">
-                <select class="form-select" value="@_selectedYearByUser" @onchange="UpdYear">
+                <select class="form-select" value="@_selectedYearByUser" @onchange="SetYear">
                     @foreach (var item in _listOfYearsForSelect)
                     {
                         <option value="@item">@item</option>
@@ -42,7 +42,7 @@ else
                 </select>
             </div>
             <div width="20%" class="ms-2">
-                <select class="form-select" value="@_selectedMonthByUser" @onchange="Upd">
+                <select class="form-select" value="@_selectedMonthByUser" @onchange="SetMonth">
                     @foreach (var item in _listOfMonthsForSelect)
                     {
                         <option value="@item">@(new DateTime(2022, item, 1).ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))</option>
@@ -62,15 +62,20 @@ else
                 </th>
                 <th width="15%">
                     <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
-                        Amout @_str[(int)TypesInRecord.Amount]
+                        Pllaned @_str[(int)TypesInRecord.Amount]
                     </button>
                 </th>
-                <th width="25%">
+                <th width="15%">
                     <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                        Desc @_str[(int)TypesInRecord.CategoryName]
+                        Yet @_str[(int)TypesInRecord.CategoryName]
                     </button>
                 </th>
-                <th width="25%">
+                <th width="15%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                        Left @_str[(int)TypesInRecord.CategoryName]
+                    </button>
+                </th>
+                <th width="20%">
                     <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
                         Date @_str[(int)TypesInRecord.TransactionDate]
                     </button>
@@ -91,8 +96,9 @@ else
                     <tr>
                         <td class="align-middle" width="25%">@item.Name</td>
                         <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="25%">@item.FilledAmount</td>
-                        <td class="align-middle" width="25%">@item.TransactionDate.ToShortDateString()</td>
+                        <td class="align-middle" width="15%">@item.FilledAmount</td>
+                        <td class="align-middle" width="15%">@(item.Amount - item.FilledAmount)</td>
+                        <td class="align-middle" width="20%">@item.TransactionDate.ToShortDateString()</td>
                         <td class="align-middle" width="5%">
                             <button class="btn btn-outline-secondary btn-sm align-middle" @*@onclick="@(x => OpenEditForm(item))" *@>Edit</button>
                         </td>
@@ -180,31 +186,31 @@ else
 
     }
 
-    private async Task UpdYear(ChangeEventArgs e)
+    private async Task SetYear(ChangeEventArgs e)
     {
         if (e.Value is null) return;
 
-        int yearNr = int.Parse(e.Value.ToString() ?? _listOfYearsForSelect.Last().ToString());
+        int yearsAsNumber = int.Parse(e.Value.ToString() ?? _listOfYearsForSelect.Last().ToString());
 
-        _selectedYearByUser = yearNr;
+        _selectedYearByUser = yearsAsNumber;
 
-        _listOfMonthsForSelect = _listOfYearsWithMonths.First(x => x.Key == yearNr).Value;
+        _listOfMonthsForSelect = _listOfYearsWithMonths.First(x => x.Key == yearsAsNumber).Value;
 
-        var df = new ChangeEventArgs();
+        var eventArgs = new ChangeEventArgs();
 
-        if (yearNr == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
+        if (yearsAsNumber == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
         {
-            df.Value = DateTime.Now.Month;
+            eventArgs.Value = DateTime.Now.Month;
         }
         else
         {
-            df.Value = _listOfMonthsForSelect.Last();
+            eventArgs.Value = _listOfMonthsForSelect.Last();
         }
 
-        await Upd(df);
+        await SetMonth(eventArgs);
     }
 
-    private async Task Upd(ChangeEventArgs e)
+    private async Task SetMonth(ChangeEventArgs e)
     {
         if (e.Value is null) return;
         _selectedMonthByUser = int.Parse(e.Value.ToString() ?? _listOfMonthsForSelect.Last().ToString());
@@ -226,31 +232,27 @@ else
         try
         {
             var responseMessage = await _httpService.GetListOfItems("/api/plannedbudget/dates/");
+
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
-            {
                 _listOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(await responseMessage.Content.ReadAsStringAsync()) ?? new();
-            }
             else
                 _errorMessage = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
-
         }
-        //ListOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>
-        //(await _httpService.GetListOfItems("/api/plannedbudget/dates/").Result.Content.ReadAsStringAsync()) ?? new();
 
         _listOfYearsForSelect = _listOfYearsWithMonths.Select(x => x.Key).ToList();
 
-        var df = new ChangeEventArgs();
+        var eventArgs = new ChangeEventArgs();
 
         if (_listOfYearsWithMonths.Any(x => x.Key == DateTime.Now.Year))
-            df.Value = _listOfYearsWithMonths.First(x => x.Key == DateTime.Now.Year).Key;
+            eventArgs.Value = _listOfYearsWithMonths.First(x => x.Key == DateTime.Now.Year).Key;
         else
-            df.Value = _listOfYearsForSelect.Last();
+            eventArgs.Value = _listOfYearsForSelect.Last();
 
-        await UpdYear(df);
+        await SetYear(eventArgs);
 
         _getTableLoading = false;
         StateHasChanged();

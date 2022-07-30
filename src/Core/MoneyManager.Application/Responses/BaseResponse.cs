@@ -9,12 +9,12 @@ namespace MoneyManager.Application.Responses
 {
     public class BaseResponse
     {
-        private System.ComponentModel.DataAnnotations.ValidationResult validatorResult;
+        private System.ComponentModel.DataAnnotations.ValidationResult? validatorResult;
 
         public ResponseStatus Status { get; set; }
         public bool Success { get; set; }
         public string? Message { get; set; }
-        public List<string> ValidationErrors { get; set; }
+        public List<string>? ValidationErrors { get; set; }
 
         public BaseResponse()
         {

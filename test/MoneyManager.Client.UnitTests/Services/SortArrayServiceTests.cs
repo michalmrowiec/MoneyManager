@@ -20,10 +20,10 @@ namespace MoneyManager.Client.UnitTests.Services
             {
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "bTest", Amount = 100, Date = new DateTime(2020, 01, 01) },
-                    new RecordVM { Name = "nTest", Amount = 210, Date = new DateTime(2021, 01, 01) },
-                    new RecordVM { Name = "aTest", Amount = 19999, Date = new DateTime(2017, 11, 11) },
-                    new RecordVM { Name = "uTest", Amount = -1230, Date = new DateTime(2019, 04, 22) }
+                    new RecordVM { Name = "bTest", Amount = 100, TransactionDate = new DateTime(2020, 01, 01) },
+                    new RecordVM { Name = "nTest", Amount = 210, TransactionDate = new DateTime(2021, 01, 01) },
+                    new RecordVM { Name = "aTest", Amount = 19999, TransactionDate = new DateTime(2017, 11, 11) },
+                    new RecordVM { Name = "uTest", Amount = -1230, TransactionDate = new DateTime(2019, 04, 22) }
                 },
                 new List<string> { "2021", "2020", "2019", "2017" }
             },
@@ -31,10 +31,10 @@ namespace MoneyManager.Client.UnitTests.Services
             {
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "baTest", Amount = -1, Date = new DateTime(2015, 01, 01) },
-                    new RecordVM { Name = "nbTest", Amount = 777777, Date = new DateTime(2021, 01, 01) },
-                    new RecordVM { Name = "asTest", Amount = 0, Date = new DateTime(2017, 11, 11) },
-                    new RecordVM { Name = "u1Test", Amount = -130, Date = new DateTime(2019, 04, 22) }
+                    new RecordVM { Name = "baTest", Amount = -1, TransactionDate = new DateTime(2015, 01, 01) },
+                    new RecordVM { Name = "nbTest", Amount = 777777, TransactionDate = new DateTime(2021, 01, 01) },
+                    new RecordVM { Name = "asTest", Amount = 0, TransactionDate = new DateTime(2017, 11, 11) },
+                    new RecordVM { Name = "u1Test", Amount = -130, TransactionDate = new DateTime(2019, 04, 22) }
                 },
                 new List<string> { "2021", "2019", "2017", "2015" }
             },
@@ -50,10 +50,10 @@ namespace MoneyManager.Client.UnitTests.Services
             {
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "bTest", Amount = 100, Date = new DateTime(2020, 01, 01) },
-                    new RecordVM { Name = "nTest", Amount = 210, Date = new DateTime(2020, 01, 01) },
-                    new RecordVM { Name = "aTest", Amount = 19999, Date = new DateTime(2020, 11, 11) },
-                    new RecordVM { Name = "uTest", Amount = -1230, Date = new DateTime(2020, 04, 22) }
+                    new RecordVM { Name = "bTest", Amount = 100, TransactionDate = new DateTime(2020, 01, 01) },
+                    new RecordVM { Name = "nTest", Amount = 210, TransactionDate = new DateTime(2020, 01, 01) },
+                    new RecordVM { Name = "aTest", Amount = 19999, TransactionDate = new DateTime(2020, 11, 11) },
+                    new RecordVM { Name = "uTest", Amount = -1230, TransactionDate = new DateTime(2020, 04, 22) }
                 },
                 "2020",
                 new List<string> { "January", "April", "November" }
@@ -62,10 +62,10 @@ namespace MoneyManager.Client.UnitTests.Services
             {
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "baTest", Amount = -1, Date = new DateTime(2015, 12, 01) },
-                    new RecordVM { Name = "nbTest", Amount = 777777, Date = new DateTime(2015, 08, 01) },
-                    new RecordVM { Name = "asTest", Amount = 0, Date = new DateTime(2015, 10, 11) },
-                    new RecordVM { Name = "u1Test", Amount = -130, Date = new DateTime(2015, 03, 22) }
+                    new RecordVM { Name = "baTest", Amount = -1, TransactionDate = new DateTime(2015, 12, 01) },
+                    new RecordVM { Name = "nbTest", Amount = 777777, TransactionDate = new DateTime(2015, 08, 01) },
+                    new RecordVM { Name = "asTest", Amount = 0, TransactionDate = new DateTime(2015, 10, 11) },
+                    new RecordVM { Name = "u1Test", Amount = -130, TransactionDate = new DateTime(2015, 03, 22) }
                 },
                 "2015",
                 new List<string> { "March", "August", "October", "December" }
@@ -132,18 +132,18 @@ namespace MoneyManager.Client.UnitTests.Services
                 TypesInRecord.Amount,
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "mTest", Amount = -1, Date = new DateTime(2015, 12, 01) },
-                    new RecordVM { Name = "reTest", Amount = 7777.07M, Date = new DateTime(2015, 08, 01) },
-                    new RecordVM { Name = "34Test", Amount = 0, Date = new DateTime(2015, 10, 11) },
-                    new RecordVM { Name = "yTest", Amount = -130.65M, Date = new DateTime(2015, 03, 22) }
+                    new RecordVM { Name = "mTest", Amount = -1, TransactionDate = new DateTime(2015, 12, 01) },
+                    new RecordVM { Name = "reTest", Amount = 7777.07M, TransactionDate = new DateTime(2015, 08, 01) },
+                    new RecordVM { Name = "34Test", Amount = 0, TransactionDate = new DateTime(2015, 10, 11) },
+                    new RecordVM { Name = "yTest", Amount = -130.65M, TransactionDate = new DateTime(2015, 03, 22) }
                 },
                 new string[] { "", "", "", "" },
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "yTest", Amount = -130.65M, Date = new DateTime(2015, 03, 22) },
-                    new RecordVM { Name = "mTest", Amount = -1, Date = new DateTime(2015, 12, 01) },
-                    new RecordVM { Name = "34Test", Amount = 0, Date = new DateTime(2015, 10, 11) },
-                    new RecordVM { Name = "reTest", Amount = 7777.07M, Date = new DateTime(2015, 08, 01) }
+                    new RecordVM { Name = "yTest", Amount = -130.65M, TransactionDate = new DateTime(2015, 03, 22) },
+                    new RecordVM { Name = "mTest", Amount = -1, TransactionDate = new DateTime(2015, 12, 01) },
+                    new RecordVM { Name = "34Test", Amount = 0, TransactionDate = new DateTime(2015, 10, 11) },
+                    new RecordVM { Name = "reTest", Amount = 7777.07M, TransactionDate = new DateTime(2015, 08, 01) }
                 },
                 new string[] { "", "", "↑", "" }
             },
@@ -153,28 +153,28 @@ namespace MoneyManager.Client.UnitTests.Services
                 new List<RecordVM>
                 {
 
-                    new RecordVM { Name = "34Test", Amount = -1, Date = new DateTime(2021, 11, 11) },
-                    new RecordVM { Name = "34Test", Amount = 0, Date = new DateTime(2016, 08, 02) },
-                    new RecordVM { Name = "34Test", Amount = 16, Date = new DateTime(2017, 04, 07) },
-                    new RecordVM { Name = "34Test", Amount = -48.5M, Date = new DateTime(2020, 12, 08) },
-                    new RecordVM { Name = "34Test", Amount = 45.76M, Date = new DateTime(2021, 02, 11) },
-                    new RecordVM { Name = "34Test", Amount = 18888888M, Date = new DateTime(2020, 12, 09) },
-                    new RecordVM { Name = "34Test", Amount = -99990096.7M, Date = new DateTime(2015, 09, 14) },
-                    new RecordVM { Name = "34Test", Amount = 24555.91M, Date = new DateTime(2016, 11, 29) },
-                    new RecordVM { Name = "34Test", Amount = 0.53M, Date = new DateTime(2019, 01, 23) }
+                    new RecordVM { Name = "34Test", Amount = -1, TransactionDate = new DateTime(2021, 11, 11) },
+                    new RecordVM { Name = "34Test", Amount = 0, TransactionDate = new DateTime(2016, 08, 02) },
+                    new RecordVM { Name = "34Test", Amount = 16, TransactionDate = new DateTime(2017, 04, 07) },
+                    new RecordVM { Name = "34Test", Amount = -48.5M, TransactionDate = new DateTime(2020, 12, 08) },
+                    new RecordVM { Name = "34Test", Amount = 45.76M, TransactionDate = new DateTime(2021, 02, 11) },
+                    new RecordVM { Name = "34Test", Amount = 18888888M, TransactionDate = new DateTime(2020, 12, 09) },
+                    new RecordVM { Name = "34Test", Amount = -99990096.7M, TransactionDate = new DateTime(2015, 09, 14) },
+                    new RecordVM { Name = "34Test", Amount = 24555.91M, TransactionDate = new DateTime(2016, 11, 29) },
+                    new RecordVM { Name = "34Test", Amount = 0.53M, TransactionDate = new DateTime(2019, 01, 23) }
                 },
                 new string[] { "", "", "", "" },
                 new List<RecordVM>
                 {
-                    new RecordVM { Name = "34Test", Amount = -99990096.7M, Date = new DateTime(2015, 09, 14) },
-                    new RecordVM { Name = "34Test", Amount = 0, Date = new DateTime(2016, 08, 02) },
-                    new RecordVM { Name = "34Test", Amount = 24555.91M, Date = new DateTime(2016, 11, 29) },
-                    new RecordVM { Name = "34Test", Amount = 16, Date = new DateTime(2017, 04, 07) },
-                    new RecordVM { Name = "34Test", Amount = 0.53M, Date = new DateTime(2019, 01, 23) },
-                    new RecordVM { Name = "34Test", Amount = -48.5M, Date = new DateTime(2020, 12, 08) },
-                    new RecordVM { Name = "34Test", Amount = 18888888M, Date = new DateTime(2020, 12, 09) },
-                    new RecordVM { Name = "34Test", Amount = -1, Date = new DateTime(2021, 11, 11) },
-                    new RecordVM { Name = "34Test", Amount = 45.76M, Date = new DateTime(2021, 02, 11) }
+                    new RecordVM { Name = "34Test", Amount = -99990096.7M, TransactionDate = new DateTime(2015, 09, 14) },
+                    new RecordVM { Name = "34Test", Amount = 0, TransactionDate = new DateTime(2016, 08, 02) },
+                    new RecordVM { Name = "34Test", Amount = 24555.91M, TransactionDate = new DateTime(2016, 11, 29) },
+                    new RecordVM { Name = "34Test", Amount = 16, TransactionDate = new DateTime(2017, 04, 07) },
+                    new RecordVM { Name = "34Test", Amount = 0.53M, TransactionDate = new DateTime(2019, 01, 23) },
+                    new RecordVM { Name = "34Test", Amount = -48.5M, TransactionDate = new DateTime(2020, 12, 08) },
+                    new RecordVM { Name = "34Test", Amount = 18888888M, TransactionDate = new DateTime(2020, 12, 09) },
+                    new RecordVM { Name = "34Test", Amount = -1, TransactionDate = new DateTime(2021, 11, 11) },
+                    new RecordVM { Name = "34Test", Amount = 45.76M, TransactionDate = new DateTime(2021, 02, 11) }
                 },
                 new string[] { "", "", "", "↑" }
             }
