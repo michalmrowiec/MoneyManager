@@ -5,6 +5,8 @@
 @using MoneyManager.Client.ViewModels
 @inject IHttpRecordService _httpService
 
+<PageTitle>Add new record</PageTitle>
+
 <button class="btn btn-primary" @onclick="@(x => OpenDeleteDialog())">Add new record</button>
 <div>
     <p>@_error</p>
@@ -12,7 +14,7 @@
 
 @if (DeleteDialogOpen)
 {
-    <RecordFormDialog Title="Add new record" RecurringRecordsPanel="true" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord" RecurringRecordItem="ReturnedRecurringRecord" TypeOfDialog="RecordFormDialog.TypeOfRecordFormlDialog.AddRecord"></RecordFormDialog>
+    <RecordFormDialog Title="Add new record" RecurringRecordsPanel="true" OnClose="CloseDeleteDialog" FormRecordItem="ReturnedRecord" RecurringRecordItem="ReturnedRecurringRecord" TypeOfDialog="TypeOfFormlDialog.AddRecord"></RecordFormDialog>
 }
 
 @code {
@@ -50,6 +52,7 @@
                 {
                     _error = await response.Content.ReadAsStringAsync();
                 }
+                await _httpService.GetListOfItems("api/recurring/ex");
             }
             catch (Exception ex)
             {

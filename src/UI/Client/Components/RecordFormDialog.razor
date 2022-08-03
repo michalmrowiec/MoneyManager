@@ -82,14 +82,14 @@
                     }
 
 
-                    @if ((RecurringRecordsPanel && RecurringRecordFormOpen) || TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                    @if ((RecurringRecordsPanel && RecurringRecordFormOpen) || TypeOfDialog == TypeOfFormlDialog.EditRecurringRecord)
                     {
                         <div class="form-floating mb-2">
                             <text class="form-control">@recurringRecord.NextDate.ToShortDateString()</text>
                             <label for="floatingInput">Estimated next date</label>
                         </div>
 
-                        if (TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+                        if (TypeOfDialog == TypeOfFormlDialog.EditRecurringRecord)
                         {
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" @bind="RecurringRecordIsActive" id="flexCheckDefault">
@@ -132,7 +132,7 @@
     public string? Title { get; set; }
 
     [Parameter]
-    public TypeOfRecordFormlDialog TypeOfDialog { get; set; }
+    public TypeOfFormlDialog TypeOfDialog { get; set; }
 
     [Parameter]
     public bool RecurringRecordsPanel { get; set; } = false;
@@ -221,14 +221,14 @@
 
         formRecordItem.CategoryId = _selectedCategoryId;
 
-        if (RecurringRecordFormOpen || TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+        if (RecurringRecordFormOpen || TypeOfDialog == TypeOfFormlDialog.EditRecurringRecord)
         {
             recurringRecord.Name = formRecordItem.Name;
             recurringRecord.Amount = formRecordItem.Amount;
             recurringRecord.CategoryId = formRecordItem.CategoryId;
             recurringRecord.CategoryName = formRecordItem.CategoryName;
             recurringRecord.TransactionDate = formRecordItem.TransactionDate;
-            if(TypeOfDialog == TypeOfRecordFormlDialog.EditRecurringRecord)
+            if(TypeOfDialog == TypeOfFormlDialog.EditRecurringRecord)
                 recurringRecord.IsActive = RecurringRecordIsActive;
             RecurringRecordItem.InvokeAsync(recurringRecord);
         }
@@ -267,17 +267,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(TypeOfDialog == TypeOfRecordFormlDialog.AddRecord)
+        if(TypeOfDialog == TypeOfFormlDialog.AddRecord)
             TransactionDate = DateTime.Today;
         recurringRecord.RepeatEveryDayOfMonth = 1;
         await GetCategory();
-    }
-
-    public enum TypeOfRecordFormlDialog
-    {
-        AddRecord,
-        RecurringRecord,
-        EditRecurringRecord,
-        EditRecord
     }
 }

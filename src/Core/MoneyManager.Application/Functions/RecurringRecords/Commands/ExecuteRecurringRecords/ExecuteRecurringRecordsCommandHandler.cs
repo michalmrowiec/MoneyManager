@@ -30,18 +30,19 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
 
             var executer = new RecurringRecordsExecuter();
 
+            List<CreateRecordCommand> totalRecordToCreate = new();
+
             foreach (var recurringRecod in recurringRecords)
-            {
                 if (recurringRecod.NextDate <= request.ComparisonDate)
                 {
                     List<CreateRecordCommand> recordsToCreate = executer.GetListOfRecordsAndUpdateReccuringRecord(recurringRecod, request.ComparisonDate);
                     executer.UpdateNextDateForRecurringRecords(_mediator);
                     foreach (var record in recordsToCreate)
-                    {
-                        await _mediator.Send(record);
-                    }
+                        totalRecordToCreate.Add(record);
                 }
-            }
+
+            foreach (var record in totalRecordToCreate)
+                await _mediator.Send(record); //here is some problem, sometimes it doesn't add (last record)
 
             return Unit.Value;
         }

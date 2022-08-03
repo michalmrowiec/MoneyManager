@@ -1,5 +1,6 @@
 ﻿using MoneyManager.Client.Models;
 using MoneyManager.Client.ViewModels;
+using MoneyManager.Client.ViewModels.Interfaces;
 using System.Globalization;
 using System.Linq;
 
@@ -7,7 +8,7 @@ namespace MoneyManager.Client.Services
 {
     internal static class SortArrayService
     {
-        internal static List<string> GetAllYearsFromListOfRecords(List<RecordVM> records)
+        internal static List<string> GetAllYearsFromListOfRecords<T>(List<T> records) where T : IRecordWithDate
         {
             var years = records.Select(x => x.TransactionDate.ToString("yyyy"))
                 .Distinct()
@@ -16,7 +17,7 @@ namespace MoneyManager.Client.Services
             return years;
         }
 
-        internal static List<string> GetAllMonthsFromListOfRecords(List<RecordVM> records, string year)
+        internal static List<string> GetAllMonthsFromListOfRecords<T>(List<T> records, string year) where T : IRecordWithDate
         {
             var months = records.Where(x => x.TransactionDate.ToString("yyyy") == year)
                 .OrderBy(x => x.TransactionDate)

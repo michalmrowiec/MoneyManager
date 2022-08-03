@@ -59,7 +59,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
 
         [Theory]
         [MemberData(nameof(TestCategories))]
-        public async Task CreateCategory_WithValidModel_ReturnsCreatedStatusAndCreatedCategory(CreateCategoryCommand category)
+        public async Task CreateCategory_WithValidModel_ReturnsCreatedStatus(CreateCategoryCommand category)
         {
             var json = JsonConvert.SerializeObject(category);
             var httpContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
@@ -69,7 +69,6 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
             var createdCategory = JsonConvert.DeserializeObject<CreateCategoryCommand>(jsonResponse);
 
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
-            createdCategory.Should().BeEquivalentTo(category);
         }
 
         [Theory]
@@ -114,14 +113,14 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests
             var httpContentUpdate = new StringContent(jsonUpdate, UnicodeEncoding.UTF8, "application/json");
 
             await _httpClient.PostAsync("/api/category", httpContentCreate);
-            var response = await _httpClient.PatchAsync("/api/category", httpContentUpdate);
+            var response = await _httpClient.PutAsync("/api/category", httpContentUpdate);
 
             var responseGetAllCategory = await _httpClient.GetAsync("/api/category");
             var jsonResponseGetAllCategories = await responseGetAllCategory.Content.ReadAsStringAsync();
             var categories = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonResponseGetAllCategories);
 
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-            categories.Should().HaveCount(1);//.And.ContainEquivalentOf(categoryToUpdate);
+            categories.Should().BeEquivalentTo(new List<CategoryDto> { new CategoryDto { Id = 32900, Name = "Test_CategoryUpdated" } });
         }
     }
 }

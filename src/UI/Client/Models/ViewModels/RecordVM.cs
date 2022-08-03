@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using MoneyManager.Client.ViewModels.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.ViewModels
 {
-    public class RecordVM : IRecord
+    public class RecordVM : IRecord, IId, IRecordWithDate
     {
         public int Id { get; set; }
         [Required]
@@ -17,6 +19,9 @@ namespace MoneyManager.Client.ViewModels
         public string? CategoryName { get; set; }
         [Required]
         public decimal Amount { get; set; }
+        /// <summary>
+        /// Transaction Date
+        /// </summary>
         public DateTime TransactionDate { get; set; }
         public int? CategoryId { get; set; }
     }

@@ -13,8 +13,9 @@ namespace MoneyManager.Domain.Entities
         public string PasswordHash { get; set; } = null!;
         public string Name { get; set; } = null!;
 
-        public virtual ICollection<Record>? Records { get; set;}
-        public virtual ICollection<Category>? Categories { get; set;}
-        public virtual ICollection<RecurringRecord>? RecurringRecords { get; set;}
+        public virtual ICollection<Record>? Records { get; set; }
+        public virtual ICollection<Category>? Categories { get; set; }
+        public virtual ICollection<RecurringRecord>? RecurringRecords { get; set; }
+        public virtual ICollection<PlannedBudget>? PlannedBudgets { get; set; }
     }
 }

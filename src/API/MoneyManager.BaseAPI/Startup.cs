@@ -22,6 +22,7 @@ namespace MoneyManager.API
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddMediatR(typeof(Startup));
+            services.AddSwaggerGen();
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
@@ -40,6 +41,9 @@ namespace MoneyManager.API
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseAuthentication();
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MonayManagerAPI"));
 
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();

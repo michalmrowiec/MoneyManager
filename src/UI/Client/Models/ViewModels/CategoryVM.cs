@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using MoneyManager.Client.ViewModels.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.ViewModels
 {
-    public class CategoryVM : IRecord
+    public class CategoryVM : IRecord, IId
     {
         public int Id { get; set; }
         [Required]

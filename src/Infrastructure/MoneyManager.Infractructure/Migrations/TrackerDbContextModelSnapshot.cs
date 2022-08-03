@@ -17,7 +17,7 @@ namespace MoneyManager.Server.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "6.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -42,6 +42,38 @@ namespace MoneyManager.Server.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("MoneyManager.Domain.Entities.PlannedBudget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("FilledAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PlanForMonth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PlannedBudgets");
                 });
 
             modelBuilder.Entity("MoneyManager.Domain.Entities.Record", b =>
@@ -155,6 +187,23 @@ namespace MoneyManager.Server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MoneyManager.Domain.Entities.PlannedBudget", b =>
+                {
+                    b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("MoneyManager.Domain.Entities.User", "User")
+                        .WithMany("PlannedBudgets")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MoneyManager.Domain.Entities.Record", b =>
                 {
                     b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
@@ -192,6 +241,8 @@ namespace MoneyManager.Server.Migrations
             modelBuilder.Entity("MoneyManager.Domain.Entities.User", b =>
                 {
                     b.Navigation("Categories");
+
+                    b.Navigation("PlannedBudgets");
 
                     b.Navigation("Records");
 

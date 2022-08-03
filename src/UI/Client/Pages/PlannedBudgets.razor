@@ -1,0 +1,414 @@
+﻿@page "/plannedbudgets"
+@using MoneyManager.Client.Components
+@using MoneyManager.Client.Models
+@using MoneyManager.Client.Services
+@using MoneyManager.Client.ViewModels
+@using System.Globalization
+@using MoneyManager.Client.ViewModels.Dtos
+@using Newtonsoft.Json
+@inject IHttpRecordService _httpService
+
+<PageTitle>Planned Budgets</PageTitle>
+
+<h1>Planned Budgets</h1>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
+}
+
+@if (_getTableLoading)
+{
+    <p><em>Loading...</em></p>
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (_listOfYearsForSelect.Count == 0)
+{
+    <p>The table is empty, you can add a new record.</p>
+    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
+}
+else
+{
+    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
+
+    <div class="d-flex justify-content-between">
+        <div class="d-flex flex-row align-items-center">
+            <h5>Select date:</h5>
+            <div width="20%" class="ms-2">
+                <select class="form-select" value="@_selectedYearByUser" @onchange="SetYear">
+                    @foreach (var item in _listOfYearsForSelect)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+            </div>
+            <div width="20%" class="ms-2">
+                <select class="form-select" value="@_selectedMonthByUser" @onchange="SetMonth">
+                    @foreach (var item in _listOfMonthsForSelect)
+                    {
+                        <option value="@item">@(new DateTime(2022, item, 1).ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th width="25%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
+                        Name @_str[(int)TypesInRecord.Name]
+                    </button>
+                </th>
+                <th width="15%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
+                        Planned @_str[(int)TypesInRecord.Amount]
+                    </button>
+                </th>
+                <th width="15%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                        Yet @_str[(int)TypesInRecord.CategoryName]
+                    </button>
+                </th>
+                <th width="15%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                        Left @_str[(int)TypesInRecord.CategoryName]
+                    </button>
+                </th>
+                <th width="20%">
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
+                        Date @_str[(int)TypesInRecord.TransactionDate]
+                    </button>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+                <th width="5%">
+                    <div></div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (_listOfPlannedBudgets != null)
+            {
+                @foreach (var item in _listOfPlannedBudgets)
+                {
+                    <tr>
+                        <td class="align-middle" width="25%">@item.Name</td>
+                        <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                        <td class="align-middle" width="15%">@item.FilledAmount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                        <td class="align-middle" width="15%">@((item.Amount - item.FilledAmount).ToString("C2", CultureInfo.GetCultureInfo("en-US")))</td>
+                        <td class="align-middle" width="20%">@item.TransactionDate.ToShortDateString()</td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenAddEditForm(item))">Edit</button>
+                        </td>
+                        <td class="align-middle" width="5%">
+                            <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    if (AddEditFormOpen && _plannedBudgetToEdit is not null && _plannedBudgetToDelete is null)
+    {
+        <PlannedBudgetDialog Title="Edit Planned Budget" TypeOfDialog="TypeOfFormlDialog.EditRecord" PlannedBudgetToFill="_plannedBudgetToEdit" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
+    }
+
+    if (AddEditFormOpen && _plannedBudgetToDelete is not null && _plannedBudgetToEdit is null)
+    {
+        <ConfirmDeleteDialog Title="Are you sure?" Text=@($"Do you want to delete planned budget for the category: {_plannedBudgetToDelete.Name} for {_plannedBudgetToDelete.TransactionDate.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"))}?") DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" OnClose="CloseDialog"></ConfirmDeleteDialog>
+    }
+}
+
+@if (AddEditFormOpen && _plannedBudgetToEdit is null && _plannedBudgetToDelete is null)
+{
+    <PlannedBudgetDialog Title="Add Planned Budget" TypeOfDialog="TypeOfFormlDialog.AddRecord" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
+}
+
+@code {
+    private string? _errorMessage;
+    private bool _getTableLoading = true;
+    private List<PlannedBudgetVM> _listOfPlannedBudgets = new();
+    private List<PlannedBudgetDto> _listOfPlannedBudgetsDto = new();
+    private Dictionary<int, List<int>> _listOfYearsWithMonths = new();
+    private List<CategoryVM> _listOfCategories = new();
+
+    private List<int> _listOfYearsForSelect = new();
+    private List<int> _listOfMonthsForSelect = new();
+    private int _selectedMonthByUser;
+    private int _selectedYearByUser;
+
+    private string[] _str = { "", "", "", "" };
+    private TypesInRecord? _sortClickDesc = null;
+
+    private PlannedBudgetVM? _recordFromDialog;
+    private PlannedBudgetVM? _plannedBudgetToEdit;
+    private PlannedBudgetVM? _plannedBudgetToDelete;
+
+    private bool AddEditFormOpen { get; set; }
+
+    private void ReturnedPlannedBudget(PlannedBudgetVM plannedBudgetVM)
+    {
+        _recordFromDialog = plannedBudgetVM;
+    }
+
+    private void OpenDeleteDialog(PlannedBudgetVM plannedBudget)
+    {
+        _plannedBudgetToDelete = plannedBudget;
+        AddEditFormOpen = true;
+        StateHasChanged();
+    }
+
+    private void OpenAddEditForm(PlannedBudgetVM? plannedBudget = null)
+    {
+        _plannedBudgetToEdit = plannedBudget;
+        AddEditFormOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task CloseDialog(bool editConfirmed)
+    {
+        AddEditFormOpen = false;
+
+        if (editConfirmed && _recordFromDialog is not null && _plannedBudgetToEdit is null)
+            await CreatePlannedBudget();
+
+        if (editConfirmed && _recordFromDialog is not null && _plannedBudgetToEdit is not null)
+            await EditPlannedBudget();
+
+        if (editConfirmed && _recordFromDialog is null && _plannedBudgetToDelete is not null)
+            await DeletePlannedBudget();
+
+        await GetListOfYearsWithMonths();
+
+        _recordFromDialog = null;
+        _plannedBudgetToEdit = null;
+        _plannedBudgetToDelete = null;
+
+        StateHasChanged();
+    }
+
+    private async Task CreatePlannedBudget()
+    {
+        if (_recordFromDialog == null) return;
+
+        var plannedBudgetDto = new PlannedBudgetDto
+            {
+                Amount = _recordFromDialog.Amount,
+                CategoryId = _recordFromDialog.CategoryId,
+                PlanForMonth = _recordFromDialog.TransactionDate
+            };
+
+        try
+        {
+            var responseMessage = await _httpService.CreateItem(plannedBudgetDto, "/api/plannedbudget/");
+
+            if (responseMessage.StatusCode != System.Net.HttpStatusCode.Created)
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private async Task EditPlannedBudget()
+    {
+        if (_plannedBudgetToEdit == null) return;
+
+        var plannedBudgetDto = new PlannedBudgetDto
+            {
+                Id = _plannedBudgetToEdit.Id,
+                Amount = _plannedBudgetToEdit.Amount,
+                CategoryId = _plannedBudgetToEdit.CategoryId,
+                PlanForMonth = _plannedBudgetToEdit.TransactionDate
+            };
+
+        try
+        {
+            var responseMessage = await _httpService.UpdateItem(plannedBudgetDto, "/api/plannedbudget/");
+
+            if (responseMessage.StatusCode != System.Net.HttpStatusCode.OK)
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private async Task DeletePlannedBudget()
+    {
+        if (_plannedBudgetToDelete == null) return;
+
+        try
+        {
+            var responseMessage = await _httpService.DeleteItem(_plannedBudgetToDelete.Id, "/api/plannedbudget/");
+
+            if (responseMessage.StatusCode != System.Net.HttpStatusCode.NoContent)
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private async Task SetYear(ChangeEventArgs e)
+    {
+        if (e.Value is null) return;
+
+        int yearsAsNumber = int.Parse(e.Value.ToString() ?? _listOfYearsForSelect.Last().ToString());
+
+        _selectedYearByUser = yearsAsNumber;
+
+        _listOfMonthsForSelect = _listOfYearsWithMonths.First(x => x.Key == yearsAsNumber).Value;
+
+        var eventArgs = new ChangeEventArgs();
+
+        if (_listOfMonthsForSelect.Contains(_selectedMonthByUser))
+        {
+            eventArgs.Value = _selectedMonthByUser;
+        }
+        else if (yearsAsNumber == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
+        {
+            eventArgs.Value = DateTime.Now.Month;
+        }
+        else
+        {
+            eventArgs.Value = _listOfMonthsForSelect.Last();
+        }
+
+        await SetMonth(eventArgs);
+    }
+
+    private async Task SetMonth(ChangeEventArgs e)
+    {
+        if (e.Value is null) return;
+
+        _selectedMonthByUser = int.Parse(e.Value.ToString() ?? _listOfMonthsForSelect.Last().ToString());
+
+        await GetPlannedBudgetsForMonth();
+        StateHasChanged();
+    }
+
+    private void SortButtonClick(TypesInRecord sortBy)
+    {
+        SortArrayService.SortByType(sortBy, _sortClickDesc == sortBy, ref _listOfPlannedBudgets, ref _str);
+        if (_sortClickDesc == sortBy)
+            _sortClickDesc = null;
+        else
+            _sortClickDesc = sortBy;
+    }
+
+    private async Task GetListOfYearsWithMonths()
+    {
+        try
+        {
+            var responseMessage = await _httpService.GetListOfItems("/api/plannedbudget/dates/");
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+                _listOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(await responseMessage.Content.ReadAsStringAsync()) ?? new();
+            else
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        _listOfYearsForSelect = _listOfYearsWithMonths.Select(x => x.Key).ToList();
+
+
+        if (_listOfYearsForSelect.Count == 0)
+        {
+            _getTableLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        var eventArgs = new ChangeEventArgs();
+
+
+        if (_listOfYearsForSelect.Contains(_selectedYearByUser))
+        {
+            if (_listOfYearsWithMonths.First(x => x.Key == _selectedYearByUser).Value.Contains(_selectedMonthByUser))
+            {
+                eventArgs.Value = _selectedYearByUser;
+            }
+        }
+        else if (_listOfYearsWithMonths.Any(x => x.Key == DateTime.Now.Year))
+            eventArgs.Value = _listOfYearsWithMonths.First(x => x.Key == DateTime.Now.Year).Key;
+        else
+            eventArgs.Value = _listOfYearsForSelect.Last();
+
+        await SetYear(eventArgs);
+
+        _getTableLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task GetPlannedBudgetsForMonth()
+    {
+        var res = await _httpService
+        .GetListOfItems($"api/plannedbudget/{_selectedYearByUser}/{_selectedMonthByUser}/");
+        var json = await res.Content.ReadAsStringAsync();
+        _listOfPlannedBudgetsDto = JsonConvert.DeserializeObject<List<PlannedBudgetDto>>(json) ?? new();
+
+        await GetCategoriesForRecurringRecords();
+
+        StateHasChanged();
+    }
+
+    private async Task GetCategoriesForRecurringRecords()
+    {
+        try
+        {
+            var responseMessage = await _httpService.GetListOfItems("api/category");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _listOfCategories = JsonConvert.DeserializeObject<List<CategoryVM>>(jsonResponse) ?? new List<CategoryVM>();
+            }
+            else
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        var recordsWithCategories =
+        from record in _listOfPlannedBudgetsDto
+        join category in _listOfCategories on record.CategoryId equals category.Id into ps
+        from supCategory in ps.DefaultIfEmpty()
+        select new PlannedBudgetVM
+            {
+                Id = record.Id,
+                Name = supCategory.Name,
+                Amount = record.Amount,
+                FilledAmount = record.FilledAmount,
+                TransactionDate = record.PlanForMonth,
+                CategoryId = record.CategoryId,
+            };
+
+        _listOfPlannedBudgets = recordsWithCategories.ToList();
+
+        _sortClickDesc = null;
+        SortButtonClick(TypesInRecord.TransactionDate);
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _errorMessage = null;
+        await GetListOfYearsWithMonths();
+    }
+    }

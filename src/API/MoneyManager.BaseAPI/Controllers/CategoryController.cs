@@ -27,7 +27,7 @@ namespace MoneyManager.API.Controllers
         {
             createCategoryCommand.UserId = GetUserId();
             var category = await _mediator.Send(createCategoryCommand);
-            return Created("", category.CategoryDto);
+            return Created("", category);
         }
 
         [HttpGet("{categoryId}")]

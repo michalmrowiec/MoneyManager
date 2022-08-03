@@ -36,7 +36,7 @@ namespace MoneyManager.Application.Functions.Categories.Commands.CreateCategory
 
             var categoryDto = _mapper.Map<CategoryDto>(category);
 
-            return new CreateCategoryCommandResponse(categoryDto);
+            return new CreateCategoryCommandResponse(categoryDto.Id);
         }
     }
 }

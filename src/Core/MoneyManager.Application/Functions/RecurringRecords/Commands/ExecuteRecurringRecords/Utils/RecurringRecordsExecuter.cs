@@ -56,7 +56,7 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
 
                 if (nextDate <= referenceDate)
                 {
-                    var recordWithNextDate = new CreateRecordCommand
+                    listOfRecords.Add(new CreateRecordCommand
                     {
                         Name = recurringRecord.Name,
                         //CategoryName = recurringRecord.Category.CategoryName,
@@ -64,13 +64,11 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
                         TransactionDate = nextDate,
                         CategoryId = recurringRecord.CategoryId,
                         UserId = recurringRecord.UserId,
-                    };
-                    //recordWithNextDate.TransactionDate = nextDate;
-                    listOfRecords.Add(recordWithNextDate);
+                    });
                 }
                 else
                 {
-                    var recurringRecordTuUpdate = new RecurringRecord
+                    _recurringRecordsToUpdate.Add(new RecurringRecord
                     {
                         Id = recurringRecord.Id,
                         IsActive = recurringRecord.IsActive,
@@ -81,9 +79,7 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
                         TransactionDate = recurringRecord.TransactionDate,
                         CategoryId = recurringRecord.CategoryId,
                         UserId = recurringRecord.UserId
-                    };
-                    _recurringRecordsToUpdate.Add(recurringRecordTuUpdate);
-                    //UpdateNextDateForRecurringRecord(recurringRecord, nextDate);
+                    });
                     break;
                 }
             }
