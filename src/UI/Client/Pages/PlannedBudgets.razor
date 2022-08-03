@@ -24,12 +24,15 @@
         <span class="visually-hidden">Loading...</span>
     </div>
 }
-else if (_listOfPlannedBudgets.Count == 0)
+else if (_listOfYearsForSelect.Count == 0)
 {
-    <p>The table is empty, you can add a new record <a href="/#">here</a></p>
+    <p>The table is empty, you can add a new record.</p>
+    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
 }
 else
 {
+    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
+
     <div class="d-flex justify-content-between">
         <div class="d-flex flex-row align-items-center">
             <h5>Select date:</h5>
@@ -111,13 +114,6 @@ else
         </tbody>
     </table>
 
-    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
-
-    if (AddEditFormOpen && _plannedBudgetToEdit is null && _plannedBudgetToDelete is null)
-    {
-        <PlannedBudgetDialog Title="Add Planned Budget" TypeOfDialog="TypeOfFormlDialog.AddRecord" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
-    }
-
     if (AddEditFormOpen && _plannedBudgetToEdit is not null && _plannedBudgetToDelete is null)
     {
         <PlannedBudgetDialog Title="Edit Planned Budget" TypeOfDialog="TypeOfFormlDialog.EditRecord" PlannedBudgetToFill="_plannedBudgetToEdit" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
@@ -127,6 +123,11 @@ else
     {
         <ConfirmDeleteDialog Title="Are you sure?" Text=@($"Do you want to delete planned budget for the category: {_plannedBudgetToDelete.Name} for {_plannedBudgetToDelete.TransactionDate.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"))}?") DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" OnClose="CloseDialog"></ConfirmDeleteDialog>
     }
+}
+
+@if (AddEditFormOpen && _plannedBudgetToEdit is null && _plannedBudgetToDelete is null)
+{
+    <PlannedBudgetDialog Title="Add Planned Budget" TypeOfDialog="TypeOfFormlDialog.AddRecord" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
 }
 
 @code {
@@ -322,6 +323,14 @@ else
         }
 
         _listOfYearsForSelect = _listOfYearsWithMonths.Select(x => x.Key).ToList();
+
+
+        if (_listOfYearsForSelect.Count == 0)
+        {
+            _getTableLoading = false;
+            StateHasChanged();
+            return;
+        }
 
         var eventArgs = new ChangeEventArgs();
 
