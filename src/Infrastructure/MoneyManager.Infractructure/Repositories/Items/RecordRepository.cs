@@ -14,16 +14,6 @@ namespace MoneyManager.Infractructure.Repositories.Items
         public RecordRepository(MoneyManagerContext dbContext) : base(dbContext)
         { }
 
-        public async Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId)
-        {
-            var records = await _dbContext.RecordItems.Where(x => x.UserId == userId && x.CategoryId == cateogryId).ToListAsync();
-            var category = _dbContext.Categories.Where(x => x.UserId == userId).First(x => x.Id == cateogryId);
-
-            records.ForEach(x => { x.CategoryId = category.Id; x.Category = category; });
-
-            return records;
-        }
-
         public override async Task<IList<Record>> GetAllAsync(int userId)
         {
             var records = await _dbContext.RecordItems.Where(x => x.UserId == userId).ToListAsync();
