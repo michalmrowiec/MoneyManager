@@ -264,24 +264,30 @@ else
             _errorMessage = ex.Message;
         }
 
-        var recordsWithCategories =
-        from record in _listOfRecurringRecords
-        join category in _listOfCategories on record.CategoryId equals category.Id into ps
-        from supCategory in ps.DefaultIfEmpty()
-        select new RecurringRecordVM
-            {
-                Id = record.Id,
-                Name = record.Name,
-                CategoryName = supCategory.Name,
-                Amount = record.Amount,
-                TransactionDate = record.TransactionDate,
-                CategoryId = record.CategoryId,
-                IsActive = record.IsActive,
-                NextDate = record.NextDate,
-                RepeatEveryDayOfMonth = record.RepeatEveryDayOfMonth
+        foreach (var record in _listOfRecurringRecords)
+        {
+            record.CategoryName = _listOfCategories.FirstOrDefault(x => x.Id == record.CategoryId)?.Name;
+        }
 
-            };
-        _listOfRecurringRecords = recordsWithCategories.ToList();
+        //var recordsWithCategories =
+        //from record in _listOfRecurringRecords
+        //join category in _listOfCategories on record.CategoryId equals category.Id into ps
+        //from supCategory in ps.DefaultIfEmpty()
+        //select new RecurringRecordVM
+        //    {
+        //        Id = record.Id,
+        //        Name = record.Name,
+        //        CategoryName = supCategory.Name,
+        //        Amount = record.Amount,
+        //        TransactionDate = record.TransactionDate,
+        //        CategoryId = record.CategoryId,
+        //        IsActive = record.IsActive,
+        //        NextDate = record.NextDate,
+        //        RepeatEveryDayOfMonth = record.RepeatEveryDayOfMonth
+
+        //    };
+
+        //_listOfRecurringRecords = recordsWithCategories.ToList();
 
         StateHasChanged();
     }

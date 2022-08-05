@@ -19,5 +19,9 @@ namespace MoneyManager.Infractructure.Repositories.Items
         {
             return await _dbContext.RecurringRecords.FirstAsync(x => x.UserId == userId && x.Id == itemId);
         }
+        public override async Task<IList<RecurringRecord>> GetAllAsync(int userId)
+        {
+            return await _dbContext.RecurringRecords.Where(x => x.UserId == userId).ToListAsync();
+        }
     }
 }
