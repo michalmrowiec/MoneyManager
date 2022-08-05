@@ -2,6 +2,8 @@
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
+@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
 @inject HttpClient http;
 @inject NavigationManager navigationManager
 @inject ILocalStorageService _localStorage
@@ -59,13 +61,15 @@
         try
         {
             var result = await http.PostAsJsonAsync("/api/account/login", LoginUserVM);
-            UserTokenVM token = new UserTokenVM();
+            //UserTokenVM token = new UserTokenVM();
             //token.Token = await result.Content.ReadAsStringAsync();
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                token = JsonConvert.DeserializeObject<UserTokenVM>(await result.Content.ReadAsStringAsync());
-                await _localStorage.SetItem<UserTokenVM>("user", token);
+                UserTokenVM userToken = JsonConvert.DeserializeObject<UserTokenVM>(await result.Content.ReadAsStringAsync()) ?? new();
+                var tokenHandler = new JwtSecurityTokenHandler();
+                userToken.UserId = int.Parse(tokenHandler.ReadJwtToken(userToken.Token).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+                await _localStorage.SetItem<UserTokenVM>("user", userToken);
                 appState.LoggedIn = true;
                 navigationManager.NavigateTo("tracker");
                 await _httpService.GetListOfItems("api/recurring/ex");
