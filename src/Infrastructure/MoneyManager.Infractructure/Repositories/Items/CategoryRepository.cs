@@ -13,15 +13,5 @@ namespace MoneyManager.Infractructure.Repositories.Items
     {
         public CategoryRepository(MoneyManagerContext dbContext) : base(dbContext)
         { }
-
-        public override async Task<IList<Category>> GetAllAsync(int userId)
-        {
-            return await _dbContext.Categories.Where(x => x.UserId == userId).ToListAsync(); ;
-        }
-
-        public override async Task<Category> GetByIdAsync(int userId, int itemId)
-        {
-            return await _dbContext.Categories.FirstAsync(x => x.UserId == userId && x.Id == itemId);
-        }
     }
 }

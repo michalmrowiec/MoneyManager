@@ -8,13 +8,8 @@ using MoneyManager.Application.Functions.PlannedBudget.Commands.UpdatePlannedBud
 using MoneyManager.Application.Functions.PlannedBudget.Queries;
 using MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllPlannedBudget;
 using MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllYearsWithMonths;
+using MoneyManager.Application.Functions.PlannedBudget.Queries.GetPlannedBudgetById;
 using MoneyManager.Application.Functions.PlannedBudget.Queries.GetPlannedBudgetsForMonth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.API.Controllers
 {
@@ -57,6 +52,12 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult<List<PlannedBudgetDto>>> GetAllPlannedBudgets()
         {
             return Ok(await _mediator.Send(new GetAllPlannedBudgetQuery(_userContextService.GetUserId)));
+        }
+
+        [HttpGet("{plannedBudgetId}")]
+        public async Task<ActionResult<PlannedBudgetDto>> GetRecordById([FromRoute] int plannedBudgetId)
+        {
+            return Ok(await _mediator.Send(new GetPlannedBudgetByIdQuery(_userContextService.GetUserId, plannedBudgetId)));
         }
 
         [HttpGet("dates")]

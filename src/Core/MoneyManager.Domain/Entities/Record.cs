@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Domain.Entities.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Domain.Entities
 {
-    public class Record
+    public class Record : IIdentifier
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
