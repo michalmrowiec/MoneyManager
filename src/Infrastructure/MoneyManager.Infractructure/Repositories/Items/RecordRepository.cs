@@ -36,11 +36,6 @@ namespace MoneyManager.Infractructure.Repositories.Items
             return recordsWithCategories.ToList();
         }
 
-        public override async Task<Record> GetByIdAsync(int userId, int itemId)
-        {
-            return await _dbContext.RecordItems.FirstAsync(x => x.UserId == userId && x.Id == itemId);
-        }
-
         public async Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId)
         {
             var records = await _dbContext.RecordItems.Where(x => x.UserId == userId && x.CategoryId == cateogryId).ToListAsync();

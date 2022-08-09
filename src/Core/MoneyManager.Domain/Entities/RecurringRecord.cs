@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoneyManager.Domain.Entities.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Domain.Entities
 {
-    public class RecurringRecord
-    {
+    public class RecurringRecord : IIdentifier
+	{
 		public int Id { get; set; }
 		public bool IsActive { get; set; }
 		public DateTime NextDate { get; set; }

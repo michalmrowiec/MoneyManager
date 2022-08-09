@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneyManager.Application.Contracts.Persistence.Items;
+using MoneyManager.Domain.Entities.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Infractructure.Repositories.Items
 {
-    internal class ItemRepositoryBase<T> : IItemAsyncRepositoryBase<T> where T : class
+    internal class ItemRepositoryBase<T> : IItemAsyncRepositoryBase<T> where T : class, IIdentifier
     {
         protected readonly MoneyManagerContext _dbContext;
         public ItemRepositoryBase(MoneyManagerContext moneyManagerContext)
@@ -32,12 +33,12 @@ namespace MoneyManager.Infractructure.Repositories.Items
 
         public virtual async Task<IList<T>> GetAllAsync(int userId)
         {
-            return await _dbContext.Set<T>().ToListAsync();
+            return await _dbContext.Set<T>().Where(x => x.UserId == userId).ToListAsync();
         }
 
         public virtual async Task<T> GetByIdAsync(int userId, int itemId)
         {
-            return await _dbContext.Set<T>().FindAsync(itemId);
+            return await _dbContext.Set<T>().FirstAsync(x => x.UserId == userId && x.Id == itemId);
         }
 
         public virtual async Task UpdateAsync(T entity)

@@ -14,7 +14,7 @@ namespace MoneyManager.Client.ViewModels
         public int Id { get; set; }
         [Required]
         [MinLength(2, ErrorMessage = "Name is too short.")]
-        [StringLength(25,ErrorMessage = "Name is too long.")]
+        [StringLength(50,ErrorMessage = "Name is too long.")]
         public string Name { get; set; } = null!;
         public string? CategoryName { get; set; }
         [Required]
