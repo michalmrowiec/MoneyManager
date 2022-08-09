@@ -1,6 +1,7 @@
 ﻿    using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRecurringRecord;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.DeleteRecurringRecord;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRecurringRecords;
@@ -18,15 +19,17 @@ namespace MoneyManager.API.Controllers
     public class RecurringRecordController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public RecurringRecordController(IMediator mediator)
+        private readonly IUserContextService _userContextService;
+        public RecurringRecordController(IMediator mediator, IUserContextService userContextService)
         {
             _mediator = mediator;
+            _userContextService = userContextService;
         }
 
         [HttpPost]
         public async Task<ActionResult> CreateRecurringRecord([FromBody] CreateRecurringRecordCommand createRecurringRecord)
         {
-            createRecurringRecord.UserId = GetUserId();
+            createRecurringRecord.UserId = _userContextService.GetUserId;
             await _mediator.Send(createRecurringRecord);
             return Created("", null);
         }
@@ -34,13 +37,13 @@ namespace MoneyManager.API.Controllers
         [HttpGet("{recurringRecordId}")]
         public async Task<ActionResult<RecurringRecordDto>> GetRecordById([FromRoute] int recurringRecordId)
         {
-            return Ok(await _mediator.Send(new GetRecurringRecordByIdQuery(GetUserId(), recurringRecordId)));
+            return Ok(await _mediator.Send(new GetRecurringRecordByIdQuery(_userContextService.GetUserId, recurringRecordId)));
         }
 
         [HttpGet]
         public async Task<ActionResult<List<RecurringRecordDto>>> GetlAllRecurringRecords()
         {
-            return Ok(await _mediator.Send(new GetAllRecurringRecordsQuery(GetUserId())));
+            return Ok(await _mediator.Send(new GetAllRecurringRecordsQuery(_userContextService.GetUserId)));
         }
 
         [HttpGet]
@@ -48,13 +51,13 @@ namespace MoneyManager.API.Controllers
         public async Task<ActionResult> ExecuteRecurringRecords([FromRoute] string? date = null)
         {
             DateTime dateTime = date is null ? DateTime.Now : DateTime.ParseExact(date, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
-            return Ok(await _mediator.Send(new ExecuteRecurringRecordsCommand(GetUserId(), dateTime)));
+            return Ok(await _mediator.Send(new ExecuteRecurringRecordsCommand(_userContextService.GetUserId, dateTime)));
         }
 
         [HttpPut]
         public async Task<ActionResult> UpdateRecurringRecord([FromBody] UpdateRecurringRecordCommand updateRecurringRecord)
         {
-            updateRecurringRecord.UserId = GetUserId();
+            updateRecurringRecord.UserId = _userContextService.GetUserId;
             await _mediator.Send(updateRecurringRecord);
             return Ok();
         }
@@ -62,14 +65,8 @@ namespace MoneyManager.API.Controllers
         [HttpDelete("{recurringRecordId}")]
         public async Task<ActionResult> DeleteRecurringRecord([FromRoute] int recurringRecordId)
         {
-            await _mediator.Send(new DeleteRecurringRecordCommand(GetUserId(), recurringRecordId));
+            await _mediator.Send(new DeleteRecurringRecordCommand(_userContextService.GetUserId, recurringRecordId));
             return NoContent();
-        }
-
-        private int GetUserId()
-        {
-            var f = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-            return f == null ? 0 : int.Parse(f.Value);
         }
     }
 }
