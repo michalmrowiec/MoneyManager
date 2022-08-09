@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Records;
 using MoneyManager.Application.Functions.Records.Queries.GetRecordById;
 using MoneyManager.Application.Functions.Records.Queries.GetRecordsForMonth;
@@ -19,15 +20,17 @@ namespace MoneyManager.API.Controllers
     public class TrackerController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public TrackerController(IMediator mediator)
+        private readonly IUserContextService _userContextService;
+        public TrackerController(IMediator mediator, IUserContextService userContextService)
         {
             _mediator = mediator;
+            _userContextService = userContextService;
         }
 
         [HttpPost]
         public async Task<ActionResult> CreateRecord([FromBody] CreateRecordCommand recordItem)
         {
-            recordItem.UserId = GetUserId();
+            recordItem.UserId = _userContextService.GetUserId;
             var record = await _mediator.Send(recordItem);
             return Created("", record);
         }
@@ -35,47 +38,41 @@ namespace MoneyManager.API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<RecordDto>>> GetAllRecords()
         {
-            return Ok(await _mediator.Send(new GetAllRecordsQuery(GetUserId())));
+            return Ok(await _mediator.Send(new GetAllRecordsQuery(_userContextService.GetUserId)));
         }
 
         [HttpGet("{year}/{month}")]
         public async Task<ActionResult<List<RecordDto>>> GetRecordsForMonth([FromRoute] int year, [FromRoute] int month)
         {
-            return Ok(await _mediator.Send(new GetRecordsForMonthQuery(GetUserId(), year, month)));
+            return Ok(await _mediator.Send(new GetRecordsForMonthQuery(_userContextService.GetUserId, year, month)));
         }
 
         [HttpGet("{recordId}")]
         public async Task<ActionResult<RecordDto>> GetRecordById([FromRoute] int recordId)
         {
-            return Ok(await _mediator.Send(new GetRecordByIdQuery(GetUserId(), recordId)));
+            return Ok(await _mediator.Send(new GetRecordByIdQuery(_userContextService.GetUserId, recordId)));
         }
 
         [HttpGet]
         [Route("cat/{categoryId}")]
         public async Task<ActionResult<List<RecordDto>>> GetRecordsForCategory([FromRoute] int categoryId)
         {
-            return Ok(await _mediator.Send(new GetRecordsForCategoryQuery(GetUserId(), categoryId)));
+            return Ok(await _mediator.Send(new GetRecordsForCategoryQuery(_userContextService.GetUserId, categoryId)));
         }
 
         [HttpDelete("{recordId}")]
         public async Task<ActionResult> DeleteRecord([FromRoute] int recordId)
         {
-            await _mediator.Send(new DeleteRecordCommand(GetUserId(), recordId));
+            await _mediator.Send(new DeleteRecordCommand(_userContextService.GetUserId, recordId));
             return NoContent();
         }
 
         [HttpPut]
         public async Task<ActionResult> UpdateRecord([FromBody] UpdateRecordCommand recordItem)
         {
-            recordItem.UserId = GetUserId();
+            recordItem.UserId = _userContextService.GetUserId;
             await _mediator.Send(recordItem);
             return Ok();
-        }
-
-        private int GetUserId()
-        {
-            var f = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-            return f == null ? 0 : int.Parse(f.Value);
         }
     }
 }

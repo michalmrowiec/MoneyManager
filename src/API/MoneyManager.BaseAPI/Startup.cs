@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MoneyManager.API.Services;
 using MoneyManager.Application;
 using MoneyManager.Infractructure;
 
@@ -23,6 +24,8 @@ namespace MoneyManager.API
             services.AddRazorPages();
             services.AddMediatR(typeof(Startup));
             services.AddSwaggerGen();
+            services.AddScoped<IUserContextService, UserContextService>();
+            services.AddHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
