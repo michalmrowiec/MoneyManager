@@ -2,14 +2,8 @@
 using MediatR;
 using MoneyManager.Application.Contracts.Persistence.Users;
 using MoneyManager.Application.Functions.Users.Services;
-using MoneyManager.Domain.Authentication;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
 {
@@ -28,7 +22,7 @@ namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
 
         public async Task<RegisterUserCommandResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            var validator = new RegisterUserCommandValidator();
+            var validator = new RegisterUserCommandValidator(_mediator);
             var validatorResult = await validator.ValidateAsync(request);
 
 

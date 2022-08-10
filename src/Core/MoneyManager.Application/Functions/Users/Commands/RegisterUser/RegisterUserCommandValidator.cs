@@ -1,16 +1,16 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR;
+using MoneyManager.Application.Functions.Users.Queries.CheckEmail;
 
 namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
 {
     public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
     {
-        public RegisterUserCommandValidator()
+        private readonly IMediator _mediator;
+        public RegisterUserCommandValidator(IMediator mediator)
         {
+            _mediator = mediator;
+
             RuleFor(x => x.Name)
                 .NotNull()
                 .NotEmpty()
@@ -27,6 +27,7 @@ namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
                 .Custom((value, context) =>
                 {
                     //Validate email in use
+                    if(_mediator.Send(new CheckEmailQuery(value)).Result) context.AddFailure("Email", "Email is taken");
                 });
 
             RuleFor(x => x.Password)

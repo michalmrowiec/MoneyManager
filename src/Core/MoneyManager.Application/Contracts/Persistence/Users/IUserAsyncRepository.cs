@@ -1,4 +1,5 @@
 ﻿using MoneyManager.Domain.Authentication;
+using MoneyManager.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace MoneyManager.Application.Contracts.Persistence.Users
     {
         Task<UserToken> Register(RegisterUser registerUser);
         Task<UserToken> Login(LoginUser loginUser);
+        Task<bool> CheckEmail(string email);
     }
 }

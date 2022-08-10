@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoneyManager.Application.Contracts.Persistence.Users;
 using MoneyManager.Domain.Authentication;
@@ -126,6 +127,11 @@ namespace MoneyManager.Infractructure.Repositories.Users
 
             //return tokenHandler.WriteToken(token);
             return Task.FromResult(retTok);
+        }
+
+        public async Task<bool> CheckEmail(string email)
+        {
+            return await _dbContext.Users.AnyAsync(x => x.Email == email); 
         }
     }
 }

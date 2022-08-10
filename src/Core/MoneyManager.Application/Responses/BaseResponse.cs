@@ -43,7 +43,7 @@ namespace MoneyManager.Application.Responses
             {
                 ValidationErrors.Add(item.ErrorMessage);
             }
-
+            Status = ResponseStatus.ValidationError;
         }
 
         public BaseResponse(System.ComponentModel.DataAnnotations.ValidationResult validatorResult)
