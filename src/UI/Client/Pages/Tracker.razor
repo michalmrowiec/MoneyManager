@@ -129,9 +129,14 @@ else
         </tbody>
         <tfoot>
             <tr>
-                <td>Summary:</td>
+                <td>Monthly summary:</td>
                 <td></td>
                 <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+            </tr>
+            <tr>
+                <td>Total summary:</td>
+                <td></td>
+                <td>@_sumOfTotalAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
             </tr>
         </tfoot>
     </table>
@@ -162,6 +167,7 @@ else
     private string[] _str = { "", "", "", "" };
     private TypesInRecord? _sortClickDesc = null;
     private decimal _sumOfMonthlyAmounts = 0;
+    private decimal _sumOfTotalAmounts = 0;
     private string _selectedYearByUser = String.Empty;
     private string _selectedMonthByUser = String.Empty;
     private RecordVM? _editRecord = null;
@@ -219,6 +225,30 @@ else
                     break;
             }
         }
+    }
+
+    // TODO: Poukładaj to please
+
+    private async Task GetTotalSummary()
+    {
+        try
+        {
+            var responseMessage = await _httpTracker.GetListOfItems("/api/stat/total/");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _sumOfTotalAmounts = JsonConvert.DeserializeObject<decimal>(jsonResponse);
+            }
+            else
+                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        StateHasChanged();
     }
 
     private void UpdateSummary()
@@ -347,14 +377,15 @@ else
                 SelectedMonthByUser = selectedMonth;
             }
 
-
-
         _sortClickDesc = null;
         SortButtonClick(TypesInRecord.TransactionDate);
+
         _getTableLoading = false;
-        StateHasChanged();
 
         UpdateSummary();
+        await GetTotalSummary();
+
+        StateHasChanged();
     }
 
     private async Task Delete(int id)
@@ -403,4 +434,4 @@ else
         OnlyIncomes,
         ExpensesAndIncomes
     }
-    }
+}

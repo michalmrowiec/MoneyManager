@@ -30,14 +30,18 @@
                                     <div class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></div>
                                 </div>
                             }
+                            else if (_categories.Count is 0)
+                            {
+                                <div>You don't have any categories</div>
+                            }
                             else
                             {
                                 <InputSelect class="form-select" @bind-Value="SelectedCategory">
                                     @foreach (var item in _categories)
                                     {
-                                    <option value="@item.Id">@item.Name</option>
+                                        <option value="@item.Id">@item.Name</option>
                                     }
-                            </InputSelect>
+                                </InputSelect>
                             }
                         </div>
                         <div class="">
@@ -228,7 +232,7 @@
             recurringRecord.CategoryId = formRecordItem.CategoryId;
             recurringRecord.CategoryName = formRecordItem.CategoryName;
             recurringRecord.TransactionDate = formRecordItem.TransactionDate;
-            if(TypeOfDialog == TypeOfFormlDialog.EditRecurringRecord)
+            if (TypeOfDialog == TypeOfFormlDialog.EditRecurringRecord)
                 recurringRecord.IsActive = RecurringRecordIsActive;
             RecurringRecordItem.InvokeAsync(recurringRecord);
         }
@@ -244,18 +248,37 @@
     private async Task GetCategory()
     {
         _loadingCategories = true;
-        var respond = await _httpService.GetListOfItems("/api/category/");
-        if (respond == null) return;
-        var json = await respond.Content.ReadAsStringAsync();
-        var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
-
-        if (categories is not null)
+        try
         {
-            _categories = categories;
-            //var it = _categories.First();
-            if(_selectedCategoryId is null)
-                _selectedCategoryId = _categories.First().Id;
+            var respond = await _httpService.GetListOfItems("/api/category/");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
+
+                _categories = categories;
+                if (_selectedCategoryId is null)
+                    _selectedCategoryId = _categories.First().Id;
+            }
+            else
+                _categories = new();
+            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
         }
+        catch (Exception ex)
+        {
+            //_errorMessage = ex.Message;
+        }
+
+        //if (categories is not null)
+        //{
+        //    _categories = categories;
+        //    if (_selectedCategoryId is null)
+        //        _selectedCategoryId = _categories.First().Id;
+        //}
+        //else
+        //    _categories = new();
+
         _loadingCategories = false;
         StateHasChanged();
     }
@@ -267,7 +290,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(TypeOfDialog == TypeOfFormlDialog.AddRecord)
+        if (TypeOfDialog == TypeOfFormlDialog.AddRecord)
             TransactionDate = DateTime.Today;
         recurringRecord.RepeatEveryDayOfMonth = 1;
         await GetCategory();
