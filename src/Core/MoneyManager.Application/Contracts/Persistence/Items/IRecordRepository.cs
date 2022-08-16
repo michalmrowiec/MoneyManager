@@ -1,9 +1,4 @@
 ﻿using MoneyManager.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Contracts.Persistence.Items
 {
@@ -11,5 +6,6 @@ namespace MoneyManager.Application.Contracts.Persistence.Items
     {
         Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId);
         Task<IList<Record>> GetRecordsForMonth(int userId, int year, int month);
+        Task<Record[]> AddRangeRecordAsync(Record[] records);
     }
 }

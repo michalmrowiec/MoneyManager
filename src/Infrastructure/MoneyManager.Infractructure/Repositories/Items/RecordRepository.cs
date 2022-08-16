@@ -14,6 +14,13 @@ namespace MoneyManager.Infractructure.Repositories.Items
         public RecordRepository(MoneyManagerContext dbContext) : base(dbContext)
         { }
 
+        public async Task<Record[]> AddRangeRecordAsync(Record[] records)
+        {
+            await _dbContext.RecordItems.AddRangeAsync(records);
+            await _dbContext.SaveChangesAsync();
+            return records;
+        }
+
         public override async Task<IList<Record>> GetAllAsync(int userId)
         {
             var records = await _dbContext.RecordItems.Where(x => x.UserId == userId).ToListAsync();

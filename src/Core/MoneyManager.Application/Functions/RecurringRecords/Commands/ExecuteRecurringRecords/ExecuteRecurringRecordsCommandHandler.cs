@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Application.Functions.Records;
+using MoneyManager.Application.Functions.Records.Commands.CreateRangeRecords;
+using MoneyManager.Application.Functions.Records.Commands.CreateRecord;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRecurringRecords.Utils;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.UpdateRecurringRecord;
 using MoneyManager.Domain.Entities;
@@ -30,19 +32,18 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
 
             var executer = new RecurringRecordsExecuter();
 
-            List<CreateRecordCommand> totalRecordToCreate = new();
+            List<Record> totalRecordToCreate = new();
 
             foreach (var recurringRecod in recurringRecords)
                 if (recurringRecod.NextDate <= request.ComparisonDate)
                 {
-                    List<CreateRecordCommand> recordsToCreate = executer.GetListOfRecordsAndUpdateReccuringRecord(recurringRecod, request.ComparisonDate);
+                    List<Record> recordsToCreate = executer.GetListOfRecordsAndUpdateReccuringRecord(recurringRecod, request.ComparisonDate);
                     executer.UpdateNextDateForRecurringRecords(_mediator);
                     foreach (var record in recordsToCreate)
                         totalRecordToCreate.Add(record);
                 }
 
-            foreach (var record in totalRecordToCreate)
-                await _mediator.Send(record); //here is some problem, sometimes it doesn't add (last record)
+            await _mediator.Send(new CreateRangeRecordsCommand(totalRecordToCreate.ToArray()));
 
             return Unit.Value;
         }
