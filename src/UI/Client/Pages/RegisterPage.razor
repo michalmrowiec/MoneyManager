@@ -1,4 +1,5 @@
 ﻿@page "/register"
+@using MoneyManager.Client.Models.Response
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @inject HttpClient http;
@@ -39,9 +40,9 @@
                     }
                     Register
                 </button>
-                @if (!string.IsNullOrEmpty(error))
+                @if (!string.IsNullOrEmpty(_errorMessage))
                 {
-                    <div class="alert alert-danger mt-3 mb-0">@error</div>
+                    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
                 }
             </EditForm>
         </div>
@@ -51,7 +52,7 @@
 @code {
     private RegisterUserVM RegisterUserVM = new RegisterUserVM();
     private bool loading;
-    private string? error;
+    private string? _errorMessage;
 
     protected override void OnInitialized()
     {
@@ -70,14 +71,18 @@
                 navigationManager.NavigateTo("login");
             else
             {
-                error = await result.Content.ReadAsStringAsync();
+                //error = await result.Content.ReadAsStringAsync();
+                var response = await result.Content.ReadAsStringAsync();
+                var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
+                _errorMessage = baseResponse.Message;
+                baseResponse?.ValidationErrors?.ForEach(e => _errorMessage += $"{e}. ");
                 loading = false;
                 StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            error = ex.Message;
+            _errorMessage = ex.Message;
             loading = false;
             StateHasChanged();
         }
