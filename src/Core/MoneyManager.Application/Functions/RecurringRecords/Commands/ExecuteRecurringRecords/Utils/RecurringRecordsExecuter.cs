@@ -24,10 +24,10 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
         /// <param name="recurringRecord"></param>
         /// <param name="referenceDate">Schould be DataTime.Today or DataTime.Now</param>
         /// <returns>List of records for past months</returns>
-        internal List<CreateRecordCommand> GetListOfRecordsAndUpdateReccuringRecord(RecurringRecord recurringRecord, DateTime referenceDate)
+        internal List<Record> GetListOfRecordsAndUpdateReccuringRecord(RecurringRecord recurringRecord, DateTime referenceDate)
         {
-            List<CreateRecordCommand> listOfRecords = new();
-            listOfRecords.Add(new CreateRecordCommand
+            List<Record> listOfRecords = new();
+            listOfRecords.Add(new Record
             {
                 Name = recurringRecord.Name,
                 //CategoryName = recurringRecord.Category.CategoryName,
@@ -56,7 +56,7 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
 
                 if (nextDate <= referenceDate)
                 {
-                    listOfRecords.Add(new CreateRecordCommand
+                    listOfRecords.Add(new Record
                     {
                         Name = recurringRecord.Name,
                         //CategoryName = recurringRecord.Category.CategoryName,

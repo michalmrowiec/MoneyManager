@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MoneyManager.Application.Functions.Records;
+using Record = MoneyManager.Domain.Entities.Record;
 
 namespace MoneyManager.Application.UnitTests
 {
@@ -26,13 +27,13 @@ namespace MoneyManager.Application.UnitTests
                     RepeatEveryDayOfMonth = 2,
                     UserId = 1,
                 },
-                new List<CreateRecordCommand>
+                new List<Record>
                 {
-                    new CreateRecordCommand
+                    new Record
                     { Name = "Test", CategoryId = 12, Amount = 100, TransactionDate = new DateTime(2022, 01, 02), UserId = 1 },
-                    new CreateRecordCommand
+                    new Record
                     { Name = "Test", CategoryId = 12, Amount = 100, TransactionDate = new DateTime(2022, 02, 02), UserId = 1 },
-                    new CreateRecordCommand
+                    new Record
                     { Name = "Test", CategoryId = 12, Amount = 100, TransactionDate = new DateTime(2022, 03, 02), UserId = 1 },
                 }
             }
@@ -40,7 +41,7 @@ namespace MoneyManager.Application.UnitTests
 
         [Theory]
         [MemberData(nameof(RecurringRecord))]
-        public void HowManyTest(RecurringRecord recurringRecord, List<CreateRecordCommand> expectedReturnedList)
+        public void HowManyTest(RecurringRecord recurringRecord, List<Record> expectedReturnedList)
         {
             RecurringRecordsExecuter recurringRecordsExecuter = new();
             var result = recurringRecordsExecuter.GetListOfRecordsAndUpdateReccuringRecord(recurringRecord, new DateTime(2022, 03, 03));
