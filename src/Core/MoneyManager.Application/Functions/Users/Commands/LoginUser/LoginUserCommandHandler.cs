@@ -27,7 +27,7 @@ namespace MoneyManager.Application.Functions.Users.Commands.LoginUser
             var userToken = await _userAsyncRepository.Login(loginUser);
 
             if (userToken.Email is null)
-                return new LoginUserCommandResponse("", false);
+                return new LoginUserCommandResponse("The user does not exist or the password is incorrect.", false);
 
             return new LoginUserCommandResponse(userToken);
 

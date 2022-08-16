@@ -32,7 +32,7 @@
             {
                 var response = await _httpService.CreateItem(_recordItem, "/api/tracker/");
                 if (response == null) return;
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.Created)
                 {
                     _error = await response.Content.ReadAsStringAsync();
                 }
@@ -48,7 +48,7 @@
             {
                 var response = await _httpService.CreateItem(_recurringRecordItem, "api/recurring");
                 if (response == null) return;
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.Created)
                 {
                     _error = await response.Content.ReadAsStringAsync();
                 }

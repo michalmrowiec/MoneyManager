@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@using MoneyManager.Client.Models.Response
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
@@ -16,28 +17,28 @@
     <div class="card">
         <h4 class="card-header">Login</h4>
         <div class="card-body">
-            <EditForm Model="@LoginUserVM" OnValidSubmit="HandleValidSubmit">
+            <EditForm Model="@_loginUserVM" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <div class="form-group">
                     <label>Username</label>
-                    <InputText @bind-Value="LoginUserVM.Email" class="form-control" />
-                    <ValidationMessage For="@(() => LoginUserVM.Email)" />
+                    <InputText @bind-Value="_loginUserVM.Email" class="form-control" />
+                    <ValidationMessage For="@(() => _loginUserVM.Email)" />
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <InputText @bind-Value="LoginUserVM.Password" type="password" class="form-control" />
-                    <ValidationMessage For="@(() => LoginUserVM.Password)" />
+                    <InputText @bind-Value="_loginUserVM.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => _loginUserVM.Password)" />
                 </div>
                 <button class="btn btn-primary">
-                    @if (loading)
+                    @if (_loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
                     }
                     Login
                 </button>
-                @if (!string.IsNullOrEmpty(error))
+                @if (!string.IsNullOrEmpty(_errorMessage))
                 {
-                    <div class="alert alert-danger mt-3 mb-0">@error</div>
+                    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
                 }
             </EditForm>
         </div>
@@ -45,9 +46,9 @@
 </div>
 
 @code {
-    private LoginUserVM LoginUserVM = new LoginUserVM();
-    private bool loading;
-    private string? error;
+    private LoginUserVM _loginUserVM = new LoginUserVM();
+    private bool _loading;
+    private string? _errorMessage;
 
     protected override void OnInitialized()
     {
@@ -57,10 +58,10 @@
 
     private async void HandleValidSubmit()
     {
-        loading = true;
+        _loading = true;
         try
         {
-            var result = await http.PostAsJsonAsync("/api/account/login", LoginUserVM);
+            var result = await http.PostAsJsonAsync("/api/account/login", _loginUserVM);
             //UserTokenVM token = new UserTokenVM();
             //token.Token = await result.Content.ReadAsStringAsync();
 
@@ -76,15 +77,18 @@
             }
             else
             {
-                error = await result.Content.ReadAsStringAsync();
-                loading = false;
+                //error = await result.Content.ReadAsStringAsync();
+                var response = await result.Content.ReadAsStringAsync();
+                var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
+                _errorMessage = baseResponse.Message;
+                _loading = false;
                 StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            error = ex.Message;
-            loading = false;
+            _errorMessage = ex.Message;
+            _loading = false;
             StateHasChanged();
         }
     }
