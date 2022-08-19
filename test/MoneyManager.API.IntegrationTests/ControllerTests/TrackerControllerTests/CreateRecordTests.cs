@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using MoneyManager.API.IntegrationTests.ControllerTestUtils;
 using MoneyManager.Application.Functions.Records;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

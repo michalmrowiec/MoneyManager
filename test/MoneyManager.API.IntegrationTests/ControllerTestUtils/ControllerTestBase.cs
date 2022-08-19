@@ -8,7 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using Xunit;
 
-namespace MoneyManager.API.IntegrationTests.ControllerTests
+namespace MoneyManager.API.IntegrationTests.ControllerTestUtils
 {
     public class ControllerTestBase : IClassFixture<WebApplicationFactory<Startup>>
     {
