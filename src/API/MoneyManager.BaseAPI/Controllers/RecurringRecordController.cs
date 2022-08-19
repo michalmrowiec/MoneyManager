@@ -1,4 +1,4 @@
-﻿    using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoneyManager.API.Services;
@@ -9,7 +9,6 @@ using MoneyManager.Application.Functions.RecurringRecords.Commands.UpdateRecurri
 using MoneyManager.Application.Functions.RecurringRecords.Queries;
 using MoneyManager.Application.Functions.RecurringRecords.Queries.GetAllRecurringRecords;
 using MoneyManager.Application.Functions.RecurringRecords.Queries.GetRecurringRecordById;
-using System.Security.Claims;
 
 namespace MoneyManager.API.Controllers
 {
