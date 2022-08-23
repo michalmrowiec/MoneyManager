@@ -44,7 +44,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
         [MemberData(nameof(Test_ListOfRecords))]
         public async Task GetAllRecords_ForNoData_ReturnsOkStatusWithListOfRecords(List<CreateRecordCommand> listOfRecords)
         {
-            await TestUtils.PostRecordsByList(_httpClient, listOfRecords, "/api/tracker");
+            await TestUtils.PostItemsByListAsync(_httpClient, listOfRecords, "/api/tracker");
 
             var response = await _httpClient.GetAsync("/api/tracker");
             var json = await response.Content.ReadAsStringAsync();

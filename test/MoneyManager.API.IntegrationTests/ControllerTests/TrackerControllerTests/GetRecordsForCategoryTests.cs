@@ -76,8 +76,8 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
         public async Task GetRecordsForCategory_ForValidData_ReturnsOkStatusWithListOfRecordsForGivenCategoryId
             (List<CreateRecordCommand> CreateRecordCommands, List<CreateCategoryCommand> CreateCategoryCommands)
         {
-            await TestUtils.PostRecordsByList(_httpClient, CreateRecordCommands, "/api/tracker");
-            await TestUtils.PostRecordsByList(_httpClient, CreateCategoryCommands, "/api/category");
+            await TestUtils.PostItemsByListAsync(_httpClient, CreateRecordCommands, "/api/tracker");
+            await TestUtils.PostItemsByListAsync(_httpClient, CreateCategoryCommands, "/api/category");
 
             var categoryId = CreateCategoryCommands.First().Id;
 

@@ -17,6 +17,8 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.CategoryControllerTe
         public GetAllCategoriesTests(WebApplicationFactory<Startup> factory) : base(factory)
         { }
 
+        // HACK: I don't know what it is
+
         [Fact]
         public async Task GetAllCategories_ForNoData_ReturnsOkStatusWithListOfCategories()
         {

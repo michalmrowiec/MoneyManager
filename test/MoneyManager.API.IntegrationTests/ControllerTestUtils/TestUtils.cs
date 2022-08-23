@@ -10,14 +10,19 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.ControllerTestUtils
 {
     public class TestUtils
     {
-        public static async Task PostRecordsByList<T>(HttpClient httpClient, IEnumerable<T> listOfItems, string uri)
+        public static async Task PostItemsByListAsync<T>(HttpClient httpClient, IEnumerable<T> listOfItems, string uri)
         {
             foreach (var item in listOfItems)
             {
-                var json = JsonConvert.SerializeObject(item);
-                var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-                await httpClient.PostAsync(uri, httpContent);
+                await PostItemAsync(httpClient, item, uri);
             }
+        }
+
+        public static async Task PostItemAsync<T>(HttpClient httpClient, T item, string uri)
+        {
+            var json = JsonConvert.SerializeObject(item);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            await httpClient.PostAsync(uri, httpContent);
         }
     }
 }

@@ -52,8 +52,8 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.PlannedRecordControl
             (List<CreateCategoryCommand> createCategories, List<CreatePlannedBudgetCommand> createPlannedBudgets,
             int[] year, int[] month, List<PlannedBudgetDto> expectedResult)
         {
-            await TestUtils.PostRecordsByList(_httpClient, createCategories, "/api/category");
-            await TestUtils.PostRecordsByList(_httpClient, createPlannedBudgets, "/api/plannedbudget");
+            await TestUtils.PostItemsByListAsync(_httpClient, createCategories, "/api/category");
+            await TestUtils.PostItemsByListAsync(_httpClient, createPlannedBudgets, "/api/plannedbudget");
 
             var responseMessage = await _httpClient.GetAsync($"/api/plannedbudget/{year[0]}/{month[0]}");
             var jsonResponse = await responseMessage.Content.ReadAsStringAsync();

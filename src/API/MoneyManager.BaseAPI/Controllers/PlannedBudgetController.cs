@@ -55,7 +55,7 @@ namespace MoneyManager.API.Controllers
         }
 
         [HttpGet("{plannedBudgetId}")]
-        public async Task<ActionResult<PlannedBudgetDto>> GetRecordById([FromRoute] int plannedBudgetId)
+        public async Task<ActionResult<PlannedBudgetDto>> GetPlannedBudgetById([FromRoute] int plannedBudgetId)
         {
             return Ok(await _mediator.Send(new GetPlannedBudgetByIdQuery(_userContextService.GetUserId, plannedBudgetId)));
         }

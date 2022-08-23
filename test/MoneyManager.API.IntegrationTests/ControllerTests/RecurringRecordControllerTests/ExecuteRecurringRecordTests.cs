@@ -66,8 +66,8 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.RecurringRecordContr
         public async Task ExecuteRecurringRecords_ForExistRecords_ShouldCreateRecords
             (List<CreateCategoryCommand> createCategories, List<CreateRecurringRecordCommand> createRecurrings, List<RecordDto> resultRecords, string date)
         {
-            await TestUtils.PostRecordsByList(_httpClient, createCategories, "/api/category");
-            await TestUtils.PostRecordsByList(_httpClient, createRecurrings, "api/recurring");
+            await TestUtils.PostItemsByListAsync(_httpClient, createCategories, "/api/category");
+            await TestUtils.PostItemsByListAsync(_httpClient, createRecurrings, "api/recurring");
 
             var response = await _httpClient.GetAsync($"api/recurring/ex/{date}");
 
