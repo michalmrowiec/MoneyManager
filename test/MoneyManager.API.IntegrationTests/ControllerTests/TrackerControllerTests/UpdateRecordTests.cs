@@ -72,7 +72,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
         public async Task UpdateRecord_ForExistRecordAndValidData_ReturnsOkStatus
             (List<CreateRecordCommand> CreateRecordCommands, UpdateRecordCommand recordToUpdate, List<RecordDto> updatedRecords)
         {
-            await TestUtils.PostRecordsByList(_httpClient, CreateRecordCommands, "/api/tracker");
+            await TestUtils.PostItemsByListAsync(_httpClient, CreateRecordCommands, "/api/tracker");
 
             var jsonUpdate = JsonConvert.SerializeObject(recordToUpdate);
             var httpContentUpdate = new StringContent(jsonUpdate, UnicodeEncoding.UTF8, "application/json");

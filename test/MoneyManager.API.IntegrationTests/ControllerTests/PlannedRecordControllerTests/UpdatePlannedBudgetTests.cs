@@ -54,8 +54,8 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.PlannedRecordControl
             (List<CreateCategoryCommand> createCategories, List<CreatePlannedBudgetCommand> createPlannedBudgets,
             UpdatePlannedBudgetCommand updatePlannedBudget, List<PlannedBudgetDto> updatedPlannedBudgets)
         {
-            await TestUtils.PostRecordsByList(_httpClient, createCategories, "/api/category");
-            await TestUtils.PostRecordsByList(_httpClient, createPlannedBudgets, "/api/plannedbudget");
+            await TestUtils.PostItemsByListAsync(_httpClient, createCategories, "/api/category");
+            await TestUtils.PostItemsByListAsync(_httpClient, createPlannedBudgets, "/api/plannedbudget");
 
             var jsonUpdate = JsonConvert.SerializeObject(updatePlannedBudget);
             var httpContentUpdate = new StringContent(jsonUpdate, UnicodeEncoding.UTF8, "application/json");

@@ -31,9 +31,9 @@ namespace MoneyManager.Infractructure.Repositories.Items
             return await _dbContext.Set<T>().Where(x => x.UserId == userId).ToListAsync();
         }
 
-        public virtual async Task<T> GetByIdAsync(int userId, int itemId)
+        public virtual async Task<T?> GetByIdAsync(int userId, int itemId)
         {
-            return await _dbContext.Set<T>().FirstAsync(x => x.UserId == userId && x.Id == itemId);
+            return await _dbContext.Set<T>().FirstOrDefaultAsync(x => x.UserId == userId && x.Id == itemId);
         }
 
         public virtual async Task UpdateAsync(T entity)

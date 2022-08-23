@@ -34,9 +34,10 @@ namespace MoneyManager.API.Controllers
         }
 
         [HttpGet("{categoryId}")]
-        public async Task<ActionResult<CategoryDto>> GetRecordById([FromRoute] int categoryId)
+        public async Task<ActionResult<CategoryDto>> GetCategoryById([FromRoute] int categoryId)
         {
-            return Ok(await _mediator.Send(new GetCategoryByIdQuery(_userContextService.GetUserId, categoryId)));
+            var cat = await _mediator.Send(new GetCategoryByIdQuery(_userContextService.GetUserId, categoryId));
+            return cat != null ? Ok(cat) : BadRequest();
         }
 
         [HttpGet]
