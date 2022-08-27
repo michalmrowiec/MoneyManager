@@ -13,9 +13,9 @@ using Xunit;
 
 namespace MoneyManager.API.IntegrationTests.ControllerTests.PlannedRecordControllerTests
 {
-    public class GetPlannedBudgetsTests : ControllerTestBase
+    public class GetPlannedBudgetsForMonthTests : ControllerTestBase
     {
-        public GetPlannedBudgetsTests(WebApplicationFactory<Startup> factory) : base(factory)
+        public GetPlannedBudgetsForMonthTests(WebApplicationFactory<Startup> factory) : base(factory)
         { }
 
         public static IEnumerable<object[]> Test_GetPlannedBudgets => new List<object[]>

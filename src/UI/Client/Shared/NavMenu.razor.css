@@ -59,4 +59,12 @@
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+
+    .account-btns {
+        display: none;
+    }
+}
+
+.account-btns {
+    color: white;
 }

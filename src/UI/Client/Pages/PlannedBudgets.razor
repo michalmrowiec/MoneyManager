@@ -27,11 +27,11 @@
 else if (_listOfYearsForSelect.Count == 0)
 {
     <p>The table is empty, you can add a new record.</p>
-    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
+    <button class="btn btn-primary btn-sm align-middle mb-2" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
 }
 else
 {
-    <button class="btn btn-primary btn-sm align-middle" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
+    <button class="btn btn-primary btn-sm align-middle mb-2" @onclick="@(x => OpenAddEditForm())">Add Planned Budget</button>
 
     <div class="d-flex justify-content-between">
         <div class="d-flex flex-row align-items-center">
@@ -112,6 +112,14 @@ else
                 }
             }
         </tbody>
+        <tfoot>
+            <tr>
+                <td>Summary:</td>
+                <td>@_listOfPlannedBudgets?.Sum(x => x.Amount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                <td>@_listOfPlannedBudgets?.Sum(x => x.FilledAmount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                <td>@_listOfPlannedBudgets?.Sum(x => x.Amount - x.FilledAmount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+            </tr>
+        </tfoot>
     </table>
 
     if (AddEditFormOpen && _plannedBudgetToEdit is not null && _plannedBudgetToDelete is null)
@@ -411,4 +419,4 @@ else
         _errorMessage = null;
         await GetListOfYearsWithMonths();
     }
-    }
+}
