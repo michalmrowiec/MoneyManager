@@ -4,6 +4,7 @@
 @using Newtonsoft.Json
 @inject HttpClient http;
 @inject NavigationManager navigationManager;
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Register</PageTitle>
 
@@ -56,6 +57,7 @@
 
     protected override void OnInitialized()
     {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Empty;
         // redirect to home if already logged in
 
     }

@@ -1,9 +1,8 @@
 ﻿@page "/settings"
 @using System.Globalization
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Settings</PageTitle>
-
-<h3>User settings</h3>
 
 <p>Select currency:</p>
 <select>
@@ -14,5 +13,8 @@
 </select>
 
 @code {
-
+    protected override void OnInitialized()
+    {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Settings;
+    }
 }

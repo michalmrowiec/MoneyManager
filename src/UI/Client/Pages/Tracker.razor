@@ -13,10 +13,9 @@
 @inject IJSRuntime JS
 @inject ILocalStorageService _localStorage
 @inject IHttpRecordService _httpTracker
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Financial dashboard</PageTitle>
-
-<h1>Financial Dashboard</h1>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -424,6 +423,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.FinancialDashboard;
         _errorMessage = null;
         await GetTable();
     }

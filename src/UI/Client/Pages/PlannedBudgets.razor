@@ -7,10 +7,9 @@
 @using MoneyManager.Client.ViewModels.Dtos
 @using Newtonsoft.Json
 @inject IHttpRecordService _httpService
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Planned Budgets</PageTitle>
-
-<h1>Planned Budgets</h1>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -416,6 +415,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.PlannedBudgets;
         _errorMessage = null;
         await GetListOfYearsWithMonths();
     }

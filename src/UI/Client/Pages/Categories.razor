@@ -5,10 +5,9 @@
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @inject IHttpRecordService _httpTracker
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Categories</PageTitle>
-
-<h1>Categories</h1>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -204,6 +203,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Categories;
         await GetAllategories();
     }
 }

@@ -6,10 +6,9 @@
 @using Newtonsoft.Json
 @using System.Globalization
 @inject IHttpRecordService _httpService
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Recurring records</PageTitle>
-
-<h1>Recurring Records</h1>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -301,6 +300,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.RecurringRecords;
         _errorMessage = null;
         await GetRecurringRecord();
     }

@@ -1,8 +1,10 @@
 ﻿@using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
+@using EnumsNET
 @inherits LayoutComponentBase
 @inject ILocalStorageService _localStorage
 @inject AppState appState
+@inject NameOfSubpage nameOfSubpage
 @implements IDisposable
 
 <div class="page">
@@ -11,19 +13,22 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <h2 class="m-auto">NameOfPage</h2>
-
-            @if (appState.LoggedIn)
-            {
-                <div class="me-3">Hello <b>@userName</b></div>
-                <a @onclick="Logout" href="">Logout</a>
-            }
-            else
-            {
-                <a href="login">Login</a>
-                <a href="register">Register</a>
-            }
+        <div class="d-flex justify-content-between top-row px-4">
+            <div>
+                <h2 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h2>
+            </div>
+            <div class="d-flex flex-row d-none d-sm-flex">
+                @if (appState.LoggedIn)
+                {
+                    <div class="">Hello <b>@userName</b></div>
+                    <a @onclick="Logout" href="">Logout</a>
+                }
+                else
+                {
+                    <a href="login">Login</a>
+                    <a href="register">Register</a>
+                }
+            </div>
         </div>
 
         <article class="content px-4">
@@ -66,11 +71,13 @@
     {
         appState.OnChange += ChceckIfLoggedIn;
         appState.OnChange += StateHasChanged;
+        nameOfSubpage.OnChange += StateHasChanged;
     }
 
     void IDisposable.Dispose()
     {
         appState.OnChange -= ChceckIfLoggedIn;
         appState.OnChange -= StateHasChanged;
+        nameOfSubpage.OnChange -= StateHasChanged;
     }
 }
