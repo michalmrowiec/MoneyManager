@@ -67,7 +67,7 @@ else
     </div>
 
 
-    <table class="table table-striped">
+    <table class="table table-sm table-striped">
         <thead>
             <tr>
                 <th width="25%">
@@ -116,7 +116,7 @@ else
                         <td class="align-middle" width="25%">@item.Name</td>
                         <td class="align-middle" width="25%">@item.CategoryName</td>
                         <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="25%">@item.TransactionDate.ToShortDateString()</td>
+                        <td class="align-middle" width="25%">@item.TransactionDate.ToString("dd/MM/yyyy")</td>
                         <td class="align-middle" width="5%">
                             <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
                         </td>
