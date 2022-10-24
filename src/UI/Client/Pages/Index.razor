@@ -2,10 +2,9 @@
 @using System.IO
 @using MoneyManager.Client.Components
 @inject IJSRuntime JS
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Home</PageTitle>
-
-<h1>Main Dashboard</h1>
 
 <div class="card mb-2">
     <div class="card-body">
@@ -57,5 +56,8 @@
 </style>*@
 
 @code {
-
+    protected override void OnInitialized()
+    {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.MainDashboard;
+    }
 }

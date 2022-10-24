@@ -10,6 +10,7 @@
 @inject ILocalStorageService _localStorage
 @inject AppState appState
 @inject IHttpRecordService _httpService
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Login</PageTitle>
 
@@ -52,6 +53,7 @@
 
     protected override void OnInitialized()
     {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Empty;
         // redirect to home if already logged in i
 
     }
