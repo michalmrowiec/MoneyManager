@@ -3,6 +3,7 @@
 @using MoneyManager.Client.Components
 @inject IJSRuntime JS
 @inject NameOfSubpage nameOfSubpage
+@inject IStringLocalizer<Resource> localizer
 
 <PageTitle>Home</PageTitle>
 
@@ -11,6 +12,8 @@
         <h4>
             This is your <a><b>Money Manager</b></a>. It will help you to track and analyse your finances and planning budgets.
         </h4>
+        <h4>@Resource.hello</h4>
+        <h4>@localizer["hello"]</h4>
         <p class="introduction mb-0">
             You can save your incomes and expenses in the <a><b>Financial Dashboard</b></a>.
             <br />
