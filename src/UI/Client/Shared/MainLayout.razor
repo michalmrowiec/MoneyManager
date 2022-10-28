@@ -9,7 +9,7 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu></NavMenu>
     </div>
 
     <main>
@@ -31,7 +31,11 @@
             </div>
         </div>
 
-        <article class="content px-4">
+        <article class="content px-4 d-none d-md-block">
+            @Body
+        </article>
+
+        <article class="content px-1 d-md-none">
             @Body
         </article>
     </main>

@@ -14,6 +14,7 @@
 @inject ILocalStorageService _localStorage
 @inject IHttpRecordService _httpTracker
 @inject NameOfSubpage nameOfSubpage
+@using Blazorise
 
 <PageTitle>Financial dashboard</PageTitle>
 
@@ -24,9 +25,9 @@
 
 @if (_getTableLoading)
 {
-    <p><em>Loading...</em></p>
-    <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+    <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
+        <div class="h2">Loading</div>
+        <div class="h5 spinner-border"></div>
     </div>
 }
 else if (_listOfRecords.Count is 0 && _listOfRecordsTemp.Count is 0)
@@ -55,90 +56,161 @@ else
                 </select>
             </div>
         </div>
-
-        <div>
+        <div class="d-none d-sm-flex">
             <select class="form-select" @bind="@TableViewSelected">
-                <option value="@TableView.ExpensesAndIncomes">Expenses and Incomes</option>
+                <option value="@TableView.ExpensesAndIncomes">All</option>
                 <option value="@TableView.OnlyExpenses">Expenses</option>
                 <option value="@TableView.OnlyIncomes">Incomes</option>
             </select>
         </div>
     </div>
 
-
-    <table class="table table-sm table-striped">
-        <thead>
-            <tr>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
-                        Name @_str[(int)TypesInRecord.Name]
-                    </button>
-                </th>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                        Desc @_str[(int)TypesInRecord.CategoryName]
-                    </button>
-                </th>
-                <th width="15%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
-                        Amout @_str[(int)TypesInRecord.Amount]
-                    </button>
-                </th>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
-                        Date @_str[(int)TypesInRecord.TransactionDate]
-                    </button>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (_listOfRecords != null)
-            {
-                @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+    <div class="d-none d-md-block">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th width="25%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
+                            Name @_str[(int)TypesInRecord.Name]
+                        </button>
+                    </th>
+                    <th width="25%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                            Category @_str[(int)TypesInRecord.CategoryName]
+                        </button>
+                    </th>
+                    <th width="15%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
+                            Amout @_str[(int)TypesInRecord.Amount]
+                        </button>
+                    </th>
+                    <th width="25%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
+                            Date @_str[(int)TypesInRecord.TransactionDate]
+                        </button>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfRecords != null)
                 {
-                    if (item.Amount > 0)
+                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
                     {
-                        color = "green";
-                    }
-                    else
-                    {
-                        color = "red";
-                    }
+                        if (item.Amount > 0)
+                        {
+                            color = "green";
+                        }
+                        else
+                        {
+                            color = "red";
+                        }
 
-                    <tr class="text-color" style="color:@color;">
-                        <td class="align-middle" width="25%">@item.Name</td>
-                        <td class="align-middle" width="25%">@item.CategoryName</td>
-                        <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="25%">@item.TransactionDate.ToString("dd/MM/yyyy")</td>
-                        <td class="align-middle" width="5%">
-                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
-                        </td>
-                        <td class="align-middle" width="5%">
-                            <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
-                        </td>
-                    </tr>
+                        <tr class="text-color" style="color:@color;">
+                            <td class="align-middle" width="25%">@item.Name</td>
+                            <td class="align-middle" width="25%">@item.CategoryName</td>
+                            <td class="align-middle" width="15%">@item.Amount.ToString()</td>
+                            <td class="align-middle" width="25%">@item.TransactionDate.ToString("dd/MM/yyyy")</td>
+                            <td class="align-middle" width="5%">
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
+                            </td>
+                            <td class="align-middle" width="5%">
+                                <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Monthly summary:</td>
-                <td></td>
-                <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-            </tr>
-            <tr>
-                <td>Total summary:</td>
-                <td></td>
-                <td>@_sumOfTotalAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-            </tr>
-        </tfoot>
-    </table>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Monthly summary:</td>
+                    <td></td>
+                    <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                </tr>
+                <tr>
+                    <td>Total summary:</td>
+                    <td></td>
+                    <td>@_sumOfTotalAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    //Mobile
+    <div class="d-md-none text-tt">
+        <div class="d-flex flex-row align-items-center py-2">
+            <h5>Sort by:</h5>
+            <div width="20%" class="ms-2">
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Name); _sortBy = $"Name {_str[(int)TypesInRecord.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.CategoryName); _sortBy = $"Category {_str[(int)TypesInRecord.CategoryName]}";})">Category</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Amount); _sortBy = $"Amount {_str[(int)TypesInRecord.Amount]}";})">Amout</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.TransactionDate); _sortBy = $"Date {_str[(int)TypesInRecord.TransactionDate]}";})">Date</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+        </div>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th width="51%">Name</th>
+                    <th width="30%">Category</th>
+                    <th width="7%">Amount</th>
+                    <th width="8%">Date</th>
+                    <th width="4%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfRecords != null)
+                {
+                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                    {
+                        if (item.Amount > 0)
+                        {
+                            color = "green";
+                        }
+                        else
+                        {
+                            color = "red";
+                        }
+
+                        <tr class="text-color" style="color:@color;">
+                            <td class="align-middle" width="51%">@item.Name</td>
+                            <td class="align-middle" width="30%">@item.CategoryName</td>
+                            <td class="align-middle" width="7%">@item.Amount.ToString()</td>
+                            <td class="align-middle" width="8%">@item.TransactionDate.ToString("dd/MM")</td>
+                            <td class="align-middle" width="4%">
+                                <Dropdown>
+                                    <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem @onclick="@(x => OpenEditForm(item))">Edit</DropdownItem>
+                                        <DropdownItem @onclick="@(x => OpenDeleteDialog(item))">Delete</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Monthly summary:</td>
+                    <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                </tr>
+                <tr>
+                    <td>Total summary:</td>
+                    <td>@_sumOfTotalAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
     <button class="btn btn-sm btn-primary" @onclick="DownloadFileFromStream">
         Download xlsx report
@@ -155,6 +227,12 @@ else
     <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord" TypeOfDialog="TypeOfFormlDialog.EditRecord"></RecordFormDialog>
 }
 
+<style>
+    .text-tt {
+        font-size: 15px;
+    }
+</style>
+
 @code {
     private string? color;
     private string? _errorMessage;
@@ -164,6 +242,7 @@ else
     private List<string> _listOfYearsForSelect = new();
     private List<string> _listOfMonthsForSelect = new();
     private string[] _str = { "", "", "", "" };
+    private string _sortBy = "";
     private TypesInRecord? _sortClickDesc = null;
     private decimal _sumOfMonthlyAmounts = 0;
     private decimal _sumOfTotalAmounts = 0;
@@ -378,6 +457,7 @@ else
 
         _sortClickDesc = null;
         SortButtonClick(TypesInRecord.TransactionDate);
+        _sortBy = "Date " + _str[(int)TypesInRecord.TransactionDate];
 
         _getTableLoading = false;
 
