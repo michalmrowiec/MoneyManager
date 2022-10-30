@@ -9,13 +9,16 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu></NavMenu>
+        <NavMenu />
     </div>
 
     <main>
         <div class="d-flex justify-content-between top-row px-4">
-            <div>
+            <div class="d-none d-md-block">
                 <h2 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h2>
+            </div>
+            <div class="d-md-none">
+                <h4 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h4>
             </div>
             <div class="d-flex flex-row d-none d-sm-flex">
                 @if (appState.LoggedIn)

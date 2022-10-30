@@ -14,7 +14,6 @@
 @inject ILocalStorageService _localStorage
 @inject IHttpRecordService _httpTracker
 @inject NameOfSubpage nameOfSubpage
-@using Blazorise
 
 <PageTitle>Financial dashboard</PageTitle>
 
@@ -130,19 +129,19 @@ else
                 <tr>
                     <td>Monthly summary:</td>
                     <td></td>
-                    <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                    <td>@_sumOfMonthlyAmounts.ToString()</td>
                 </tr>
                 <tr>
                     <td>Total summary:</td>
                     <td></td>
-                    <td>@_sumOfTotalAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                    <td>@_sumOfTotalAmounts.ToString()</td>
                 </tr>
             </tfoot>
         </table>
     </div>
 
     //Mobile
-    <div class="d-md-none text-tt">
+    <div class="d-md-none text-table">
         <div class="d-flex flex-row align-items-center py-2">
             <h5>Sort by:</h5>
             <div width="20%" class="ms-2">
@@ -202,11 +201,13 @@ else
             <tfoot>
                 <tr>
                     <td>Monthly summary:</td>
-                    <td>@_sumOfMonthlyAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                    <td></td>
+                    <td>@_sumOfMonthlyAmounts.ToString()</td>
                 </tr>
                 <tr>
                     <td>Total summary:</td>
-                    <td>@_sumOfTotalAmounts.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
+                    <td></td>
+                    <td>@_sumOfTotalAmounts.ToString()</td>
                 </tr>
             </tfoot>
         </table>
@@ -226,12 +227,6 @@ else
 {
     <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord" TypeOfDialog="TypeOfFormlDialog.EditRecord"></RecordFormDialog>
 }
-
-<style>
-    .text-tt {
-        font-size: 15px;
-    }
-</style>
 
 @code {
     private string? color;
