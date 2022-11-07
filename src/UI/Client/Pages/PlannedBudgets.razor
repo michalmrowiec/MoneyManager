@@ -54,72 +54,127 @@ else
         </div>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
-                        Name @_str[(int)TypesInRecord.Name]
-                    </button>
-                </th>
-                <th width="15%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
-                        Planned @_str[(int)TypesInRecord.Amount]
-                    </button>
-                </th>
-                <th width="15%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                        Yet @_str[(int)TypesInRecord.CategoryName]
-                    </button>
-                </th>
-                <th width="15%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                        Left @_str[(int)TypesInRecord.CategoryName]
-                    </button>
-                </th>
-                <th width="20%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
-                        Date @_str[(int)TypesInRecord.TransactionDate]
-                    </button>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (_listOfPlannedBudgets != null)
-            {
-                @foreach (var item in _listOfPlannedBudgets)
+    <div class="d-none d-md-block">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th width="30%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
+                            Name @_str[(int)TypesInRecord.Name]
+                        </button>
+                    </th>
+                    <th width="20%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
+                            Planned @_str[(int)TypesInRecord.Amount]
+                        </button>
+                    </th>
+                    <th width="20%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                            Yet @_str[(int)TypesInRecord.CategoryName]
+                        </button>
+                    </th>
+                    <th width="20%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
+                            Left @_str[(int)TypesInRecord.CategoryName]
+                        </button>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfPlannedBudgets != null)
                 {
-                    <tr>
-                        <td class="align-middle" width="25%">@item.Name</td>
-                        <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="15%">@item.FilledAmount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="15%">@((item.Amount - item.FilledAmount).ToString("C2", CultureInfo.GetCultureInfo("en-US")))</td>
-                        <td class="align-middle" width="20%">@item.TransactionDate.ToShortDateString()</td>
-                        <td class="align-middle" width="5%">
-                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenAddEditForm(item))">Edit</button>
-                        </td>
-                        <td class="align-middle" width="5%">
-                            <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
-                        </td>
-                    </tr>
+                    @foreach (var item in _listOfPlannedBudgets)
+                    {
+                        <tr>
+                            <td class="align-middle">@item.Name</td>
+                            <td class="align-middle">@item.Amount.ToString()</td>
+                            <td class="align-middle">@item.FilledAmount.ToString()</td>
+                            <td class="align-middle">@((item.Amount - item.FilledAmount).ToString())</td>
+                            <td class="align-middle">
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenAddEditForm(item))">Edit</button>
+                            </td>
+                            <td class="align-middle" width="5%">
+                                <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Summary:</td>
-                <td>@_listOfPlannedBudgets?.Sum(x => x.Amount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                <td>@_listOfPlannedBudgets?.Sum(x => x.FilledAmount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                <td>@_listOfPlannedBudgets?.Sum(x => x.Amount - x.FilledAmount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-            </tr>
-        </tfoot>
-    </table>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Summary:</td>
+                    <td>@_listOfPlannedBudgets?.Sum(x => x.Amount).ToString()</td>
+                    <td>@_listOfPlannedBudgets?.Sum(x => x.FilledAmount).ToString()</td>
+                    <td>@_listOfPlannedBudgets?.Sum(x => x.Amount - x.FilledAmount).ToString()</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    //Mobile
+    <div class="d-md-none text-table">
+        <div class="d-flex flex-row align-items-center py-2">
+            <h5>Sort by:</h5>
+            <div width="20%" class="ms-2">
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Name); _sortBy = $"Name {_str[(int)TypesInRecord.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Amount); _sortBy = $"Amount {_str[(int)TypesInRecord.Amount]}";})">Amout</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th width="60%">Name</th>
+                    <th width="12%">Planned</th>
+                    <th width="12%">Yet</th>
+                    <th width="12%">Left</th>
+                    <th width="4%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfPlannedBudgets != null)
+                {
+                    @foreach (var item in _listOfPlannedBudgets)
+                    {
+                        <tr>
+                            <td class="align-middle">@item.Name</td>
+                            <td class="align-middle">@item.Amount.ToString()</td>
+                            <td class="align-middle">@item.FilledAmount.ToString()</td>
+                            <td class="align-middle">@((item.Amount - item.FilledAmount).ToString())</td>
+                            <td class="align-middle" width="4%">
+                                <Dropdown>
+                                    <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem @onclick="@(x => OpenAddEditForm(item))">Edit</DropdownItem>
+                                        <DropdownItem @onclick="@(x => OpenDeleteDialog(item))">Delete</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </td>
+
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Summary:</td>
+                    <td>@_listOfPlannedBudgets?.Sum(x => x.Amount).ToString()</td>
+                    <td>@_listOfPlannedBudgets?.Sum(x => x.FilledAmount).ToString()</td>
+                    <td>@_listOfPlannedBudgets?.Sum(x => x.Amount - x.FilledAmount).ToString()</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
     if (AddEditFormOpen && _plannedBudgetToEdit is not null && _plannedBudgetToDelete is null)
     {
@@ -151,6 +206,7 @@ else
     private int _selectedYearByUser;
 
     private string[] _str = { "", "", "", "" };
+    private string _sortBy = "";
     private TypesInRecord? _sortClickDesc = null;
 
     private PlannedBudgetVM? _recordFromDialog;
@@ -408,7 +464,8 @@ else
         _listOfPlannedBudgets = recordsWithCategories.ToList();
 
         _sortClickDesc = null;
-        SortButtonClick(TypesInRecord.TransactionDate);
+        SortButtonClick(TypesInRecord.Name);
+        _sortBy = "Name " + _str[(int)TypesInRecord.TransactionDate];
 
         StateHasChanged();
     }

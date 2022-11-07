@@ -28,72 +28,141 @@ else if (_listOfRecurringRecords.Count == 0)
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.IsActive))">Status @_str[(int)TypesInRecord.IsActive]</button>
-                </th>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_str[(int)TypesInRecord.Name]</button>
-                </th>
-                <th width="15%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amount @_str[(int)TypesInRecord.Amount]</button>
-                </th>
-                <th width="25%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.NextDate))">Next date @_str[(int)TypesInRecord.NextDate]</button>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-                <th width="5%">
-                    <div></div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (_listOfRecurringRecords != null)
-            {
-                @foreach (var item in _listOfRecurringRecords)
+    <div class="d-none d-md-block">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th width="25%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.IsActive))">Status @_str[(int)TypesInRecord.IsActive]</button>
+                    </th>
+                    <th width="25%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_str[(int)TypesInRecord.Name]</button>
+                    </th>
+                    <th width="15%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amount @_str[(int)TypesInRecord.Amount]</button>
+                    </th>
+                    <th width="25%">
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.NextDate))">Next date @_str[(int)TypesInRecord.NextDate]</button>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                    <th width="5%">
+                        <div></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfRecurringRecords != null)
                 {
-                    <tr>
-                        @if (item.IsActive)
-                        {
-                            <td class="align-middle" width="25%">Active</td>
-                        }
-                        else
-                        {
-                            <td class="align-middle" width="25%">Dezactive</td>
-                        }
-                        <td class="align-middle" width="25%">@item.Name</td>
-                        <td class="align-middle" width="15%">@item.Amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-                        <td class="align-middle" width="25%">@item.NextDate.ToShortDateString()</td>
-                        <td class="align-middle" width="5%">
-                            <RecordPreviewHover RecurringRecordVM="item">
-                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenRecordPreview(item))">Details</button>
-                            </RecordPreviewHover>
-                        </td>
-                        <td class="align-middle" width="5%">
-                            <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
-                        </td>
-                        <td class="align-middle" width="5%">
-                            <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
-                        </td>
-                    </tr>
+                    @foreach (var item in _listOfRecurringRecords)
+                    {
+                        <tr>
+                            @if (item.IsActive)
+                            {
+                                <td class="align-middle" width="25%">Active</td>
+                            }
+                            else
+                            {
+                                <td class="align-middle" width="25%">Dezactive</td>
+                            }
+                            <td class="align-middle" width="25%">@item.Name</td>
+                            <td class="align-middle" width="15%">@item.Amount.ToString()</td>
+                            <td class="align-middle" width="25%">@item.NextDate.ToString("dd/MM/yyyy")</td>
+                            <td class="align-middle" width="5%">
+                                <RecordPreviewHover RecurringRecordVM="item">
+                                    <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenRecordPreview(item))">Details</button>
+                                </RecordPreviewHover>
+                            </td>
+                            <td class="align-middle" width="5%">
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
+                            </td>
+                            <td class="align-middle" width="5%">
+                                <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Summary:</td>
-                <td></td>
-                <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString("C2", CultureInfo.GetCultureInfo("en-US"))</td>
-            </tr>
-        </tfoot>
-    </table>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Summary:</td>
+                    <td></td>
+                    <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString())</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    //Mobile
+    <div class="d-md-none text-table">
+        <div class="d-flex flex-row align-items-center py-2">
+            <h5>Sort by:</h5>
+            <div width="20%" class="ms-2">
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.IsActive); _sortBy = $"Status {_str[(int)TypesInRecord.IsActive]}";})">Status</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Name); _sortBy = $"Name {_str[(int)TypesInRecord.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Amount); _sortBy = $"Amount {_str[(int)TypesInRecord.Amount]}";})">Amout</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.TransactionDate); _sortBy = $"Next date {_str[(int)TypesInRecord.TransactionDate]}";})">Next date</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th width="20%">Status</th>
+                    <th width="56%">Name</th>
+                    <th width="7%">Amount</th>
+                    <th width="13%">Next date</th>
+                    <th width="4%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfRecurringRecords != null)
+                {
+                    @foreach (var item in _listOfRecurringRecords)
+                    {
+                        <tr>
+                            @if (item.IsActive)
+                            {
+                                <td class="align-middle" width="25%">Active</td>
+                            }
+                            else
+                            {
+                                <td class="align-middle" width="25%">Dezactive</td>
+                            }
+                            <td class="align-middle">@item.Name</td>
+                            <td class="align-middle">@item.Amount.ToString()</td>
+                            <td class="align-middle">@item.NextDate.ToString("dd/MM/yyyy")</td>
+                            <td class="align-middle">
+                                <Dropdown>
+                                    <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem @onclick="@(x => OpenRecordPreview(item))">Details</DropdownItem>
+                                        <DropdownItem @onclick="@(x => OpenEditForm(item))">Edit</DropdownItem>
+                                        <DropdownItem @onclick="@(x => OpenDeleteDialog(item))">Delete</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Summary:</td>
+                    <td></td>
+                    <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString()</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
     @if (RecordPreviewOpen)
     {
@@ -116,6 +185,7 @@ else
     private List<RecurringRecordVM> _listOfRecurringRecords = new();
     private List<CategoryVM> _listOfCategories = new();
     private string[] _str = { "", "", "", "", "", "" }; //caused number of types in enum for Record and RecurringRecord
+    private string _sortBy = "";
     private TypesInRecord? _sortClickDesc = null;
     private bool _getTableLoading = true;
     private RecurringRecordVM? _editRecord = null;
@@ -247,7 +317,10 @@ else
 
         _sortClickDesc = null;
         SortButtonClick(TypesInRecord.NextDate);
+        _sortBy = "Next date " + _str[(int)TypesInRecord.TransactionDate];
+
         _getTableLoading = false;
+
         StateHasChanged();
     }
 
