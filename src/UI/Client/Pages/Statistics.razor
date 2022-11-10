@@ -1,13 +1,87 @@
 ﻿@page "/statistics"
+@using MoneyManager.Client.Services
+@using MoneyManager.Client.ViewModels
+@using Newtonsoft.Json
+@inject IHttpRecordService _httpService
 
 <PageTitle>Statistics</PageTitle>
 
+<Select @bind-SelectedValue="@selectedYear">
+    <SelectItem Value="2022">2022</SelectItem>
+    <SelectItem Value="2021">2021</SelectItem>
+    <SelectItem Value="2021">2020</SelectItem>
+</Select>
+
+<Select @bind-SelectedValue="@selectedCategory">
+    @foreach (var category in _categories)
+    {
+        <SelectItem Value="category.Id">@category.Name</SelectItem>
+    }
+</Select>
+
 <Button Color="Color.Primary" Clicked="@(async () => await HandleRedraw())">Redraw</Button>
 
-<LineChart @ref="lineChart" TItem="double" />
+<LineChart @ref="lineChart" TItem="decimal" />
 
 @code {
-    LineChart<double> lineChart;
+    LineChart<decimal> lineChart;
+    int selectedYear;
+    int selectedCategory;
+    List<CategoryVM> _categories = new();
+    List<decimal> data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    private List<decimal> GetData()
+    {
+        return data;
+    }
+
+    private async Task GetDataFrom()
+    {
+        try
+        {
+            var responseMessage = await _httpService.GetListOfItems($"/api/stat/totalcatformonths/{selectedCategory}/{selectedYear}");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
+                foreach (var item in resData)
+                {
+                    data[item.Key - 1] = Math.Abs(item.Value);
+                }
+            }
+            //else
+            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            //_errorMessage = ex.Message;
+        }
+    }
+
+    private async Task GetCategory()
+    {
+        try
+        {
+            var respond = await _httpService.GetListOfItems("/api/category/");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
+
+                _categories = categories ?? new();
+            }
+            //else
+            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            //_errorMessage = ex.Message;
+        }
+
+        StateHasChanged();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -17,19 +91,27 @@
         }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategory();
+        StateHasChanged();
+    }
+
     async Task HandleRedraw()
     {
+        await GetDataFrom();
+
         await lineChart.Clear();
 
         await lineChart.AddLabelsDatasetsAndUpdate(Labels, GetLineChartDataset());
     }
 
-    LineChartDataset<double> GetLineChartDataset()
+    LineChartDataset<decimal> GetLineChartDataset()
     {
-        return new LineChartDataset<double>
+        return new LineChartDataset<decimal>
             {
                 Label = "# of randoms",
-                Data = RandomizeData(),
+                Data = GetData(),
                 BackgroundColor = backgroundColors,
                 BorderColor = borderColors,
                 Fill = false,
@@ -38,20 +120,7 @@
             };
     }
 
-    string[] Labels = { "Red", "Blue", "Yellow", "Green", "Purple", "Orange" };
+    string[] Labels = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
     List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
     List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
-
-    List<double> RandomizeData()
-    {
-        var r = new Random(DateTime.Now.Millisecond);
-
-        return new List<double> {
-            r.Next( 3, 50 ) * r.NextDouble(),
-            r.Next( 3, 50 ) * r.NextDouble(),
-            r.Next( 3, 50 ) * r.NextDouble(),
-            r.Next( 3, 50 ) * r.NextDouble(),
-            r.Next( 3, 50 ) * r.NextDouble(),
-            r.Next( 3, 50 ) * r.NextDouble() };
-    }
 }
