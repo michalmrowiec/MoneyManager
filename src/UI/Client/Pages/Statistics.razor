@@ -21,10 +21,10 @@
 
 <Button Color="Color.Primary" Clicked="@(async () => await HandleRedraw())">Redraw</Button>
 
-<LineChart @ref="lineChart" TItem="decimal" />
+<Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
 
 @code {
-    LineChart<decimal> lineChart;
+    Chart<decimal> barChart;
     int selectedYear;
     int selectedCategory;
     List<CategoryVM> _categories = new();
@@ -101,26 +101,46 @@
     {
         await GetDataFrom();
 
-        await lineChart.Clear();
+        await barChart.Clear();
 
-        await lineChart.AddLabelsDatasetsAndUpdate(Labels, GetLineChartDataset());
+        await barChart.AddLabelsDatasetsAndUpdate(Labels, GetBarChartDataset(), GetBarChartDataset2());
     }
 
-    LineChartDataset<decimal> GetLineChartDataset()
+    private BarChartDataset<decimal> GetBarChartDataset()
     {
-        return new LineChartDataset<decimal>
+        return new()
             {
-                Label = "# of randoms",
-                Data = GetData(),
+                Label = "2021",
+                Data = new List<decimal> { 100, 231, 212, 208, 153, 180, 175, 194, 185, 127, 275, 314 },
                 BackgroundColor = backgroundColors,
                 BorderColor = borderColors,
-                Fill = false,
-                PointRadius = 3,
-                CubicInterpolationMode = "monotone",
+                BorderWidth = 1
             };
     }
 
-    string[] Labels = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+    private BarChartDataset<decimal> GetBarChartDataset2()
+    {
+        return new()
+            {
+                Label = "2022",
+                Data = new List<decimal> { 302, 134, 275, 278, 197, 121, 246, 294, 115, 327, 175, 274 },
+                BackgroundColor = backgroundColors2,
+                BorderColor = borderColors2,
+                BorderWidth = 1
+            };
+    }
+
     List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
+    List<string> backgroundColors2 = new List<string> { ChartColor.FromRgba(155, 99, 132, 0.2f), ChartColor.FromRgba(154, 162, 235, 0.2f), ChartColor.FromRgba(155, 206, 86, 0.2f), ChartColor.FromRgba(175, 192, 192, 0.2f), ChartColor.FromRgba(253, 102, 255, 0.2f), ChartColor.FromRgba(155, 159, 64, 0.2f) };
     List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+    List<string> borderColors2 = new List<string> { ChartColor.FromRgba(155, 99, 132, 1f), ChartColor.FromRgba(154, 162, 235, 1f), ChartColor.FromRgba(155, 206, 86, 1f), ChartColor.FromRgba(175, 192, 192, 1f), ChartColor.FromRgba(253, 102, 255, 1f), ChartColor.FromRgba(155, 159, 64, 1f) };
+    string[] Labels = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+
+    Task OnClicked(ChartMouseEventArgs e)
+    {
+        var model = e.Model as BarChartModel;
+
+        Console.WriteLine($"Handling event for {nameof(BarChartModel)}: x:{model.X} y:{model.Y}");
+        return Task.CompletedTask;
+    }
 }
