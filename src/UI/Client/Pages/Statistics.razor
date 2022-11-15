@@ -2,44 +2,75 @@
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
+@using MoneyManager.Client.Components.Charts
 @inject IHttpRecordService _httpService
 
 <PageTitle>Statistics</PageTitle>
 
-<Select @bind-SelectedValue="@selectedYear">
-    <SelectItem Value="2022">2022</SelectItem>
-    <SelectItem Value="2021">2021</SelectItem>
-    <SelectItem Value="2021">2020</SelectItem>
+@if(qwer)
+{
+        <YearToYearOneCategoryChart MaxAmountOfDataSeries="4" Years="_years" Categories="_categories"></YearToYearOneCategoryChart>
+
+}
+
+@*<Select @bind-SelectedValue="@amountOfSeries">
+    <SelectItem Value="1">1</SelectItem>
+    <SelectItem Value="2">2</SelectItem>
+    <SelectItem Value="3">3</SelectItem>
+    <SelectItem Value="4">4</SelectItem>
 </Select>
 
-<Select @bind-SelectedValue="@selectedCategory">
+<Select @bind-SelectedValue="@selectedCategories[0]">
     @foreach (var category in _categories)
     {
         <SelectItem Value="category.Id">@category.Name</SelectItem>
     }
 </Select>
 
+@for (int i = 0; i < amountOfSeries; i++)
+{
+    <Select @bind-SelectedValue="@selectedYears[i]">
+        @foreach (var year in _years)
+        {
+            <SelectItem Value="year">@year</SelectItem>
+        }
+    </Select>
+
+}
+
 <Button Color="Color.Primary" Clicked="@(async () => await HandleRedraw())">Redraw</Button>
 
-<Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
+<Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />*@
 
 @code {
+    bool qwer = false;
+    List<int> selectedYears = new List<int>() { 0, 0, 0, 0 };
+    List<int> selectedCategories = new List<int>() { 0, 0, 0, 0 };
+    List<BarChartDataset<decimal>> datasets = new();
+
+    int amountOfSeries = 1;
+
+    private List<int> _years = new List<int>() { 2022, 2021, 2020, 2019 };
+    private List<CategoryVM>? _categories = null;
+
     Chart<decimal> barChart;
-    int selectedYear;
-    int selectedCategory;
-    List<CategoryVM> _categories = new();
-    List<decimal> data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    List<decimal>[] data = new List<decimal>[4] {
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
 
     private List<decimal> GetData()
     {
-        return data;
+        return data[0];
     }
 
-    private async Task GetDataFrom()
+    private async Task GetDataFrom(int catId, int yearId, int index)
     {
         try
         {
-            var responseMessage = await _httpService.GetListOfItems($"/api/stat/totalcatformonths/{selectedCategory}/{selectedYear}");
+            var responseMessage = await _httpService.GetListOfItems($"/api/stat/totalcatformonths/{catId}/{yearId}");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -47,7 +78,7 @@
                 var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
                 foreach (var item in resData)
                 {
-                    data[item.Key - 1] = Math.Abs(item.Value);
+                    data[index][item.Key - 1] = Math.Abs(item.Value);
                 }
             }
             //else
@@ -63,7 +94,7 @@
     {
         try
         {
-            var respond = await _httpService.GetListOfItems("/api/category/");
+            var respond = await _httpService.GetListOfItems("/api/category");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -71,6 +102,7 @@
                 var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 
                 _categories = categories ?? new();
+                qwer = true;
             }
             //else
             //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
@@ -83,27 +115,73 @@
         StateHasChanged();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task GetaYearsWithMonths()
     {
-        if (firstRender)
+        try
         {
-            await HandleRedraw();
+            var respond = await _httpService.GetListOfItems("/api/plannedbudget/dates");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
+
+                _years = yearsWithMonths?.Keys.ToList() ?? new();
+            }
+            //else
+            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
         }
+        catch (Exception ex)
+        {
+            //_errorMessage = ex.Message;
+        }
+
+        StateHasChanged();
     }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        await HandleRedraw();
+    //    }
+    //}
 
     protected override async Task OnInitializedAsync()
     {
         await GetCategory();
+        //await GetaYearsWithMonths();
+
+        //selectedYears[0] = _years.First();
+        //selectedCategories[0] = _categories.First().Id;
+
+        //await GetDataFrom(selectedCategories[0], selectedYears[0], 0);
+
+        //datasets[0] = GetBarChartDatasetGenerator(selectedYears[0].ToString(), data[0], backgroundColors, borderColors);
+
+        //await HandleRedraw();
+
         StateHasChanged();
     }
 
     async Task HandleRedraw()
     {
-        await GetDataFrom();
+        datasets.Clear();
+        data = new List<decimal>[4] {
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+        for (int i = 0; i < amountOfSeries; i++)
+        {
+            await GetDataFrom(selectedCategories[0], selectedYears[i], i);
+            datasets.Add(GetBarChartDatasetGenerator(selectedYears[i].ToString(), data[i], backgroundColors, borderColors));
+        }
 
         await barChart.Clear();
 
-        await barChart.AddLabelsDatasetsAndUpdate(Labels, GetBarChartDataset(), GetBarChartDataset2());
+        await barChart.AddLabelsDatasetsAndUpdate(Labels, datasets.ToArray());
     }
 
     private BarChartDataset<decimal> GetBarChartDataset()
@@ -118,22 +196,20 @@
             };
     }
 
-    private BarChartDataset<decimal> GetBarChartDataset2()
+    private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
     {
         return new()
             {
-                Label = "2022",
-                Data = new List<decimal> { 302, 134, 275, 278, 197, 121, 246, 294, 115, 327, 175, 274 },
-                BackgroundColor = backgroundColors2,
-                BorderColor = borderColors2,
+                Label = label,
+                Data = data,
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
                 BorderWidth = 1
             };
     }
 
     List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
-    List<string> backgroundColors2 = new List<string> { ChartColor.FromRgba(155, 99, 132, 0.2f), ChartColor.FromRgba(154, 162, 235, 0.2f), ChartColor.FromRgba(155, 206, 86, 0.2f), ChartColor.FromRgba(175, 192, 192, 0.2f), ChartColor.FromRgba(253, 102, 255, 0.2f), ChartColor.FromRgba(155, 159, 64, 0.2f) };
     List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
-    List<string> borderColors2 = new List<string> { ChartColor.FromRgba(155, 99, 132, 1f), ChartColor.FromRgba(154, 162, 235, 1f), ChartColor.FromRgba(155, 206, 86, 1f), ChartColor.FromRgba(175, 192, 192, 1f), ChartColor.FromRgba(253, 102, 255, 1f), ChartColor.FromRgba(155, 159, 64, 1f) };
     string[] Labels = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
 
     Task OnClicked(ChartMouseEventArgs e)
