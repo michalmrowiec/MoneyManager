@@ -2,71 +2,65 @@
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
-@using MoneyManager.Client.Components.Charts
 @inject IHttpRecordService _httpService
 
 <PageTitle>Statistics</PageTitle>
 
-@if(qwer)
-{
-        <YearToYearOneCategoryChart MaxAmountOfDataSeries="4" Years="_years" Categories="_categories"></YearToYearOneCategoryChart>
-
-}
-
-@*<Select @bind-SelectedValue="@amountOfSeries">
-    <SelectItem Value="1">1</SelectItem>
-    <SelectItem Value="2">2</SelectItem>
-    <SelectItem Value="3">3</SelectItem>
-    <SelectItem Value="4">4</SelectItem>
-</Select>
-
-<Select @bind-SelectedValue="@selectedCategories[0]">
-    @foreach (var category in _categories)
-    {
-        <SelectItem Value="category.Id">@category.Name</SelectItem>
-    }
-</Select>
-
-@for (int i = 0; i < amountOfSeries; i++)
-{
-    <Select @bind-SelectedValue="@selectedYears[i]">
-        @foreach (var year in _years)
+<div class="card mb-2">
+    <div class="card-body">
+        @if (!loading)
         {
-            <SelectItem Value="year">@year</SelectItem>
+            <h4>Category chart for the year</h4>
+            <Dropdown Class="d-inline pe-2">
+                <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedCategory.Name</DropdownToggle>
+                <DropdownMenu>
+                    @foreach (var category in _categories)
+                    {
+                        <DropdownItem @onclick="@(async () => {_selectedCategory = category; await HandleRedraw();})">@category.Name</DropdownItem>
+                    }
+                </DropdownMenu>
+            </Dropdown>
+
+            <Dropdown Class="d-inline pe-2">
+                <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedYear</DropdownToggle>
+                <DropdownMenu>
+                    @foreach (var year in _years)
+                    {
+                        <DropdownItem @onclick="@(async () => {_selectedYear = year; await HandleRedraw();})">@year</DropdownItem>
+                    }
+                </DropdownMenu>
+            </Dropdown>
+
+@*            <Button Color="Color.Primary" Clicked="@(async () => await HandleRedraw())">Redraw</Button>
+*@
+            <Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
         }
-    </Select>
+        else
+        {
+            <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
+                <div class="h2">Loading</div>
+                <div class="h5 spinner-border"></div>
+            </div>
+        }
+    </div>
+</div>
 
-}
 
-<Button Color="Color.Primary" Clicked="@(async () => await HandleRedraw())">Redraw</Button>
-
-<Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />*@
 
 @code {
-    bool qwer = false;
-    List<int> selectedYears = new List<int>() { 0, 0, 0, 0 };
-    List<int> selectedCategories = new List<int>() { 0, 0, 0, 0 };
-    List<BarChartDataset<decimal>> datasets = new();
+    bool loading = true;
 
-    int amountOfSeries = 1;
 
-    private List<int> _years = new List<int>() { 2022, 2021, 2020, 2019 };
-    private List<CategoryVM>? _categories = null;
+    private List<int> _years = new();
+    private List<CategoryVM> _categories = new();
+    private int _selectedYear;
+    private CategoryVM _selectedCategory;
 
-    Chart<decimal> barChart;
+    Chart<decimal> barChart = new();
+    List<decimal> data = new();
+    BarChartDataset<decimal> dataset;
 
-    List<decimal>[] data = new List<decimal>[4] {
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-
-    private List<decimal> GetData()
-    {
-        return data[0];
-    }
-
-    private async Task GetDataFrom(int catId, int yearId, int index)
+    private async Task GetDataFrom(int catId, int yearId)
     {
         try
         {
@@ -76,9 +70,12 @@
             {
                 var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
                 var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
+                //data = resData.Values.ToList();
+                //data.ForEach(item => { item = Math.Abs(item); });
+                data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
                 foreach (var item in resData)
                 {
-                    data[index][item.Key - 1] = Math.Abs(item.Value);
+                    data[item.Key - 1] = Math.Abs(item.Value);
                 }
             }
             //else
@@ -102,7 +99,7 @@
                 var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 
                 _categories = categories ?? new();
-                qwer = true;
+                _selectedCategory = _categories.First();
             }
             //else
             //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
@@ -119,7 +116,7 @@
     {
         try
         {
-            var respond = await _httpService.GetListOfItems("/api/plannedbudget/dates");
+            var respond = await _httpService.GetListOfItems("/api/tracker/dates");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -127,6 +124,7 @@
                 var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
 
                 _years = yearsWithMonths?.Keys.ToList() ?? new();
+                _selectedYear = _years.First();
             }
             //else
             //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
@@ -150,50 +148,25 @@
     protected override async Task OnInitializedAsync()
     {
         await GetCategory();
-        //await GetaYearsWithMonths();
+        await GetaYearsWithMonths();
+        loading = false;
 
-        //selectedYears[0] = _years.First();
-        //selectedCategories[0] = _categories.First().Id;
+        StateHasChanged();
 
-        //await GetDataFrom(selectedCategories[0], selectedYears[0], 0);
-
-        //datasets[0] = GetBarChartDatasetGenerator(selectedYears[0].ToString(), data[0], backgroundColors, borderColors);
-
-        //await HandleRedraw();
+        await HandleRedraw();
 
         StateHasChanged();
     }
 
     async Task HandleRedraw()
     {
-        datasets.Clear();
-        data = new List<decimal>[4] {
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        new List<decimal>  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
-
-        for (int i = 0; i < amountOfSeries; i++)
-        {
-            await GetDataFrom(selectedCategories[0], selectedYears[i], i);
-            datasets.Add(GetBarChartDatasetGenerator(selectedYears[i].ToString(), data[i], backgroundColors, borderColors));
-        }
+        await GetDataFrom(_selectedCategory.Id, _selectedYear);
+        //dataset = GetBarChartDatasetGenerator(_selectedYear.ToString(), data, backgroundColors, borderColors);
+        dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", data, backgroundColors, borderColors);
 
         await barChart.Clear();
 
-        await barChart.AddLabelsDatasetsAndUpdate(Labels, datasets.ToArray());
-    }
-
-    private BarChartDataset<decimal> GetBarChartDataset()
-    {
-        return new()
-            {
-                Label = "2021",
-                Data = new List<decimal> { 100, 231, 212, 208, 153, 180, 175, 194, 185, 127, 275, 314 },
-                BackgroundColor = backgroundColors,
-                BorderColor = borderColors,
-                BorderWidth = 1
-            };
+        await barChart.AddLabelsDatasetsAndUpdate(Labels, dataset);
     }
 
     private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
