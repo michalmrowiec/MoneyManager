@@ -1,0 +1,190 @@
+﻿@using MoneyManager.Client.Services
+@using MoneyManager.Client.ViewModels
+@using Newtonsoft.Json
+@using System.Globalization;
+@inject IHttpRecordService _httpService
+
+@if (!loading)
+{
+    <h4>Category chart for the year</h4>
+
+    <Dropdown Class="d-inline pe-2">
+        <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedCategory.Name</DropdownToggle>
+        <DropdownMenu>
+            @foreach (var category in _categories)
+            {
+                <DropdownItem @onclick="@(async () => {_selectedCategory = category; await HandleRedraw();})">@category.Name</DropdownItem>
+            }
+        </DropdownMenu>
+    </Dropdown>
+
+    <Dropdown Class="d-inline pe-2">
+        <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedYear</DropdownToggle>
+        <DropdownMenu>
+            @foreach (var year in _years)
+            {
+                <DropdownItem @onclick="@(async () => {_selectedYear = year; await HandleRedraw();})">@year</DropdownItem>
+            }
+        </DropdownMenu>
+    </Dropdown>
+
+    <Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
+}
+else
+{
+    <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
+        <div class="h2">Loading</div>
+        <div class="h5 spinner-border"></div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<string> ErrorMessage { get; set; }
+
+    bool loading = true;
+
+    private List<int> _years = new();
+    private List<CategoryVM> _categories = new();
+    private int _selectedYear;
+    private CategoryVM _selectedCategory;
+
+    Chart<decimal> barChart = new();
+    List<decimal> data = new();
+    BarChartDataset<decimal> dataset;
+
+    List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
+    List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+    string[] chartXAxisLabels = new string[12];
+
+    private async Task GetDataFrom(int catId, int yearId)
+    {
+        try
+        {
+            var respond = await _httpService.GetListOfItems($"/api/stat/totalcatformonths/{catId}/{yearId}");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await respond.Content.ReadAsStringAsync();
+                var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
+                //data = resData.Values.ToList();
+                //data.ForEach(item => { item = Math.Abs(item); });
+                data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                foreach (var item in resData)
+                {
+                    //data[item.Key - 1] = Math.Abs(item.Value);
+                    data[item.Key - 1] = item.Value;
+                }
+            }
+            else
+                await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
+
+        }
+        catch (Exception ex)
+        {
+            await ErrorMessage.InvokeAsync(ex.Message);
+
+        }
+    }
+
+    private async Task GetCategory()
+    {
+        try
+        {
+            var respond = await _httpService.GetListOfItems("/api/category");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
+
+                _categories = categories ?? new();
+                _selectedCategory = _categories.First();
+            }
+            else
+                await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
+        }
+        catch (Exception ex)
+        {
+            await ErrorMessage.InvokeAsync(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GetaYearsWithMonths()
+    {
+        try
+        {
+            var respond = await _httpService.GetListOfItems("/api/tracker/dates");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
+
+                _years = yearsWithMonths?.Keys.ToList() ?? new();
+                _selectedYear = _years.First();
+            }
+            else
+                await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
+        }
+        catch (Exception ex)
+        {
+            await ErrorMessage.InvokeAsync(ex.Message);
+        }
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        for (int i = 1; i < 13; i++)
+        {
+            string month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i);
+            month = char.ToUpper(month[0]) + month.Substring(1);
+            chartXAxisLabels[i - 1] = month;
+        }
+
+        await GetCategory();
+        await GetaYearsWithMonths();
+        loading = false;
+
+        StateHasChanged();
+
+        await HandleRedraw();
+
+        StateHasChanged();
+    }
+
+    async Task HandleRedraw()
+    {
+        await GetDataFrom(_selectedCategory.Id, _selectedYear);
+
+        dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", data, backgroundColors, borderColors);
+
+        await barChart.Clear();
+
+        await barChart.AddLabelsDatasetsAndUpdate(chartXAxisLabels, dataset);
+    }
+
+    private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
+    {
+        return new()
+            {
+                Label = label,
+                Data = data,
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
+                BorderWidth = 1,
+            };
+    }
+
+    Task OnClicked(ChartMouseEventArgs e)
+    {
+        var model = e.Model as BarChartModel;
+
+        Console.WriteLine($"Handling event for {nameof(BarChartModel)}: x:{model.X} y:{model.Y}");
+        return Task.CompletedTask;
+    }
+}

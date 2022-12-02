@@ -1,195 +1,30 @@
 ﻿@page "/statistics"
-@using MoneyManager.Client.Services
-@using MoneyManager.Client.ViewModels
-@using Newtonsoft.Json
-@inject IHttpRecordService _httpService
+@using MoneyManager.Client.Components.Charts
 
 <PageTitle>Statistics</PageTitle>
 
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
+}
+
 <div class="card mb-2">
     <div class="card-body">
-        @if (!loading)
-        {
-            <h4>Category chart for the year</h4>
-            <Dropdown Class="d-inline pe-2">
-                <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedCategory.Name</DropdownToggle>
-                <DropdownMenu>
-                    @foreach (var category in _categories)
-                    {
-                        <DropdownItem @onclick="@(async () => {_selectedCategory = category; await HandleRedraw();})">@category.Name</DropdownItem>
-                    }
-                </DropdownMenu>
-            </Dropdown>
-
-            <Dropdown Class="d-inline pe-2">
-                <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedYear</DropdownToggle>
-                <DropdownMenu>
-                    @foreach (var year in _years)
-                    {
-                        <DropdownItem @onclick="@(async () => {_selectedYear = year; await HandleRedraw();})">@year</DropdownItem>
-                    }
-                </DropdownMenu>
-            </Dropdown>
-
-@*            <Button Color="Color.Primary" Clicked="@(async () => await HandleRedraw())">Redraw</Button>
-*@
-            <Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
-        }
-        else
-        {
-            <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
-                <div class="h2">Loading</div>
-                <div class="h5 spinner-border"></div>
-            </div>
-        }
+        <CategoryBarChartForTheYear ErrorMessage="ErrorMessageSetter"></CategoryBarChartForTheYear>
     </div>
 </div>
 
-
+<div class="card mb-2">
+    <div class="card-body">
+        <BarChartForTotal ErrorMessage="ErrorMessageSetter"></BarChartForTotal>
+    </div>
+</div>
 
 @code {
-    bool loading = true;
+    private string _errorMessage = "";
 
-
-    private List<int> _years = new();
-    private List<CategoryVM> _categories = new();
-    private int _selectedYear;
-    private CategoryVM _selectedCategory;
-
-    Chart<decimal> barChart = new();
-    List<decimal> data = new();
-    BarChartDataset<decimal> dataset;
-
-    private async Task GetDataFrom(int catId, int yearId)
+    private void ErrorMessageSetter(string msg)
     {
-        try
-        {
-            var responseMessage = await _httpService.GetListOfItems($"/api/stat/totalcatformonths/{catId}/{yearId}");
-            if (responseMessage == null) return;
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
-                var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
-                //data = resData.Values.ToList();
-                //data.ForEach(item => { item = Math.Abs(item); });
-                data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                foreach (var item in resData)
-                {
-                    data[item.Key - 1] = Math.Abs(item.Value);
-                }
-            }
-            //else
-            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
-        }
-        catch (Exception ex)
-        {
-            //_errorMessage = ex.Message;
-        }
-    }
-
-    private async Task GetCategory()
-    {
-        try
-        {
-            var respond = await _httpService.GetListOfItems("/api/category");
-            if (respond == null) return;
-            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                var json = await respond.Content.ReadAsStringAsync();
-                var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
-
-                _categories = categories ?? new();
-                _selectedCategory = _categories.First();
-            }
-            //else
-            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
-        }
-        catch (Exception ex)
-        {
-            //_errorMessage = ex.Message;
-        }
-
-        StateHasChanged();
-    }
-
-    private async Task GetaYearsWithMonths()
-    {
-        try
-        {
-            var respond = await _httpService.GetListOfItems("/api/tracker/dates");
-            if (respond == null) return;
-            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                var json = await respond.Content.ReadAsStringAsync();
-                var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
-
-                _years = yearsWithMonths?.Keys.ToList() ?? new();
-                _selectedYear = _years.First();
-            }
-            //else
-            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
-        }
-        catch (Exception ex)
-        {
-            //_errorMessage = ex.Message;
-        }
-
-        StateHasChanged();
-    }
-
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    if (firstRender)
-    //    {
-    //        await HandleRedraw();
-    //    }
-    //}
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetCategory();
-        await GetaYearsWithMonths();
-        loading = false;
-
-        StateHasChanged();
-
-        await HandleRedraw();
-
-        StateHasChanged();
-    }
-
-    async Task HandleRedraw()
-    {
-        await GetDataFrom(_selectedCategory.Id, _selectedYear);
-        //dataset = GetBarChartDatasetGenerator(_selectedYear.ToString(), data, backgroundColors, borderColors);
-        dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", data, backgroundColors, borderColors);
-
-        await barChart.Clear();
-
-        await barChart.AddLabelsDatasetsAndUpdate(Labels, dataset);
-    }
-
-    private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
-    {
-        return new()
-            {
-                Label = label,
-                Data = data,
-                BackgroundColor = backgroundColors,
-                BorderColor = borderColors,
-                BorderWidth = 1
-            };
-    }
-
-    List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
-    List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
-    string[] Labels = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
-
-    Task OnClicked(ChartMouseEventArgs e)
-    {
-        var model = e.Model as BarChartModel;
-
-        Console.WriteLine($"Handling event for {nameof(BarChartModel)}: x:{model.X} y:{model.Y}");
-        return Task.CompletedTask;
+        _errorMessage = msg;
     }
 }
