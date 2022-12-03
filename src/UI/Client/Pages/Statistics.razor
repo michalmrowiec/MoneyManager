@@ -1,0 +1,30 @@
+﻿@page "/statistics"
+@using MoneyManager.Client.Components.Charts
+
+<PageTitle>Statistics</PageTitle>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
+}
+
+<div class="card mb-2">
+    <div class="card-body">
+        <CategoryBarChartForTheYear ErrorMessage="ErrorMessageSetter"></CategoryBarChartForTheYear>
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-body">
+        <BarChartForTotal ErrorMessage="ErrorMessageSetter"></BarChartForTotal>
+    </div>
+</div>
+
+@code {
+    private string _errorMessage = "";
+
+    private void ErrorMessageSetter(string msg)
+    {
+        _errorMessage = msg;
+    }
+}
