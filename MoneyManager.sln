@@ -37,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyManager.API.IntegrationTests", "test\MoneyManager.API.IntegrationTests\MoneyManager.API.IntegrationTests.csproj", "{FFDEE137-DA14-4266-8BF2-F910F28FFBAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyManager.Application.UnitTests", "test\MoneyManager.Application.UnitTests\MoneyManager.Application.UnitTests.csproj", "{157C86A6-D37A-457F-9EF2-3712A05029AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyManager.Application.UnitTests", "test\MoneyManager.Application.UnitTests\MoneyManager.Application.UnitTests.csproj", "{157C86A6-D37A-457F-9EF2-3712A05029AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

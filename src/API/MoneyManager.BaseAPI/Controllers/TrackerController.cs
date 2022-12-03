@@ -3,16 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Records;
-using MoneyManager.Application.Functions.Records.Commands.CreateRangeRecords;
+using MoneyManager.Application.Functions.Records.Queries.GetAllYearsWithMonths;
 using MoneyManager.Application.Functions.Records.Queries.GetRecordById;
 using MoneyManager.Application.Functions.Records.Queries.GetRecordsForMonth;
-using MoneyManager.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.API.Controllers
 {
@@ -75,6 +68,12 @@ namespace MoneyManager.API.Controllers
             recordItem.UserId = _userContextService.GetUserId;
             await _mediator.Send(recordItem);
             return Ok();
+        }
+
+        [HttpGet("dates")]
+        public async Task<ActionResult<Dictionary<int, List<int>>>> GetAllYearsWithMonths()
+        {
+            return Ok(await _mediator.Send(new GetAllYearsWithMonthsQuery(_userContextService.GetUserId)));
         }
     }
 }
