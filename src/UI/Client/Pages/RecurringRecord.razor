@@ -89,9 +89,9 @@ else
             </tbody>
             <tfoot>
                 <tr>
-                    <td>Summary:</td>
+                    <td>Summary (active only):</td>
                     <td></td>
-                    <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString())</td>
+                    <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString()</td>
                 </tr>
             </tfoot>
         </table>
@@ -156,7 +156,7 @@ else
             </tbody>
             <tfoot>
                 <tr>
-                    <td>Summary:</td>
+                    <td>Summary (active only):</td>
                     <td></td>
                     <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString()</td>
                 </tr>

@@ -1,6 +1,7 @@
 ﻿@page "/tracker"
 @using MoneyManager.Client.Models
 @using MoneyManager.Client.Services
+@using MoneyManager.Client.Services.XlsxFileService
 @using MoneyManager.Client.Components
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
@@ -35,7 +36,32 @@ else if (_listOfRecords.Count is 0 && _listOfRecordsTemp.Count is 0)
 }
 else
 {
-    <div class="d-flex justify-content-between">
+    @*    <Field Horizontal>
+        <FieldBody ColumnSize="ColumnSize.Is10">
+            <TextEdit @bind-Text="_serach" @onkeypress="@( async () =>
+                {
+                    if(_serach != String.Empty)
+                    {
+                        _listOfRecords = _listOfRecordsTemp.Where(x => x.Name.Contains(_serach)).ToList();
+                    }
+                    else
+                    {
+                        await GetTable();
+                    }
+                    StateHasChanged();
+                }
+            )" Placeholder="Search..." />
+        </FieldBody>
+    </Field>*@
+
+    @*    <Field Horizontal>
+        <FieldLabel ColumnSize="ColumnSize.Is2">All Records</FieldLabel>
+        <FieldBody ColumnSize="ColumnSize.Is10" Margin="Margin.IsAuto">
+            <Check TValue="bool" />
+        </FieldBody>
+    </Field>*@
+
+    <div class="d-flex justify-content-between d-none d-md-flex">
         <div class="d-flex flex-row align-items-center">
             <h5>Select date:</h5>
             <div width="20%" class="ms-2">
@@ -55,7 +81,7 @@ else
                 </select>
             </div>
         </div>
-        <div class="d-none d-sm-flex">
+        <div class="">
             <select class="form-select" @bind="@TableViewSelected">
                 <option value="@TableView.ExpensesAndIncomes">All</option>
                 <option value="@TableView.OnlyExpenses">Expenses</option>
@@ -103,14 +129,14 @@ else
                     {
                         if (item.Amount > 0)
                         {
-                            color = "green";
+                            _color = "green";
                         }
                         else
                         {
-                            color = "red";
+                            _color = "red";
                         }
 
-                        <tr class="text-color" style="color:@color;">
+                        <tr class="text-color" style="color:@_color;">
                             <td class="align-middle" width="25%">@item.Name</td>
                             <td class="align-middle" width="25%">@item.CategoryName</td>
                             <td class="align-middle" width="15%">@item.Amount.ToString()</td>
@@ -142,6 +168,32 @@ else
 
     //Mobile
     <div class="d-md-none text-table">
+        <div class="d-flex pb-2">
+            <select class="form-select form-select-sm" @bind="@TableViewSelected">
+                <option value="@TableView.ExpensesAndIncomes">All</option>
+                <option value="@TableView.OnlyExpenses">Expenses</option>
+                <option value="@TableView.OnlyIncomes">Incomes</option>
+            </select>
+        </div>
+        <div class="d-flex flex-row align-items-center">
+            <h5>Select date:</h5>
+            <div width="20%" class="ms-2">
+                <select class="form-select" @bind="SelectedYearByUser">
+                    @foreach (var item in _listOfYearsForSelect)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+            </div>
+            <div width="20%" class="ms-2">
+                <select class="form-select" @bind="SelectedMonthByUser">
+                    @foreach (var item in _listOfMonthsForSelect)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+            </div>
+        </div>
         <div class="d-flex flex-row align-items-center py-2">
             <h5>Sort by:</h5>
             <div width="20%" class="ms-2">
@@ -156,6 +208,7 @@ else
                 </Dropdown>
             </div>
         </div>
+
         <table class="table table-sm table-striped">
             <thead>
                 <tr>
@@ -173,14 +226,14 @@ else
                     {
                         if (item.Amount > 0)
                         {
-                            color = "green";
+                            _color = "green";
                         }
                         else
                         {
-                            color = "red";
+                            _color = "red";
                         }
 
-                        <tr class="text-color" style="color:@color;">
+                        <tr class="text-color" style="color:@_color;">
                             <td class="align-middle" width="51%">@item.Name</td>
                             <td class="align-middle" width="30%">@item.CategoryName</td>
                             <td class="align-middle" width="7%">@item.Amount.ToString()</td>
@@ -229,7 +282,8 @@ else
 }
 
 @code {
-    private string? color;
+    //private string _serach = String.Empty;
+    private string? _color;
     private string? _errorMessage;
     private RecordVM? _recordToDelete;
     private List<RecordVM> _listOfRecords = new();
@@ -254,6 +308,7 @@ else
         {
             _selectedYearByUser = value == null ? String.Empty : value;
             _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecordsTemp, _selectedYearByUser);
+
             if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")) &&
                     _listOfMonthsForSelect.FirstOrDefault(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")), String.Empty).ToString() != String.Empty)
                 SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US"))).ToString();
@@ -384,26 +439,6 @@ else
         StateHasChanged();
     }
 
-    private Stream GetFileStream()
-    {
-        XmlGenerateService xmlGenerateService = new();
-
-        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList());
-        var fileStream = new MemoryStream(randomBinaryData);
-
-        return fileStream;
-    }
-
-    private async Task DownloadFileFromStream()
-    {
-        var fileStream = GetFileStream();
-        var fileName = $"Report_{DateTime.Today.ToString("Y")}.xlsx";
-
-        using var streamRef = new DotNetStreamReference(stream: fileStream);
-
-        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-    }
-
     private async Task GetTable(string? selectedYear = null, string? selectedMonth = null)
     {
         try
@@ -501,6 +536,26 @@ else
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.FinancialDashboard;
         _errorMessage = null;
         await GetTable();
+    }
+
+    private Stream GetFileStream()
+    {
+        XmlGenerateService xmlGenerateService = new();
+
+        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList());
+        var fileStream = new MemoryStream(randomBinaryData);
+
+        return fileStream;
+    }
+
+    private async Task DownloadFileFromStream()
+    {
+        var fileStream = GetFileStream();
+        var fileName = $"Report_{DateTime.Today.ToString("Y")}.xlsx";
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
 
     enum TableView

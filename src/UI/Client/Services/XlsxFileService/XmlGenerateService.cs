@@ -3,7 +3,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace MoneyManager.Client.Services
+namespace MoneyManager.Client.Services.XlsxFileService
 {
     public class XmlGenerateService
     {
@@ -62,7 +62,7 @@ namespace MoneyManager.Client.Services
                     new Cell() { CellValue = new CellValue(item.Name), DataType = CellValues.String },
                     new Cell() { CellValue = new CellValue(item.CategoryName ?? ""), DataType = CellValues.String },
                     new Cell() { CellValue = new CellValue(item.Amount), DataType = CellValues.Number },
-                    new Cell() { CellValue = new CellValue(item.TransactionDate.ToString("d")), DataType = CellValues.String });
+                    new Cell() { CellValue = new CellValue(item.TransactionDate.ToString("dd/MM/yyyy")), DataType = CellValues.String });
                 sheetData.Append(row);
             }
 
