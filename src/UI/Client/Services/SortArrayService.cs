@@ -8,20 +8,20 @@ namespace MoneyManager.Client.Services
 {
     internal static class SortArrayService
     {
-        internal static List<string> GetAllYearsFromListOfRecords<T>(List<T> records) where T : IRecordWithDate
+        internal static List<int> GetAllYearsFromListOfRecords<T>(List<T> records) where T : IRecordWithDate
         {
-            var years = records.Select(x => x.TransactionDate.ToString("yyyy"))
+            var years = records.Select(x => x.TransactionDate.Year)
                 .Distinct()
                 .OrderByDescending(x => x)
                 .ToList();
             return years;
         }
 
-        internal static List<string> GetAllMonthsFromListOfRecords<T>(List<T> records, string year) where T : IRecordWithDate
+        internal static List<int> GetAllMonthsFromListOfRecords<T>(List<T> records, int year) where T : IRecordWithDate
         {
-            var months = records.Where(x => x.TransactionDate.ToString("yyyy") == year)
+            var months = records.Where(x => x.TransactionDate.Year == year)
                 .OrderBy(x => x.TransactionDate)
-                .Select(x => x.TransactionDate.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))
+                .Select(x => x.TransactionDate.Month)
                 .Distinct()
                 .ToList();
             return months;

@@ -1,13 +1,10 @@
-﻿using MoneyManager.Client.Models;
+﻿using FluentAssertions;
+using MoneyManager.Client.Models;
 using MoneyManager.Client.Services;
 using MoneyManager.Client.ViewModels;
-using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace MoneyManager.Client.UnitTests.Services
@@ -25,7 +22,7 @@ namespace MoneyManager.Client.UnitTests.Services
                     new RecordVM { Name = "aTest", Amount = 19999, TransactionDate = new DateTime(2017, 11, 11) },
                     new RecordVM { Name = "uTest", Amount = -1230, TransactionDate = new DateTime(2019, 04, 22) }
                 },
-                new List<string> { "2021", "2020", "2019", "2017" }
+                new List<int> { 2021, 2020, 2019, 2017 }
             },
             new object[]
             {
@@ -36,12 +33,12 @@ namespace MoneyManager.Client.UnitTests.Services
                     new RecordVM { Name = "asTest", Amount = 0, TransactionDate = new DateTime(2017, 11, 11) },
                     new RecordVM { Name = "u1Test", Amount = -130, TransactionDate = new DateTime(2019, 04, 22) }
                 },
-                new List<string> { "2021", "2019", "2017", "2015" }
+                new List<int> { 2021, 2019, 2017, 2015 }
             },
             new object[]
             {
                 new List<RecordVM> { },
-                new List<string> { }
+                new List<int> { }
             }
         };
         public static IEnumerable<object[]> RecordsMonths => new List<object[]>
@@ -55,8 +52,8 @@ namespace MoneyManager.Client.UnitTests.Services
                     new RecordVM { Name = "aTest", Amount = 19999, TransactionDate = new DateTime(2020, 11, 11) },
                     new RecordVM { Name = "uTest", Amount = -1230, TransactionDate = new DateTime(2020, 04, 22) }
                 },
-                "2020",
-                new List<string> { "January", "April", "November" }
+                2020,
+                new List<int> { 1, 4, 11 }
             },
             new object[]
             {
@@ -67,14 +64,14 @@ namespace MoneyManager.Client.UnitTests.Services
                     new RecordVM { Name = "asTest", Amount = 0, TransactionDate = new DateTime(2015, 10, 11) },
                     new RecordVM { Name = "u1Test", Amount = -130, TransactionDate = new DateTime(2015, 03, 22) }
                 },
-                "2015",
-                new List<string> { "March", "August", "October", "December" }
+                2015,
+                new List<int> { 3, 8, 10, 12 }
             },
             new object[]
             {
                 new List<RecordVM> { },
-                String.Empty,
-                new List<string> { }
+                0,
+                new List<int> { }
             }
         };
         public static IEnumerable<object[]> DataForSortBy => new List<object[]>
@@ -182,7 +179,7 @@ namespace MoneyManager.Client.UnitTests.Services
 
         [Theory]
         [MemberData(nameof(RecordsYears))]
-        public void GetAllYearsFromListOfRecords_GetListOfRecords_ReturnListOfYears(List<RecordVM> records, List<string> expectedAnswear)
+        public void GetAllYearsFromListOfRecords_GetListOfRecords_ReturnListOfYears(List<RecordVM> records, List<int> expectedAnswear)
         {
             var years = SortArrayService.GetAllYearsFromListOfRecords(records);
 
@@ -191,7 +188,7 @@ namespace MoneyManager.Client.UnitTests.Services
 
         [Theory]
         [MemberData(nameof(RecordsMonths))]
-        public void GetAllMonthsFromListOfRecords_ForGivenYear_SchouldReturnAllOfMonthsInThisYear(List<RecordVM> records, string givenYear, List<string> expectedAnswear)
+        public void GetAllMonthsFromListOfRecords_ForGivenYear_SchouldReturnAllOfMonthsInThisYear(List<RecordVM> records, int givenYear, List<int> expectedAnswear)
         {
             var months = SortArrayService.GetAllMonthsFromListOfRecords(records, givenYear);
 

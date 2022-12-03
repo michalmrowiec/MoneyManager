@@ -74,9 +74,9 @@ else
             </div>
             <div width="20%" class="ms-2">
                 <select class="form-select" @bind="SelectedMonthByUser">
-                    @foreach (var item in _listOfMonthsForSelect)
+                    @foreach (var month in _listOfMonthsForSelect)
                     {
-                        <option value="@item">@item</option>
+                        <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
                     }
                 </select>
             </div>
@@ -125,18 +125,18 @@ else
             <tbody>
                 @if (_listOfRecords != null)
                 {
-                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList())
                     {
                         if (item.Amount > 0)
                         {
-                            _color = "green";
+                            _colorOfTableRow = "green";
                         }
                         else
                         {
-                            _color = "red";
+                            _colorOfTableRow = "red";
                         }
 
-                        <tr class="text-color" style="color:@_color;">
+                        <tr class="text-color" style="color:@_colorOfTableRow;">
                             <td class="align-middle" width="25%">@item.Name</td>
                             <td class="align-middle" width="25%">@item.CategoryName</td>
                             <td class="align-middle" width="15%">@item.Amount.ToString()</td>
@@ -187,9 +187,9 @@ else
             </div>
             <div width="20%" class="ms-2">
                 <select class="form-select" @bind="SelectedMonthByUser">
-                    @foreach (var item in _listOfMonthsForSelect)
+                    @foreach (var month in _listOfMonthsForSelect)
                     {
-                        <option value="@item">@item</option>
+                        <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
                     }
                 </select>
             </div>
@@ -222,18 +222,18 @@ else
             <tbody>
                 @if (_listOfRecords != null)
                 {
-                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList())
                     {
                         if (item.Amount > 0)
                         {
-                            _color = "green";
+                            _colorOfTableRow = "green";
                         }
                         else
                         {
-                            _color = "red";
+                            _colorOfTableRow = "red";
                         }
 
-                        <tr class="text-color" style="color:@_color;">
+                        <tr class="text-color" style="color:@_colorOfTableRow;">
                             <td class="align-middle" width="51%">@item.Name</td>
                             <td class="align-middle" width="30%">@item.CategoryName</td>
                             <td class="align-middle" width="7%">@item.Amount.ToString()</td>
@@ -271,64 +271,70 @@ else
     </button>
 }
 
-@if (DeleteDialogOpen && _recordToDelete != null)
+@if (_deleteDialogOpen && _recordToDelete != null)
 {
     <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" Title="Are you sure?" Text=@($"Do you want delete this: {_recordToDelete.Name}?") OnClose="@CloseDeleteDialog"></ConfirmDeleteDialog>
 }
 
-@if (EditFormOpen && _editRecord != null)
+@if (_editFormOpen && _editRecord != null)
 {
     <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord" TypeOfDialog="TypeOfFormlDialog.EditRecord"></RecordFormDialog>
 }
 
 @code {
     //private string _serach = String.Empty;
-    private string? _color;
+    private string? _colorOfTableRow;
     private string? _errorMessage;
+    private bool _getTableLoading = true;
+
     private RecordVM? _recordToDelete;
+    private RecordVM? _editRecord = null;
+
+    private bool _deleteDialogOpen;
+    private bool _editFormOpen;
+
     private List<RecordVM> _listOfRecords = new();
     private List<RecordVM> _listOfRecordsTemp = new();
-    private List<string> _listOfYearsForSelect = new();
-    private List<string> _listOfMonthsForSelect = new();
+
+    private List<int> _listOfYearsForSelect = new();
+    private List<int> _listOfMonthsForSelect = new();
+    private int? _selectedYearByUser;
+    private int? _selectedMonthByUser;
+
     private string[] _str = { "", "", "", "" };
     private string _sortBy = "";
     private TypesInRecord? _sortClickDesc = null;
+
     private decimal _sumOfMonthlyAmounts = 0;
     private decimal _sumOfTotalAmounts = 0;
-    private string _selectedYearByUser = String.Empty;
-    private string _selectedMonthByUser = String.Empty;
-    private RecordVM? _editRecord = null;
-    private bool _getTableLoading = true;
+
     private TableView _tableViewSelected = TableView.ExpensesAndIncomes;
 
-    private string? SelectedYearByUser
+    private int? SelectedYearByUser
     {
         get { return _selectedYearByUser; }
         set
         {
-            _selectedYearByUser = value == null ? String.Empty : value;
-            _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecordsTemp, _selectedYearByUser);
+            _selectedYearByUser = value;
+            _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecordsTemp, _selectedYearByUser ?? 0);
 
-            if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")) &&
-                    _listOfMonthsForSelect.FirstOrDefault(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US")), String.Empty).ToString() != String.Empty)
-                SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == DateTime.Now.ToString("MMMM", CultureInfo.GetCultureInfo("en-US"))).ToString();
-            else if (_selectedYearByUser == DateTime.Now.ToString("yyyy", CultureInfo.GetCultureInfo("en-US")))
-                SelectedMonthByUser = _listOfMonthsForSelect.LastOrDefault(String.Empty);
+            if (_selectedYearByUser == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
+                SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == (int)DateTime.Now.Month);
+            else if (_selectedYearByUser == DateTime.Now.Year)
+                SelectedMonthByUser = _listOfMonthsForSelect.LastOrDefault();
             else
-                SelectedMonthByUser = _listOfMonthsForSelect.FirstOrDefault(String.Empty);
+                SelectedMonthByUser = _listOfMonthsForSelect.FirstOrDefault();
         }
     }
-    private string SelectedMonthByUser
+    private int? SelectedMonthByUser
     {
         get { return _selectedMonthByUser; }
         set
         {
-            _selectedMonthByUser = value == null ? String.Empty : value;
+            _selectedMonthByUser = value;
             UpdateSummary();
         }
     }
-    private bool DeleteDialogOpen { get; set; }
-    private bool EditFormOpen { get; set; }
 
     private TableView TableViewSelected
     {
@@ -353,6 +359,11 @@ else
                     break;
             }
         }
+    }
+
+    private void ReturnedRecord(RecordVM recordVM)
+    {
+        _editRecord = recordVM;
     }
 
     // TODO: Poukładaj to please
@@ -397,32 +408,30 @@ else
             _sortClickDesc = sortBy;
     }
 
+    #region Delete dialog
     private async Task CloseDeleteDialog(bool deleteConfirmed)
     {
         if (deleteConfirmed && _recordToDelete != null)
         {
             await Delete(_recordToDelete.Id);
         }
-        DeleteDialogOpen = false;
+        _deleteDialogOpen = false;
         await GetTable(_selectedYearByUser, _selectedMonthByUser);
         StateHasChanged();
     }
 
     private void OpenDeleteDialog(RecordVM record)
     {
-        DeleteDialogOpen = true;
+        _deleteDialogOpen = true;
         _recordToDelete = record;
         StateHasChanged();
     }
+    #endregion
 
-    private void ReturnedRecord(RecordVM recordVM)
-    {
-        _editRecord = recordVM;
-    }
-
+    #region Edit form
     private async Task CloseEditForm(bool editConfirmed)
     {
-        DeleteDialogOpen = false;
+        _deleteDialogOpen = false;
         if (editConfirmed && _editRecord != null)
         {
             await Update();
@@ -434,12 +443,13 @@ else
 
     private void OpenEditForm(RecordVM record)
     {
-        EditFormOpen = true;
+        _editFormOpen = true;
         _editRecord = record;
         StateHasChanged();
     }
+    #endregion
 
-    private async Task GetTable(string? selectedYear = null, string? selectedMonth = null)
+    private async Task GetTable(int? selectedYear = null, int? selectedMonth = null)
     {
         try
         {
@@ -478,8 +488,8 @@ else
             SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
         }
 
-        if (selectedYear is not null && _listOfYearsForSelect.Contains(selectedYear))
-            if (selectedMonth is not null && _listOfMonthsForSelect.Contains(selectedMonth))
+        if (selectedYear is not null && _listOfYearsForSelect.Any(x => x == selectedYear))
+            if (selectedMonth is not null && _listOfMonthsForSelect.Any(x => x == selectedMonth))
             {
                 SelectedYearByUser = selectedYear;
                 SelectedMonthByUser = selectedMonth;
@@ -538,6 +548,7 @@ else
         await GetTable();
     }
 
+    #region Xlsx file generate
     private Stream GetFileStream()
     {
         XmlGenerateService xmlGenerateService = new();
@@ -557,6 +568,7 @@ else
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
+    #endregion
 
     enum TableView
     {
