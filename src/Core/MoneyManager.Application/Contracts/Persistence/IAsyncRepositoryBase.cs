@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MoneyManager.Application.Contracts.Persistence
+﻿namespace MoneyManager.Application.Contracts.Persistence
 {
     public interface IAsyncRepositoryBase<T> where T : class
     {
