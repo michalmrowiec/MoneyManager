@@ -5,13 +5,9 @@ using MoneyManager.Application.Contracts.Persistence.Users;
 using MoneyManager.Domain.Authentication;
 using MoneyManager.Domain.Entities;
 using MoneyManager.Infractructure.Authentication;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Infractructure.Repositories.Users
 {

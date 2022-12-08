@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
+using MoneyManager.Application.Functions.Users.Commands.SendForgotPasswordEmail;
 using MoneyManager.Domain.Authentication;
 
 namespace MoneyManager.API.Controllers
@@ -34,6 +35,14 @@ namespace MoneyManager.API.Controllers
             if(!response.Success)
                 return BadRequest(response);
             return Ok(response.UserToken);
+        }
+
+        [HttpPost]
+        [Route("forgotpassword")]
+        public async Task<ActionResult> SendForgotPasswordEmail([FromBody] SendForgotPasswordEmailCommand sendForgotPasswordEmail)
+        {
+            var emailSend = await _mediator.Send(sendForgotPasswordEmail);
+            return emailSend ? Ok(emailSend) : BadRequest();
         }
     }
 }
