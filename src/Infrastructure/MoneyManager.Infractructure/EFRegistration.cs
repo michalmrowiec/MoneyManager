@@ -11,6 +11,7 @@ using MoneyManager.Infractructure.Authentication;
 using MoneyManager.Infractructure.Repositories.Items;
 using MoneyManager.Infractructure.Repositories.Users;
 using MoneyManager.Infractructure.Services.EmailService;
+using MoneyManager.Infractructure.Services.JWTService;
 using System.Text;
 
 namespace MoneyManager.Infractructure
@@ -38,7 +39,8 @@ namespace MoneyManager.Infractructure
                 {
                     ValidIssuer = authenticationSettings.JwtIssuer,
                     ValidAudience = authenticationSettings.JwtIssuer,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                    ValidateLifetime = true
                 };
             });
 
@@ -58,6 +60,7 @@ namespace MoneyManager.Infractructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             services.AddScoped<IEmailSender, Email>();
+            services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
 
             return services;
         }
