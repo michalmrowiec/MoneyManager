@@ -48,31 +48,6 @@ namespace MoneyManager.Infractructure.Repositories.Users
             _dbContext.SaveChanges();
             var login = new LoginUser { Email = registerUser.Email, Password = registerUser.Password };
             return Login(login);
-
-
-            //based categories
-            //List<CategoryItemDto> baseCategories = new()
-            //{
-            //    new CategoryItemDto
-            //    {
-            //        Name = "Food"
-            //    },
-            //    new CategoryItemDto
-            //    {
-            //        Name = "Education"
-            //    }
-            //};
-            //var userId = _dbContext.Users.First(x => x.Email == registerUser.Email).Id;
-            //foreach (var item in baseCategories)
-            //{
-            //    Category category = new()
-            //    {
-            //        CategoryName = item.Name,
-            //        UserId = userId
-            //    };
-            //    _dbContext.Categories.Add(category);
-            //}
-            //_dbContext.SaveChanges();
         }
 
         public Task<UserToken> Login(LoginUser loginUser)
@@ -103,7 +78,7 @@ namespace MoneyManager.Infractructure.Repositories.Users
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(_authenticationSettings.JwtExpireDays);
+            var expires = DateTime.Now.AddDays(_authenticationSettings.JwtExpireDaysForNormalLogin);
 
             var token = new JwtSecurityToken(
                 _authenticationSettings.JwtIssuer,
@@ -121,13 +96,37 @@ namespace MoneyManager.Infractructure.Repositories.Users
                 Email = user.Email
             };
 
-            //return tokenHandler.WriteToken(token);
             return Task.FromResult(retTok);
         }
 
         public async Task<bool> CheckEmail(string email)
         {
             return await _dbContext.Users.AnyAsync(x => x.Email == email); 
+        }
+
+        public async Task<bool> ChangePassword(int userId, string password, string repeatPassword)
+        {
+            var user = new User
+            {
+                Id = userId
+            };
+
+            if (password == repeatPassword)
+            {
+                var passwordHash = _passwordHasher.HashPassword(user, password);
+                user.PasswordHash = passwordHash;
+            }
+
+            _dbContext.Attach(user);
+            _dbContext.Entry(user).Property(x => x.PasswordHash).IsModified = true;
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<int?> GetUserId(string userEmail)
+        {
+            var user = await _dbContext.Users.FirstAsync(x => x.Email == userEmail);
+            return user.Id;
         }
     }
 }

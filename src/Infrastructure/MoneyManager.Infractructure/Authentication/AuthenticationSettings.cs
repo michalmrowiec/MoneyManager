@@ -3,7 +3,8 @@
     public class AuthenticationSettings
     {
         public string JwtKey { get; set; } = null!;
-        public int JwtExpireDays { get; set; }
+        public int JwtExpireDaysForNormalLogin { get; set; }
+        public int JwtExpireHoursForResetPassword { get; set; }
         public string JwtIssuer { get; set; } = null!;
     }
 }

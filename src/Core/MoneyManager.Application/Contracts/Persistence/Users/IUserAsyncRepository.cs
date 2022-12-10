@@ -7,5 +7,7 @@ namespace MoneyManager.Application.Contracts.Persistence.Users
         Task<UserToken> Register(RegisterUser registerUser);
         Task<UserToken> Login(LoginUser loginUser);
         Task<bool> CheckEmail(string email);
+        Task<bool> ChangePassword(int userId, string password, string repeatPassword);
+        Task<int?> GetUserId(string userEmail);
     }
 }

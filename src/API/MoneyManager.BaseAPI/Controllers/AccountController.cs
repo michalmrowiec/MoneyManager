@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.Application.Functions.Users.Commands.ChangePasswordUser;
 using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
 using MoneyManager.Application.Functions.Users.Commands.SendForgotPasswordEmail;
@@ -43,6 +45,14 @@ namespace MoneyManager.API.Controllers
         {
             var emailSend = await _mediator.Send(sendForgotPasswordEmail);
             return emailSend ? Ok(emailSend) : BadRequest();
+        }
+
+        [Authorize]
+        [HttpPut]
+        public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordUserCommand changePasswordUser)
+        {
+            var result = await _mediator.Send(changePasswordUser);
+            return result ? Ok() : BadRequest();
         }
     }
 }
