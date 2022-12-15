@@ -43,6 +43,8 @@ public enum NamesOfSubpageEnum
     Categories,
     [Description("Settings")]
     Settings,
+    [Description("Forgot Password")]
+    ForgotPassword,
     [Description("")]
     Empty
 }

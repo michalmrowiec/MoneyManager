@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Users.Commands.ChangePasswordUser;
 using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
@@ -14,9 +15,12 @@ namespace MoneyManager.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public AccountController(IMediator mediator)
+        private readonly IUserContextService _userContextService;
+
+        public AccountController(IMediator mediator, IUserContextService userContextService)
         {
             _mediator = mediator;
+            _userContextService = userContextService;
         }
 
         [HttpPost]
@@ -51,8 +55,10 @@ namespace MoneyManager.API.Controllers
         [HttpPut]
         public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordUserCommand changePasswordUser)
         {
-            var result = await _mediator.Send(changePasswordUser);
-            return result ? Ok() : BadRequest();
+            changePasswordUser.UserId = _userContextService.GetUserId;
+            var response = await _mediator.Send(changePasswordUser);
+
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }

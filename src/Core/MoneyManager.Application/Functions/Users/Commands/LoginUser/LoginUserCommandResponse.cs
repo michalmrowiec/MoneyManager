@@ -1,11 +1,6 @@
 ﻿using FluentValidation.Results;
 using MoneyManager.Application.Responses;
 using MoneyManager.Domain.Authentication;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Application.Functions.Users.Commands.LoginUser
 {
