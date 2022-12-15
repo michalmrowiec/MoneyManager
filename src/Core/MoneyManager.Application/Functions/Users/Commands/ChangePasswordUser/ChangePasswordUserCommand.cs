@@ -2,5 +2,10 @@
 
 namespace MoneyManager.Application.Functions.Users.Commands.ChangePasswordUser
 {
-    public record ChangePasswordUserCommand(int UserId, string Password, string RepeatPassword) : IRequest<bool>;
+    public record ChangePasswordUserCommand : IRequest<ChangePasswordUserCommandResposne>
+    {
+        public int UserId { get; set; }
+        public string Password { get; init; }
+        public string RepeatPassword { get; init; }
+    }
 }
