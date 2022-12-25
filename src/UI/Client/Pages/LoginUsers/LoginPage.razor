@@ -30,22 +30,28 @@
                     <InputText @bind-Value="_loginUserVM.Password" type="password" class="form-control" />
                     <ValidationMessage For="@(() => _loginUserVM.Password)" />
                 </div>
-                <button class="btn btn-primary">
-                    @if (_loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    Login
-                </button>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-primary mt-2">
+                        @if (_loading)
+                        {
+                            <span class="spinner-border spinner-border-sm mr-1"></span>
+                        }
+                        Login
+                    </button>
+                    <div class="my-auto">
+                        <a href="/forgotpasswordemail">I forgot my password</a>
+                    </div>
+                </div>
+
                 @if (!string.IsNullOrEmpty(_errorMessage))
                 {
                     <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
                 }
+
             </EditForm>
         </div>
     </div>
 </div>
-<a href="/forgotpasswordemail">Forgot password</a>
 
 @code {
     private LoginUserVM _loginUserVM = new LoginUserVM();
