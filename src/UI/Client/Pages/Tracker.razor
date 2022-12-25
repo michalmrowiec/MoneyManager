@@ -548,10 +548,10 @@ else
         await GetTable();
     }
 
-    #region Xlsx file generate
+    #region Xlsx report file generate
     private Stream GetFileStream()
     {
-        XmlGenerateService xmlGenerateService = new();
+        XmlReportGenerateService xmlGenerateService = new();
 
         var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList());
         var fileStream = new MemoryStream(randomBinaryData);
