@@ -393,7 +393,7 @@ else
     private void UpdateSummary()
     {
         _sumOfMonthlyAmounts = 0;
-        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList())
+        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList())
         {
             _sumOfMonthlyAmounts += item.Amount;
         }
@@ -548,12 +548,12 @@ else
         await GetTable();
     }
 
-    #region Xlsx file generate
+    #region Xlsx report file generate
     private Stream GetFileStream()
     {
-        XmlGenerateService xmlGenerateService = new();
+        XmlReportGenerateService xmlGenerateService = new();
 
-        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.ToString("MMMM-yyyy", CultureInfo.GetCultureInfo("en-US")) == _selectedMonthByUser + "-" + _selectedYearByUser).ToList());
+        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList());
         var fileStream = new MemoryStream(randomBinaryData);
 
         return fileStream;

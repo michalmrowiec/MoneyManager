@@ -3,17 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MoneyManager.Application.Contracts.Persistence;
 using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Application.Contracts.Persistence.Users;
 using MoneyManager.Domain.Entities;
 using MoneyManager.Infractructure.Authentication;
 using MoneyManager.Infractructure.Repositories.Items;
 using MoneyManager.Infractructure.Repositories.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MoneyManager.Infractructure.Services.EmailService;
+using MoneyManager.Infractructure.Services.JWTService;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Infractructure
 {
@@ -21,6 +20,8 @@ namespace MoneyManager.Infractructure
     {
         public static IServiceCollection AddEFRegistrationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var emailParams = new EmailParams();
+            configuration.GetSection("EmailParams").Bind(emailParams);
 
             var authenticationSettings = new AuthenticationSettings();
             configuration.GetSection("Authentication").Bind(authenticationSettings);
@@ -38,10 +39,12 @@ namespace MoneyManager.Infractructure
                 {
                     ValidIssuer = authenticationSettings.JwtIssuer,
                     ValidAudience = authenticationSettings.JwtIssuer,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                    ValidateLifetime = true
                 };
             });
 
+            services.AddSingleton(emailParams);
             services.AddSingleton(authenticationSettings);
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -55,6 +58,9 @@ namespace MoneyManager.Infractructure
             services.AddScoped(typeof(IPlannedBudgetRepository), typeof(PlannedBudgetsRepository));
             services.AddScoped<IRecordRepository, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+            services.AddScoped<IEmailSender, Email>();
+            services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
 
             return services;
         }

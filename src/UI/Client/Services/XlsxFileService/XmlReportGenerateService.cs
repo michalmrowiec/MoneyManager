@@ -5,7 +5,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace MoneyManager.Client.Services.XlsxFileService
 {
-    public class XmlGenerateService
+    public class XmlReportGenerateService
     {
         public byte[] CreateXmlDoc(List<RecordVM> data)
         {

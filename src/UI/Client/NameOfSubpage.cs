@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace MoneyManager.Client
 {
@@ -43,6 +38,8 @@ public enum NamesOfSubpageEnum
     Categories,
     [Description("Settings")]
     Settings,
+    [Description("Forgot Password")]
+    ForgotPassword,
     [Description("")]
     Empty
 }

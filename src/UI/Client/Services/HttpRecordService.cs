@@ -13,7 +13,7 @@ namespace MoneyManager.Client.Services
         Task<HttpResponseMessage> GetRecordsForCategoryId(int categoryId, string uri);
         Task<HttpResponseMessage> DeleteItem(int id, string uri);
         Task<HttpResponseMessage> CreateItem<T>(T record, string uri);
-        Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IId;
+        Task<HttpResponseMessage> UpdateItem<T>(T record, string uri, string? token = null);
     }
     public class HttpRecordService : IHttpRecordService
     {
@@ -59,13 +59,17 @@ namespace MoneyManager.Client.Services
             }
         }
 
-        public async Task<HttpResponseMessage> UpdateItem<T>(T record, string uri) where T : IId
+        public async Task<HttpResponseMessage> UpdateItem<T>(T record, string uri, string? token = null)
         {
             var patchJson = new StringContent(JsonConvert.SerializeObject(record), Encoding.UTF8, "application/json");
             using (var request = new HttpRequestMessage(HttpMethod.Put, uri))
             {
-                var token = await _localStorage.GetItem<UserTokenVM>("user");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+                if(token == null)
+                {
+                    var userToken = await _localStorage.GetItem<UserTokenVM>("user");
+                    token = userToken.Token;
+                }
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 request.Content = patchJson;
                 return await _http.SendAsync(request);
             }

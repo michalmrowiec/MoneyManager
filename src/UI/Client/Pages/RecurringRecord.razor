@@ -156,8 +156,8 @@ else
             </tbody>
             <tfoot>
                 <tr>
-                    <td>Summary (active only):</td>
-                    <td></td>
+                    <td colspan="2">Summary<br/>(active only):</td>
+                    
                     <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString()</td>
                 </tr>
             </tfoot>
