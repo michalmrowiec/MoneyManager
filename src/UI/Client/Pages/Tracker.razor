@@ -65,28 +65,68 @@ else
         <div class="d-flex flex-row align-items-center">
             <h5>Select date:</h5>
             <div width="20%" class="ms-2">
-                <select class="form-select" @bind="SelectedYearByUser">
-                    @foreach (var item in _listOfYearsForSelect)
-                    {
-                        <option value="@item">@item</option>
-                    }
-                </select>
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@_filterParameters.Year</DropdownToggle>
+                    <DropdownMenu>
+                        @foreach (var year in _listOfYearsForSelect)
+                        {
+                            <DropdownItem @onclick="@(async () => { _filterParameters.Year = year; await GetTable(); })">@year</DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
             </div>
             <div width="20%" class="ms-2">
-                <select class="form-select" @bind="SelectedMonthByUser">
-                    @foreach (var month in _listOfMonthsForSelect)
-                    {
-                        <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
-                    }
-                </select>
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(_filterParameters.Month)</DropdownToggle>
+                    <DropdownMenu>
+                        @foreach (var month in _listOfMonthsForSelect)
+                        {
+                            <DropdownItem @onclick="@(async () => { _filterParameters.Month = month; await GetTable(); })">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
             </div>
         </div>
         <div class="">
-            <select class="form-select" @bind="@TableViewSelected">
-                <option value="@TableView.ExpensesAndIncomes">All</option>
-                <option value="@TableView.OnlyExpenses">Expenses</option>
-                <option value="@TableView.OnlyIncomes">Incomes</option>
-            </select>
+            <Dropdown>
+                <DropdownToggle Outline Color="Color.Info">@_filterParameters.TypeOfRecord</DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.ExpensesAndIncomes; LunchFilter(); })">All</DropdownItem>
+                    <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.OnlyIncomes; LunchFilter(); })">Incomes</DropdownItem>
+                    <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.OnlyExpenses; LunchFilter(); })">Expenses</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </div>
+        <div class="d-flex flex-row align-items-center py-2">
+            <h5>Sort by:</h5>
+            <div width="20%" class="ms-2">
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.CategoryName); _sortBy = $"Category {_str[(int)RecordField.CategoryName]}";})">Category</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Date {_str[(int)RecordField.TransactionDate]}";})">Date</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+        </div>
+        <div class="d-flex flex-row align-items-center py-2">
+            <h5>Category filter:</h5>
+            <div width="20%" class="ms-2">
+                <Dropdown>
+                    <DropdownToggle Outline Color="Color.Info">@_selectedCategory.Name</DropdownToggle>
+                    <DropdownMenu>
+                        @*                                <DropdownItem onclick="@(async () => { TableViewSelected = TypeOfRecord.ExpensesAndIncomes; _listOfRecords = _listOfRecordsTemp; _selectedCategory = new CategoryVM { Id = 0, Name = "All category" }; SortButtonClick(RecordField.TransactionDate); StateHasChanged(); })">All category</DropdownItem>
+                    *@                                <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = 0; LunchFilter(); _selectedCategory = new CategoryVM { Id = 0, Name = "All category" }; SortButtonClick(RecordField.TransactionDate); StateHasChanged(); })">All category</DropdownItem>
+                        @foreach (var category in _listOfRecordsTemp.Select(r => new CategoryVM { Id = r.CategoryId ?? 0, Name = r.CategoryName ?? "" }).DistinctBy(c => c.Name))
+                        {
+                            @*                                    <DropdownItem @onclick="@(async () => { TableViewSelected = TypeOfRecord.ExpensesAndIncomes; _listOfRecords = _listOfRecordsTemp.Where(c => c.CategoryId == category.Id).ToList(); _selectedCategory = category; SortButtonClick(RecordField.Amount); StateHasChanged(); })">@category.Name</DropdownItem>
+                    *@         <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = category.Id; LunchFilter(); _selectedCategory = category; SortButtonClick(RecordField.Amount); StateHasChanged(); })">@category.Name</DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
         </div>
     </div>
 
@@ -94,26 +134,10 @@ else
         <table class="table table-sm table-striped">
             <thead>
                 <tr>
-                    <th width="25%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
-                            Name @_str[(int)TypesInRecord.Name]
-                        </button>
-                    </th>
-                    <th width="25%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                            Category @_str[(int)TypesInRecord.CategoryName]
-                        </button>
-                    </th>
-                    <th width="15%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
-                            Amout @_str[(int)TypesInRecord.Amount]
-                        </button>
-                    </th>
-                    <th width="25%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.TransactionDate))">
-                            Date @_str[(int)TypesInRecord.TransactionDate]
-                        </button>
-                    </th>
+                    <th width="25%">Name</th>
+                    <th width="25%">Category</th>
+                    <th width="15%">Amount</th>
+                    <th width="25%">Date</th>
                     <th width="5%">
                         <div></div>
                     </th>
@@ -125,7 +149,7 @@ else
             <tbody>
                 @if (_listOfRecords != null)
                 {
-                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList())
+                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _filterParameters.Year && x.TransactionDate.Month == _filterParameters.Month).ToList())
                     {
                         if (item.Amount > 0)
                         {
@@ -168,42 +192,42 @@ else
 
     //Mobile
     <div class="d-md-none text-table">
-        <div class="d-flex pb-2">
-            <select class="form-select form-select-sm" @bind="@TableViewSelected">
-                <option value="@TableView.ExpensesAndIncomes">All</option>
-                <option value="@TableView.OnlyExpenses">Expenses</option>
-                <option value="@TableView.OnlyIncomes">Incomes</option>
-            </select>
-        </div>
-        <div class="d-flex flex-row align-items-center">
-            <h5>Select date:</h5>
-            <div width="20%" class="ms-2">
-                <select class="form-select" @bind="SelectedYearByUser">
-                    @foreach (var item in _listOfYearsForSelect)
-                    {
-                        <option value="@item">@item</option>
-                    }
-                </select>
-            </div>
-            <div width="20%" class="ms-2">
-                <select class="form-select" @bind="SelectedMonthByUser">
-                    @foreach (var month in _listOfMonthsForSelect)
-                    {
-                        <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
-                    }
-                </select>
-            </div>
-        </div>
+        @*<div class="d-flex pb-2">
+    <select class="form-select form-select-sm" @bind="@TableViewSelected">
+    <option value="@TypeOfRecord.ExpensesAndIncomes">All</option>
+    <option value="@TypeOfRecord.OnlyExpenses">Expenses</option>
+    <option value="@TypeOfRecord.OnlyIncomes">Incomes</option>
+    </select>
+    </div>
+    <div class="d-flex flex-row align-items-center">
+    <h5>Select date:</h5>
+    <div width="20%" class="ms-2">
+    <select class="form-select" @bind="SelectedYearByUser">
+    @foreach (var item in _listOfYearsForSelect)
+    {
+    <option value="@item">@item</option>
+    }
+    </select>
+    </div>
+    <div width="20%" class="ms-2">
+    <select class="form-select" @bind="SelectedMonthByUser">
+    @foreach (var month in _listOfMonthsForSelect)
+    {
+    <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
+    }
+    </select>
+    </div>
+    </div>*@
         <div class="d-flex flex-row align-items-center py-2">
             <h5>Sort by:</h5>
             <div width="20%" class="ms-2">
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Name); _sortBy = $"Name {_str[(int)TypesInRecord.Name]}";})">Name</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.CategoryName); _sortBy = $"Category {_str[(int)TypesInRecord.CategoryName]}";})">Category</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Amount); _sortBy = $"Amount {_str[(int)TypesInRecord.Amount]}";})">Amout</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.TransactionDate); _sortBy = $"Date {_str[(int)TypesInRecord.TransactionDate]}";})">Date</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.CategoryName); _sortBy = $"Category {_str[(int)RecordField.CategoryName]}";})">Category</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Date {_str[(int)RecordField.TransactionDate]}";})">Date</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </div>
@@ -222,7 +246,7 @@ else
             <tbody>
                 @if (_listOfRecords != null)
                 {
-                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList())
+                    @foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _filterParameters.Year && x.TransactionDate.Month == _filterParameters.Month).ToList())
                     {
                         if (item.Amount > 0)
                         {
@@ -266,7 +290,7 @@ else
         </table>
     </div>
 
-    <button class="btn btn-sm btn-primary" @onclick="DownloadFileFromStream">
+    <button class="btn btn-sm btn-primary mb-2" @onclick="DownloadFileFromStream">
         Download xlsx report
     </button>
 }
@@ -298,68 +322,20 @@ else
 
     private List<int> _listOfYearsForSelect = new();
     private List<int> _listOfMonthsForSelect = new();
-    private int? _selectedYearByUser;
-    private int? _selectedMonthByUser;
 
     private string[] _str = { "", "", "", "" };
     private string _sortBy = "";
-    private TypesInRecord? _sortClickDesc = null;
+    private RecordField? _sortClickDesc = null;
+
+    private Dictionary<int, List<int>> _yearsWithMonths = new();
+    private FilterParameters _filterParameters = new();
+
+    //
+    private CategoryVM _selectedCategory = new CategoryVM { Id = 0, Name = "All category" };
 
     private decimal _sumOfMonthlyAmounts = 0;
     private decimal _sumOfTotalAmounts = 0;
 
-    private TableView _tableViewSelected = TableView.ExpensesAndIncomes;
-
-    private int? SelectedYearByUser
-    {
-        get { return _selectedYearByUser; }
-        set
-        {
-            _selectedYearByUser = value;
-            _listOfMonthsForSelect = SortArrayService.GetAllMonthsFromListOfRecords(_listOfRecordsTemp, _selectedYearByUser ?? 0);
-
-            if (_selectedYearByUser == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
-                SelectedMonthByUser = _listOfMonthsForSelect.First(x => x == (int)DateTime.Now.Month);
-            else if (_selectedYearByUser == DateTime.Now.Year)
-                SelectedMonthByUser = _listOfMonthsForSelect.LastOrDefault();
-            else
-                SelectedMonthByUser = _listOfMonthsForSelect.FirstOrDefault();
-        }
-    }
-    private int? SelectedMonthByUser
-    {
-        get { return _selectedMonthByUser; }
-        set
-        {
-            _selectedMonthByUser = value;
-            UpdateSummary();
-        }
-    }
-
-    private TableView TableViewSelected
-    {
-        get { return _tableViewSelected; }
-        set
-        {
-            _tableViewSelected = value;
-
-            switch (_tableViewSelected)
-            {
-                case TableView.OnlyExpenses:
-                    _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount < 0).ToList();
-                    UpdateSummary();
-                    break;
-                case TableView.OnlyIncomes:
-                    _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount >= 0).ToList();
-                    UpdateSummary();
-                    break;
-                default:
-                    _listOfRecords = _listOfRecordsTemp;
-                    UpdateSummary();
-                    break;
-            }
-        }
-    }
 
     private void ReturnedRecord(RecordVM recordVM)
     {
@@ -393,13 +369,13 @@ else
     private void UpdateSummary()
     {
         _sumOfMonthlyAmounts = 0;
-        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList())
+        foreach (var item in _listOfRecords.Where(x => x.TransactionDate.Year == _filterParameters.Year && x.TransactionDate.Month == _filterParameters.Month).ToList())
         {
             _sumOfMonthlyAmounts += item.Amount;
         }
     }
 
-    private void SortButtonClick(TypesInRecord sortBy)
+    private void SortButtonClick(RecordField sortBy)
     {
         SortArrayService.SortByType(sortBy, _sortClickDesc == sortBy, ref _listOfRecords, ref _str);
         if (_sortClickDesc == sortBy)
@@ -416,7 +392,8 @@ else
             await Delete(_recordToDelete.Id);
         }
         _deleteDialogOpen = false;
-        await GetTable(_selectedYearByUser, _selectedMonthByUser);
+        //await GetTable(_selectedYearByUser, _selectedMonthByUser);
+        await GetTable();
         StateHasChanged();
     }
 
@@ -436,7 +413,8 @@ else
         {
             await Update();
         }
-        await GetTable(_selectedYearByUser, _selectedMonthByUser);
+        //await GetTable(_selectedYearByUser, _selectedMonthByUser);
+        await GetTable();
         _editRecord = null;
         StateHasChanged();
     }
@@ -449,8 +427,61 @@ else
     }
     #endregion
 
-    private async Task GetTable(int? selectedYear = null, int? selectedMonth = null)
+    private async Task GetaYearsWithMonths()
     {
+        try
+        {
+            var respond = await _httpTracker.GetListOfItems("/api/tracker/dates");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
+
+                _yearsWithMonths = yearsWithMonths ?? new(); ;
+
+                _listOfYearsForSelect = yearsWithMonths?.Keys.OrderByDescending(x => x).ToList() ?? new();
+
+                if (_filterParameters.Year == 0 || !_listOfYearsForSelect.Any(x => x == _filterParameters.Year))
+                {
+                    if (_listOfYearsForSelect.Any(x => x == DateTime.Now.Year))
+                        _filterParameters.Year = DateTime.Now.Year;
+                    else
+                        _filterParameters.Year = _listOfYearsForSelect.First();
+                }
+
+
+                _listOfMonthsForSelect = _yearsWithMonths[_filterParameters.Year].ToList();
+
+
+                //
+                if (_listOfMonthsForSelect.Any(x => x == _filterParameters.Month))
+                    _filterParameters.Month = _filterParameters.Month;
+
+                else if (_filterParameters.Year == DateTime.Now.Year && _listOfMonthsForSelect.Any(x => x == DateTime.Now.Month))
+                    _filterParameters.Month = _listOfMonthsForSelect.First(x => x == (int)DateTime.Now.Month);
+
+                else if (_filterParameters.Year == DateTime.Now.Year)
+                    _filterParameters.Month = _listOfMonthsForSelect.Last();
+
+                else
+                    _filterParameters.Month = _listOfMonthsForSelect.First();
+            }
+            else
+                _errorMessage = respond.Content.ReadAsStringAsync().ToString();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GetTable()
+    {
+        await GetaYearsWithMonths();
+
         try
         {
             var responseMessage = await _httpTracker.GetListOfItems("/api/tracker/");
@@ -472,38 +503,40 @@ else
 
         _listOfRecordsTemp = _listOfRecords;
 
-        switch (_tableViewSelected)
-        {
-            case TableView.OnlyExpenses:
-                _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount < 0).ToList();
-                break;
-            case TableView.OnlyIncomes:
-                _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount >= 0).ToList();
-                break;
-        }
+        //switch (_tableViewSelected)
+        //{
+        //    case TypeOfRecord.OnlyExpenses:
+        //        _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount < 0).ToList();
+        //        break;
+        //    case TypeOfRecord.OnlyIncomes:
+        //        _listOfRecords = _listOfRecordsTemp.Where(x => x.Amount >= 0).ToList();
+        //        break;
+        //}
+
+        if (_filterParameters != null)
+            _listOfRecords = SortArrayService.FilterRecordListWithParameters(_listOfRecords, _filterParameters);
 
         if (_editRecord is null)
         {
-            _listOfYearsForSelect = SortArrayService.GetAllYearsFromListOfRecords(_listOfRecords);
-            SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
+            //_listOfYearsForSelect = SortArrayService.GetAllYearsFromListOfRecords(_listOfRecords);
+            //SelectedYearByUser = _listOfYearsForSelect.FirstOrDefault();
         }
 
-        if (selectedYear is not null && _listOfYearsForSelect.Any(x => x == selectedYear))
-            if (selectedMonth is not null && _listOfMonthsForSelect.Any(x => x == selectedMonth))
-            {
-                SelectedYearByUser = selectedYear;
-                SelectedMonthByUser = selectedMonth;
-            }
-
         _sortClickDesc = null;
-        SortButtonClick(TypesInRecord.TransactionDate);
-        _sortBy = "Date " + _str[(int)TypesInRecord.TransactionDate];
+        SortButtonClick(RecordField.TransactionDate);
+        _sortBy = "Date " + _str[(int)RecordField.TransactionDate];
 
         _getTableLoading = false;
 
         UpdateSummary();
         await GetTotalSummary();
 
+        StateHasChanged();
+    }
+
+    private void LunchFilter()
+    {
+        _listOfRecords = SortArrayService.FilterRecordListWithParameters(_listOfRecordsTemp, _filterParameters);
         StateHasChanged();
     }
 
@@ -553,7 +586,7 @@ else
     {
         XmlReportGenerateService xmlGenerateService = new();
 
-        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.Year == _selectedYearByUser && x.TransactionDate.Month == _selectedMonthByUser).ToList());
+        var randomBinaryData = xmlGenerateService.CreateXmlDoc(_listOfRecords.Where(x => x.TransactionDate.Year == _filterParameters.Year && x.TransactionDate.Month == _filterParameters.Month).ToList());
         var fileStream = new MemoryStream(randomBinaryData);
 
         return fileStream;
@@ -569,11 +602,4 @@ else
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
     #endregion
-
-    enum TableView
-    {
-        OnlyExpenses,
-        OnlyIncomes,
-        ExpensesAndIncomes
-    }
 }

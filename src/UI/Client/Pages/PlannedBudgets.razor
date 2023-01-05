@@ -59,23 +59,23 @@ else
             <thead>
                 <tr>
                     <th width="30%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">
-                            Name @_str[(int)TypesInRecord.Name]
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.Name))">
+                            Name @_str[(int)RecordField.Name]
                         </button>
                     </th>
                     <th width="20%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">
-                            Planned @_str[(int)TypesInRecord.Amount]
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.Amount))">
+                            Planned @_str[(int)RecordField.Amount]
                         </button>
                     </th>
                     <th width="20%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                            Yet @_str[(int)TypesInRecord.CategoryName]
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.CategoryName))">
+                            Yet @_str[(int)RecordField.CategoryName]
                         </button>
                     </th>
                     <th width="20%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.CategoryName))">
-                            Left @_str[(int)TypesInRecord.CategoryName]
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.CategoryName))">
+                            Left @_str[(int)RecordField.CategoryName]
                         </button>
                     </th>
                     <th width="5%">
@@ -125,8 +125,8 @@ else
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Name); _sortBy = $"Name {_str[(int)TypesInRecord.Name]}";})">Name</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Amount); _sortBy = $"Amount {_str[(int)TypesInRecord.Amount]}";})">Amout</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </div>
@@ -207,7 +207,7 @@ else
 
     private string[] _str = { "", "", "", "" };
     private string _sortBy = "";
-    private TypesInRecord? _sortClickDesc = null;
+    private RecordField? _sortClickDesc = null;
 
     private PlannedBudgetVM? _recordFromDialog;
     private PlannedBudgetVM? _plannedBudgetToEdit;
@@ -360,7 +360,7 @@ else
         StateHasChanged();
     }
 
-    private void SortButtonClick(TypesInRecord sortBy)
+    private void SortButtonClick(RecordField sortBy)
     {
         SortArrayService.SortByType(sortBy, _sortClickDesc == sortBy, ref _listOfPlannedBudgets, ref _str);
         if (_sortClickDesc == sortBy)
@@ -464,8 +464,8 @@ else
         _listOfPlannedBudgets = recordsWithCategories.ToList();
 
         _sortClickDesc = null;
-        SortButtonClick(TypesInRecord.Name);
-        _sortBy = "Name " + _str[(int)TypesInRecord.TransactionDate];
+        SortButtonClick(RecordField.Name);
+        _sortBy = "Name " + _str[(int)RecordField.TransactionDate];
 
         StateHasChanged();
     }

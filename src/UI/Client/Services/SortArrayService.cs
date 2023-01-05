@@ -1,14 +1,36 @@
 ﻿using MoneyManager.Client.Models;
+using MoneyManager.Client.Models.ViewModels.Interfaces;
 using MoneyManager.Client.ViewModels;
 using MoneyManager.Client.ViewModels.Interfaces;
-using System.Globalization;
-using System.Linq;
 
 namespace MoneyManager.Client.Services
 {
     internal static class SortArrayService
     {
-        internal static List<int> GetAllYearsFromListOfRecords<T>(List<T> records) where T : IRecordWithDate
+        internal static List<T> FilterRecordListWithParameters<T>(List<T> list, FilterParameters parameters) where T : RecordVM
+        {
+            var operations = new Dictionary<TypeOfRecord, Action>();
+            operations[TypeOfRecord.OnlyIncomes] = () => { list = list.Where(x => x.Amount >= 0).ToList(); };
+            operations[TypeOfRecord.OnlyExpenses] = () => { list = list.Where(x => x.Amount < 0).ToList(); };
+            operations[TypeOfRecord.ExpensesAndIncomes] = () => { };
+
+            if (parameters.Year != null)
+            {
+                list = list.Where(x => x.TransactionDate.Year == parameters.Year).ToList();
+
+                if (parameters.Month != null)
+                    list = list.Where(x => x.TransactionDate.Month == parameters.Month).ToList();
+            }
+
+            operations[parameters.TypeOfRecord].Invoke();
+
+            if (parameters.CategoryId != 0)
+                list = list.Where(x => x.CategoryId == parameters.CategoryId).ToList();
+
+            return list;
+        }
+
+        internal static List<int> GetAllYearsFromListOfRecords<T>(List<T> records) where T : IRecord, IRecordWithDate
         {
             var years = records.Select(x => x.TransactionDate.Year)
                 .Distinct()
@@ -17,7 +39,7 @@ namespace MoneyManager.Client.Services
             return years;
         }
 
-        internal static List<int> GetAllMonthsFromListOfRecords<T>(List<T> records, int year) where T : IRecordWithDate
+        internal static List<int> GetAllMonthsFromListOfRecords<T>(List<T> records, int year) where T : IRecord, IRecordWithDate
         {
             var months = records.Where(x => x.TransactionDate.Year == year)
                 .OrderBy(x => x.TransactionDate)
@@ -27,7 +49,7 @@ namespace MoneyManager.Client.Services
             return months;
         }
 
-        internal static void SortByType<T>(TypesInRecord sortBy, bool descending, ref List<T> listOfRecords, ref string[] str) where T : IRecord
+        internal static void SortByType<T>(RecordField sortBy, bool descending, ref List<T> listOfRecords, ref string[] str) where T : IId
         {
             if (listOfRecords is null) return;
 
@@ -56,12 +78,12 @@ namespace MoneyManager.Client.Services
         /// <param name="type">Sort on the given type</param>
         /// <param name="descending">true - descending | false - ascending</param>
         /// <param name="str">Array of strings for arrow</param>
-        private static void SetArrow(TypesInRecord type, bool descending, ref string[] str)
+        private static void SetArrow(RecordField type, bool descending, ref string[] str)
         {
             for (int i = 0; i < str.Length; i++)
             {
                 str[i] = "";
-                if ((TypesInRecord)i == type)
+                if ((RecordField)i == type)
                     continue;
             }
 

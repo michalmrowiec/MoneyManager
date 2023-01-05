@@ -33,7 +33,7 @@ else
         <thead>
             <tr>
                 <th width="80%">
-                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_setOrderByArrow[(int)TypesInRecord.Name]</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.Name))">Name @_setOrderByArrow[(int)RecordField.Name]</button>
                 </th>
                 <th width="10%">
                     <div></div>
@@ -186,7 +186,7 @@ else
         StateHasChanged();
     }
 
-    private void SortButtonClick(TypesInRecord sortBy)
+    private void SortButtonClick(RecordField sortBy)
     {
         SortArrayService.SortByType(sortBy, _setOrderByArrow[0] == "↑", ref _categories, ref _setOrderByArrow);
     }
@@ -198,7 +198,7 @@ else
         _categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 
         _setOrderByArrow[0] = "";
-        SortButtonClick(TypesInRecord.Name);
+        SortButtonClick(RecordField.Name);
     }
 
     protected override async Task OnInitializedAsync()

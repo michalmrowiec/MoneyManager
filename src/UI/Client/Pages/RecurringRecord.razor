@@ -33,16 +33,16 @@ else
             <thead>
                 <tr>
                     <th width="25%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.IsActive))">Status @_str[(int)TypesInRecord.IsActive]</button>
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.IsActive))">Status @_str[(int)RecordField.IsActive]</button>
                     </th>
                     <th width="25%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Name))">Name @_str[(int)TypesInRecord.Name]</button>
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.Name))">Name @_str[(int)RecordField.Name]</button>
                     </th>
                     <th width="15%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.Amount))">Amount @_str[(int)TypesInRecord.Amount]</button>
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.Amount))">Amount @_str[(int)RecordField.Amount]</button>
                     </th>
                     <th width="25%">
-                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(TypesInRecord.NextDate))">Next date @_str[(int)TypesInRecord.NextDate]</button>
+                        <button class="btn btn-sm btn-outline-info" @onclick="@(x => SortButtonClick(RecordField.NextDate))">Next date @_str[(int)RecordField.NextDate]</button>
                     </th>
                     <th width="5%">
                         <div></div>
@@ -105,10 +105,10 @@ else
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.IsActive); _sortBy = $"Status {_str[(int)TypesInRecord.IsActive]}";})">Status</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Name); _sortBy = $"Name {_str[(int)TypesInRecord.Name]}";})">Name</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.Amount); _sortBy = $"Amount {_str[(int)TypesInRecord.Amount]}";})">Amout</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(TypesInRecord.TransactionDate); _sortBy = $"Next date {_str[(int)TypesInRecord.TransactionDate]}";})">Next date</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.IsActive); _sortBy = $"Status {_str[(int)RecordField.IsActive]}";})">Status</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
+                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Next date {_str[(int)RecordField.TransactionDate]}";})">Next date</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </div>
@@ -186,7 +186,7 @@ else
     private List<CategoryVM> _listOfCategories = new();
     private string[] _str = { "", "", "", "", "", "" }; //caused number of types in enum for Record and RecurringRecord
     private string _sortBy = "";
-    private TypesInRecord? _sortClickDesc = null;
+    private RecordField? _sortClickDesc = null;
     private bool _getTableLoading = true;
     private RecurringRecordVM? _editRecord = null;
     private bool EditFormOpen { get; set; }
@@ -251,7 +251,7 @@ else
         StateHasChanged();
     }
 
-    private void SortButtonClick(TypesInRecord sortBy)
+    private void SortButtonClick(RecordField sortBy)
     {
         SortArrayService.SortByType<RecurringRecordVM>(sortBy, _sortClickDesc == sortBy, ref _listOfRecurringRecords, ref _str);
         if (_sortClickDesc == sortBy)
@@ -316,8 +316,8 @@ else
         await GetCategoriesForRecurringRecords();
 
         _sortClickDesc = null;
-        SortButtonClick(TypesInRecord.NextDate);
-        _sortBy = "Next date " + _str[(int)TypesInRecord.TransactionDate];
+        SortButtonClick(RecordField.NextDate);
+        _sortBy = "Next date " + _str[(int)RecordField.TransactionDate];
 
         _getTableLoading = false;
 

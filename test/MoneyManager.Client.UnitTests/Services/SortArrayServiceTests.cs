@@ -78,7 +78,7 @@ namespace MoneyManager.Client.UnitTests.Services
         {
             new object[]
             {
-                TypesInRecord.Name,
+                RecordField.Name,
                 new List<RecordVM>
                 {
                     new RecordVM { Name = "baTest", Amount = -1 },
@@ -102,7 +102,7 @@ namespace MoneyManager.Client.UnitTests.Services
             },
             new object[]
             {
-                TypesInRecord.CategoryName,
+                RecordField.CategoryName,
                 new List<RecordVM>
                 {
                     new RecordVM { Name = "baTest", Amount = -1, CategoryName = "xvdTestCategory" },
@@ -126,7 +126,7 @@ namespace MoneyManager.Client.UnitTests.Services
             },
             new object[]
             {
-                TypesInRecord.Amount,
+                RecordField.Amount,
                 new List<RecordVM>
                 {
                     new RecordVM { Name = "mTest", Amount = -1, TransactionDate = new DateTime(2015, 12, 01) },
@@ -146,7 +146,7 @@ namespace MoneyManager.Client.UnitTests.Services
             },
             new object[]
             {
-                TypesInRecord.TransactionDate,
+                RecordField.TransactionDate,
                 new List<RecordVM>
                 {
 
@@ -197,7 +197,7 @@ namespace MoneyManager.Client.UnitTests.Services
 
         [Theory]
         [MemberData(nameof(DataForSortBy))]
-        public void SortByTypeTest(TypesInRecord sortBy, List<RecordVM> records, string[] dictionary,
+        public void SortByTypeTest(RecordField sortBy, List<RecordVM> records, string[] dictionary,
             List<RecordVM> expectedRecords, string[] expectedDictionary)
         {
             SortArrayService.SortByType(sortBy, false, ref records, ref dictionary);
