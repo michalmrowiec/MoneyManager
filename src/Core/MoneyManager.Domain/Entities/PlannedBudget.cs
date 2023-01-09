@@ -1,10 +1,4 @@
 ﻿using MoneyManager.Domain.Entities.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Domain.Entities
 {
@@ -15,11 +9,9 @@ namespace MoneyManager.Domain.Entities
         public decimal Amount { get; set; }
         public decimal FilledAmount { get; set; }
 
-        public int? CategoryId { get; set; }
+        public Category Category { get; set; }
+        public int CategoryId { get; set; }
+        public User User { get; set; }
         public int UserId { get; set; }
-
-
-        public virtual User? User { get; set; }
-        public virtual Category? Category { get; set; }
     }
 }
