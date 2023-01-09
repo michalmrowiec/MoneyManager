@@ -1,0 +1,51 @@
+﻿@page "/tracker2"
+@using MoneyManager.Client.Services;
+@using MoneyManager.Client.ViewModels;
+@using Newtonsoft.Json;
+@inject IHttpRecordService _httpTracker
+
+<h3>NewTrackerTest</h3>
+
+<DataGrid TItem="RecordVM"
+    Data="@_recordList"
+    @bind-SelectedRow="@_selectedRecord"
+    PageSize="50"
+    ShowPager
+    Responsive>
+    <DataGridColumn Field="@nameof(RecordVM.Name)" Caption="Name"></DataGridColumn>
+    <DataGridColumn Field="@nameof(RecordVM.CategoryName)" Caption="Category" Editable></DataGridColumn>
+    <DataGridColumn Field="@nameof(RecordVM.Amount)" Caption="Amount" Editable></DataGridColumn>
+    <DataGridColumn Field="@nameof(RecordVM.TransactionDate)" Caption="Date" Editable></DataGridColumn>
+</DataGrid>
+
+@code {
+    private List<RecordVM> _recordList;
+    private RecordVM _selectedRecord;
+
+    private async Task GetTable()
+    {
+        try
+        {
+            var responseMessage = await _httpTracker.GetListOfItems("/api/tracker/");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _recordList = JsonConvert.DeserializeObject<List<RecordVM>>(jsonResponse) ?? new List<RecordVM>();
+            }
+            //else
+            //_errorMessage = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            //_errorMessage = ex.Message;
+        }
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTable();
+    }
+}
