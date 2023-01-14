@@ -25,7 +25,7 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<Record, RecordDto>()
-                .ForMember(m => m.CategoryName, c => c.MapFrom(s => s.Category.CategoryName))
+                //.ForMember(m => m.CategoryName, c => c.MapFrom(s => s.Category.CategoryName))
                 .ReverseMap();
 
             CreateMap<Record, UpdateRecordCommand>()

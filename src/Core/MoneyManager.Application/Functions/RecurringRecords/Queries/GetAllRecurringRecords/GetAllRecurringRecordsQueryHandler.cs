@@ -22,7 +22,7 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Queries.GetAllRecu
 
         public async Task<List<RecurringRecordDto>> Handle(GetAllRecurringRecordsQuery request, CancellationToken cancellationToken)
         {
-            var all = await _recurringRecordRepository.GetAllAsync(request.UserId);
+            var all = await _recurringRecordRepository.GetAllRecordsAsync(request.UserId);
             var mapped = _mapper.Map<List<RecurringRecordDto>>(all);
             return mapped;
         }
