@@ -23,7 +23,7 @@ namespace MoneyManager.Application.Functions.Records.Queries.GetRecordsForMonth
         public async Task<List<RecordDto>> Handle(GetRecordsForMonthQuery request, CancellationToken cancellationToken)
         {
             var records = _mapper.Map<List<RecordDto>>
-                (await _recordRepository.GetRecordsForMonth(request.UserId, request.Year, request.Month));
+                (await _recordRepository.GetRecordsForMonthAsync(request.UserId, request.Year, request.Month));
 
             return records.Count != 0 ? records : new();
         }

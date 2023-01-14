@@ -19,7 +19,7 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Queries.GetAllPlanned
 
         public async Task<List<PlannedBudgetDto>> Handle(GetAllPlannedBudgetQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<List<PlannedBudgetDto>>(await _plannedBudgetRepository.GetAllAsync(request.UserId));
+            return _mapper.Map<List<PlannedBudgetDto>>(await _plannedBudgetRepository.GetAllRecordsAsync(request.UserId));
         }
     }
 }

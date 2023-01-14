@@ -14,7 +14,7 @@ namespace MoneyManager.Infractructure.Repositories.Items
         public PlannedBudgetsRepository(MoneyManagerContext dbContext) : base(dbContext)
         { }
 
-        public async Task<IList<PlannedBudget>> GetRecordsForMonth(int userId, int year, int month)
+        public async Task<IList<PlannedBudget>> GetRecordsForMonthAsync(int userId, int year, int month)
         {
             return await _dbContext.PlannedBudgets
                 .Where(x => x.UserId == userId && x.PlanForMonth.Year == year && x.PlanForMonth.Month == month).ToListAsync();
