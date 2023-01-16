@@ -138,7 +138,7 @@ else
 
                         <tr class="text-color" style="color:@_colorOfTableRow;">
                             <td class="align-middle" width="25%">@item.Name</td>
-                            <td class="align-middle" width="25%">@item.CategoryName</td>
+                            <td class="align-middle" width="25%">@item.Category.Name</td>
                             <td class="align-middle" width="15%">@item.Amount.ToString()</td>
                             <td class="align-middle" width="25%">@item.TransactionDate.ToString("dd/MM/yyyy")</td>
                             <td class="align-middle" width="5%">
@@ -235,7 +235,7 @@ else
 
                         <tr class="text-color" style="color:@_colorOfTableRow;">
                             <td class="align-middle" width="51%">@item.Name</td>
-                            <td class="align-middle" width="30%">@item.CategoryName</td>
+                            <td class="align-middle" width="30%">@item.Category.Name</td>
                             <td class="align-middle" width="7%">@item.Amount.ToString()</td>
                             <td class="align-middle" width="8%">@item.TransactionDate.ToString("dd/MM")</td>
                             <td class="align-middle" width="4%">

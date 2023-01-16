@@ -40,11 +40,11 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
                 new UpdateRecordCommand { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11), CategoryId = 1, UserId = 1 },
                 new List<RecordDto>
                 {
-                    new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01), CategoryId = 1, Category = new Category {  Id = 1, CategoryName = "test", UserId = 1 } },
-                    new RecordDto { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11), CategoryId = 1, Category = new Category { Id = 1, CategoryName = "test", UserId = 1 } },
-                    new RecordDto { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30), CategoryId = 1, Category = new Category { Id = 1, CategoryName = "test", UserId = 1 } },
-                    new RecordDto { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M, CategoryId = 1, Category = new Category { Id = 1, CategoryName = "test", UserId = 1 } },
-                    new RecordDto { Id = 5, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 1, Category = new Category { Id = 1, CategoryName = "test", UserId = 1 } }
+                    new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01), CategoryId = 1, Category = new Category {  Id = 1, Name = "test", UserId = 1 } },
+                    new RecordDto { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -75M, TransactionDate = new DateTime(2013, 08, 11), CategoryId = 1, Category = new Category { Id = 1, Name = "test", UserId = 1 } },
+                    new RecordDto { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30), CategoryId = 1, Category = new Category { Id = 1, Name = "test", UserId = 1 } },
+                    new RecordDto { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M, CategoryId = 1, Category = new Category { Id = 1, Name = "test", UserId = 1 } },
+                    new RecordDto { Id = 5, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 1, Category = new Category { Id = 1, Name = "test", UserId = 1 } }
                 }
             },
             new object[]
@@ -66,13 +66,13 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
                 new UpdateRecordCommand { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, UserId = 1 },
                 new List<RecordDto>
                 {
-                    new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01), CategoryId = 2, Category = new Category {  Id = 2, CategoryName = "test2", UserId = 1 } },
-                    new RecordDto { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -79228162514264337593543950335M, TransactionDate = new DateTime(2013, 07, 11), CategoryId = 2, Category = new Category { Id = 2, CategoryName = "test2", UserId = 1 } },
-                    new RecordDto { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30), CategoryId = 2, Category = new Category { Id = 2, CategoryName = "test2", UserId = 1 } },
-                    new RecordDto { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M, CategoryId = 2, Category = new Category { Id = 2, CategoryName = "test2", UserId = 1 } },
-                    new RecordDto { Id = 6, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, Category = new Category { Id = 2, CategoryName = "test2", UserId = 1 } },
-                    new RecordDto { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, Category = new Category { Id = 2, CategoryName = "test2", UserId = 1 } },
-                    new RecordDto { Id = 88, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, Category = new Category { Id = 2, CategoryName = "test2", UserId = 1 } }
+                    new RecordDto { Id = 1, Name = "Tt", Amount = 79228162514264337593543950335M, TransactionDate = new DateTime(2020, 01, 01), CategoryId = 2, Category = new Category {  Id = 2, Name = "test2", UserId = 1 } },
+                    new RecordDto { Id = 2, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -79228162514264337593543950335M, TransactionDate = new DateTime(2013, 07, 11), CategoryId = 2, Category = new Category { Id = 2, Name = "test2", UserId = 1 } },
+                    new RecordDto { Id = 3, Name = "0000000", Amount = 0M, TransactionDate = new DateTime(1999, 12, 30), CategoryId = 2, Category = new Category { Id = 2, Name = "test2", UserId = 1 } },
+                    new RecordDto { Id = 4, Name = "!@#$%^&*()_+=", Amount = 1.01M, CategoryId = 2, Category = new Category { Id = 2, Name = "test2", UserId = 1 } },
+                    new RecordDto { Id = 6, Name = "Test test test123", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, Category = new Category { Id = 2, Name = "test2", UserId = 1 } },
+                    new RecordDto { Id = 779, Name = "TEST", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, Category = new Category { Id = 2, Name = "test2", UserId = 1 } },
+                    new RecordDto { Id = 88, Name = "Test", Amount = 8965.18M, TransactionDate = new DateTime(2019, 05, 04), CategoryId = 2, Category = new Category { Id = 2, Name = "test2", UserId = 1 } }
                 }
             }
         };

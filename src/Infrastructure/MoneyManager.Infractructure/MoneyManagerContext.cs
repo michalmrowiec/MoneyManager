@@ -28,9 +28,9 @@ namespace MoneyManager.Infractructure
                     .HasForeignKey(r => r.UserId);
 
                 eb.HasOne(r => r.Category)
-                .WithMany()
-                .HasForeignKey(r => r.CategoryId)
-                .OnDelete(DeleteBehavior.NoAction);
+                    .WithMany()
+                    .HasForeignKey(r => r.CategoryId)
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 eb.Property(r => r.Amount).HasPrecision(18, 2);
             });
@@ -42,9 +42,9 @@ namespace MoneyManager.Infractructure
                     .HasForeignKey(r => r.UserId);
 
                 eb.HasOne(r => r.Category)
-                .WithMany()
-                .HasForeignKey(r => r.CategoryId)
-                .OnDelete(DeleteBehavior.NoAction);
+                    .WithMany()
+                    .HasForeignKey(r => r.CategoryId)
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 eb.Property(rr => rr.Amount).HasPrecision(18, 2);
             });
@@ -56,9 +56,9 @@ namespace MoneyManager.Infractructure
                     .HasForeignKey(r => r.UserId);
 
                 eb.HasOne(r => r.Category)
-                .WithMany()
-                .HasForeignKey(r => r.CategoryId)
-                .OnDelete(DeleteBehavior.NoAction);
+                    .WithMany()
+                    .HasForeignKey(r => r.CategoryId)
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 eb.Property(pb => pb.Amount).HasPrecision(18, 2);
                 eb.Property(pb => pb.FilledAmount).HasPrecision(18, 2);
