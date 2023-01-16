@@ -33,10 +33,10 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.RecurringRecordContr
                 },
                 new List<RecordDto>
                 {
-                    new RecordDto { Id = 1, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 01, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, CategoryName = "Test Category", UserId = 1 } },
-                    new RecordDto { Id = 2, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 02, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, CategoryName = "Test Category", UserId = 1 } },
-                    new RecordDto { Id = 3, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 03, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, CategoryName = "Test Category", UserId = 1 } },
-                    new RecordDto { Id = 4, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 04, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, CategoryName = "Test Category", UserId = 1 } },
+                    new RecordDto { Id = 1, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 01, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, Name = "Test Category", UserId = 1 } },
+                    new RecordDto { Id = 2, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 02, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, Name = "Test Category", UserId = 1 } },
+                    new RecordDto { Id = 3, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 03, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, Name = "Test Category", UserId = 1 } },
+                    new RecordDto { Id = 4, Name = "Test", /*CategoryName = "Test Category",*/ Amount = 100, TransactionDate = new DateTime(2022, 04, 01), CategoryId = 1, Category = new Domain.Entities.Category { Id = 1, Name = "Test Category", UserId = 1 } },
                 },
                 new string("20220401")
             },
@@ -53,9 +53,9 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.RecurringRecordContr
                 },
                 new List<RecordDto>
                 {
-                    new RecordDto { Id = 1, Name = "Test2", /*CategoryName = "Test Category^2",*/ Amount = 715.78M, TransactionDate = new DateTime(2022, 06, 07), CategoryId = 2, Category = new Domain.Entities.Category { Id = 2, CategoryName = "Test Category^2", UserId = 1 } },
-                    new RecordDto { Id = 2, Name = "Test2", /*CategoryName = "Test Category^2",*/ Amount = 715.78M, TransactionDate = new DateTime(2022, 07, 07), CategoryId = 2, Category = new Domain.Entities.Category { Id = 2, CategoryName = "Test Category^2", UserId = 1 } },
-                    new RecordDto { Id = 3, Name = "Test2", /*CategoryName = "Test Category^2",*/ Amount = 715.78M, TransactionDate = new DateTime(2022, 08, 07), CategoryId = 2, Category = new Domain.Entities.Category { Id = 2, CategoryName = "Test Category^2", UserId = 1 } },
+                    new RecordDto { Id = 1, Name = "Test2", /*CategoryName = "Test Category^2",*/ Amount = 715.78M, TransactionDate = new DateTime(2022, 06, 07), CategoryId = 2, Category = new Domain.Entities.Category { Id = 2, Name = "Test Category^2", UserId = 1 } },
+                    new RecordDto { Id = 2, Name = "Test2", /*CategoryName = "Test Category^2",*/ Amount = 715.78M, TransactionDate = new DateTime(2022, 07, 07), CategoryId = 2, Category = new Domain.Entities.Category { Id = 2, Name = "Test Category^2", UserId = 1 } },
+                    new RecordDto { Id = 3, Name = "Test2", /*CategoryName = "Test Category^2",*/ Amount = 715.78M, TransactionDate = new DateTime(2022, 08, 07), CategoryId = 2, Category = new Domain.Entities.Category { Id = 2, Name = "Test Category^2", UserId = 1 } },
                 },
                 new string("20220816")
             }

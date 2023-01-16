@@ -1,4 +1,5 @@
 ﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+using MoneyManager.Client.ViewModels.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoneyManager.Client.ViewModels
