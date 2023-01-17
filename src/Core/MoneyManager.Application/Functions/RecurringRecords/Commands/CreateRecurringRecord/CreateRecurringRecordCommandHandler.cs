@@ -38,7 +38,7 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRec
 
             if (request.TransactionDate is not null)
             {
-                await _mediator.Send(new CreateRecordCommand { Name = request.Name, Amount = request.Amount, CategoryId = request.CategoryId, TransactionDate = (DateTime)request.TransactionDate, UserId = request.UserId });
+                await _mediator.Send(new CreateRecordCommand { Name = request.Name, Amount = request.Amount, CategoryId = (int)request.CategoryId, TransactionDate = (DateTime)request.TransactionDate, UserId = request.UserId });
             }
 
             return new CreateRecurringRecordCommandResponse(recurringRecord.Id);
