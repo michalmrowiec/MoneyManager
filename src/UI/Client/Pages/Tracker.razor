@@ -119,7 +119,7 @@ else
                     <DropdownMenu>
                         @*                                <DropdownItem onclick="@(async () => { TableViewSelected = TypeOfRecord.ExpensesAndIncomes; _listOfRecords = _listOfRecordsTemp; _selectedCategory = new CategoryVM { Id = 0, Name = "All category" }; SortButtonClick(RecordField.TransactionDate); StateHasChanged(); })">All category</DropdownItem>
                     *@                                <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = 0; LunchFilter(); _selectedCategory = new CategoryVM { Id = 0, Name = "All category" }; SortButtonClick(RecordField.TransactionDate); StateHasChanged(); })">All category</DropdownItem>
-                        @foreach (var category in _listOfRecordsTemp.Select(r => new CategoryVM { Id = r.CategoryId ?? 0, Name = r.CategoryName ?? "" }).DistinctBy(c => c.Name))
+                        @foreach (var category in _listOfRecordsTemp.Select(r => new CategoryVM { Id = r.CategoryId ?? 0, Name = r.Category?.Name ?? "" }).DistinctBy(c => c.Name))
                         {
                             @*                                    <DropdownItem @onclick="@(async () => { TableViewSelected = TypeOfRecord.ExpensesAndIncomes; _listOfRecords = _listOfRecordsTemp.Where(c => c.CategoryId == category.Id).ToList(); _selectedCategory = category; SortButtonClick(RecordField.Amount); StateHasChanged(); })">@category.Name</DropdownItem>
                     *@         <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = category.Id; LunchFilter(); _selectedCategory = category; SortButtonClick(RecordField.Amount); StateHasChanged(); })">@category.Name</DropdownItem>
