@@ -2,7 +2,7 @@
 {
     internal class FilterParameters
     {
-        public TypeOfRecord TypeOfRecord { get; set; } = TypeOfRecord.ExpensesAndIncomes;
+        public TypeOfRecord TypeOfRecord { get; set; } = TypeOfRecord.All;
         /// <summary>
         /// CategoryId = 0 means all categories
         /// </summary>
@@ -14,8 +14,8 @@
 
     internal enum TypeOfRecord
     {
-        OnlyExpenses,
-        OnlyIncomes,
-        ExpensesAndIncomes
+        Expenses,
+        Incomes,
+        All
     }
 }

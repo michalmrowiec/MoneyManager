@@ -20,7 +20,8 @@
             <div class="d-md-none">
                 <h4 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h4>
             </div>
-            <div class="d-flex flex-row d-none d-sm-flex">
+@*            <div class="d-flex flex-row d-none d-sm-flex">
+            *@            <div class="user-info">
                 @if (appState.LoggedIn)
                 {
                     <div class="">Hello <b>@userName</b></div>
@@ -34,13 +35,17 @@
             </div>
         </div>
 
-        <article class="content px-4 d-none d-md-block">
+        <article class="content">
+            @Body
+        </article>
+
+@*        <article class="content px-4 d-none d-md-block">
             @Body
         </article>
 
         <article class="content-min px-1 d-md-none">
             @Body
-        </article>
+        </article>*@
     </main>
 </div>
 

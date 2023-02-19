@@ -10,9 +10,9 @@ namespace MoneyManager.Client.Services
         internal static List<T> FilterRecordListWithParameters<T>(List<T> list, FilterParameters parameters) where T : RecordVM
         {
             var operations = new Dictionary<TypeOfRecord, Action>();
-            operations[TypeOfRecord.OnlyIncomes] = () => { list = list.Where(x => x.Amount >= 0).ToList(); };
-            operations[TypeOfRecord.OnlyExpenses] = () => { list = list.Where(x => x.Amount < 0).ToList(); };
-            operations[TypeOfRecord.ExpensesAndIncomes] = () => { };
+            operations[TypeOfRecord.Incomes] = () => { list = list.Where(x => x.Amount >= 0).ToList(); };
+            operations[TypeOfRecord.Expenses] = () => { list = list.Where(x => x.Amount < 0).ToList(); };
+            operations[TypeOfRecord.All] = () => { };
 
             if (parameters.Year != null)
             {

@@ -36,7 +36,11 @@ main {
         text-overflow: ellipsis;
     }
 
-@media (max-width: 640.98px) {
+@media (max-width: 940.98px) {
+    .content {
+        padding: 10px 2px 5px 2px;
+    }
+
     .top-row:not(.auth) {
         display: none;
     }
@@ -50,7 +54,16 @@ main {
     }
 }
 
-@media (min-width: 641px) {
+.user-info {
+    display: none;
+}
+
+@media (min-width: 941px) {
+    .user-info{
+        display: flex;
+        flex-flow: row;
+    }
+
     .page {
         flex-direction: row;
     }
