@@ -6,13 +6,9 @@
 @using Newtonsoft.Json
 @inject IHttpRecordService _httpTracker
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Categories</PageTitle>
-
-@if (!string.IsNullOrEmpty(_errorMessage))
-{
-    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-}
 
 <button class="btn btn-primary" @onclick="@(x => OpenCreateCategoryDialog())">Add category</button>
 
@@ -76,7 +72,6 @@ else
 
 
 @code {
-    private string? _errorMessage;
     private CategoryVM? _categoryToDelete;
     private CategoryVM? _categoryToUpdate;
     private List<CategoryVM>? _categories;
@@ -135,7 +130,7 @@ else
             }
             catch (Exception ex)
             {
-                _errorMessage = ex.Message;
+                errorMessage.Message = ex.Message;
             }
         }
         await GetAllategories();
@@ -146,7 +141,7 @@ else
     {
         if (_categoryToDelete is null)
         {
-            _errorMessage = "Sorry, category not found";
+            errorMessage.Message = "Sorry, category not found";
             return;
         }
 
@@ -154,12 +149,12 @@ else
         {
             var respond = await _httpTracker.DeleteItem(_categoryToDelete.Id, "/api/category/");
             if (respond != null && respond.StatusCode != System.Net.HttpStatusCode.OK)
-                _errorMessage = await respond.Content.ReadAsStringAsync();
+                errorMessage.Message = await respond.Content.ReadAsStringAsync();
 
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 

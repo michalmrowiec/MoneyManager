@@ -4,6 +4,7 @@
 @inherits LayoutComponentBase
 @inject ILocalStorageService _localStorage
 @inject AppState appState
+@inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
 @implements IDisposable
 
@@ -20,7 +21,7 @@
             <div class="d-md-none">
                 <h4 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h4>
             </div>
-@*            <div class="d-flex flex-row d-none d-sm-flex">
+            @*            <div class="d-flex flex-row d-none d-sm-flex">
             *@            <div class="user-info">
                 @if (appState.LoggedIn)
                 {
@@ -35,17 +36,24 @@
             </div>
         </div>
 
+        @if (!string.IsNullOrEmpty(errorMessage.Message))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @errorMessage.Message
+                <button type="button" class="btn-close" data-bs-dismiss="alert" @onclick="@(() => { errorMessage.Message = string.Empty; StateHasChanged(); })" aria-label="Close"></button>
+            </div>
+        }
+
         <article class="content">
             @Body
         </article>
 
-@*        <article class="content px-4 d-none d-md-block">
-            @Body
-        </article>
-
-        <article class="content-min px-1 d-md-none">
-            @Body
-        </article>*@
+        @if (appState.LoggedIn)
+        {
+            <a href="/addrecord" class="btn-float">
+                <i class="oi oi-plus btn-float-icon"></i>
+            </a>
+        }
     </main>
 </div>
 
@@ -84,6 +92,7 @@
         appState.OnChange += ChceckIfLoggedIn;
         appState.OnChange += StateHasChanged;
         nameOfSubpage.OnChange += StateHasChanged;
+        errorMessage.OnChange += StateHasChanged;
     }
 
     void IDisposable.Dispose()
@@ -91,5 +100,6 @@
         appState.OnChange -= ChceckIfLoggedIn;
         appState.OnChange -= StateHasChanged;
         nameOfSubpage.OnChange -= StateHasChanged;
+        errorMessage.OnChange -= StateHasChanged;
     }
 }

@@ -9,6 +9,7 @@
 @inject NavigationManager navigationManager
 @inject ILocalStorageService _localStorage
 @inject AppState appState
+@inject ErrorMessage errorMessage
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 
@@ -42,12 +43,6 @@
                         <a href="/forgotpasswordemail">I forgot my password</a>
                     </div>
                 </div>
-
-                @if (!string.IsNullOrEmpty(_errorMessage))
-                {
-                    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-                }
-
             </EditForm>
         </div>
     </div>
@@ -56,7 +51,6 @@
 @code {
     private LoginUserVM _loginUserVM = new LoginUserVM();
     private bool _loading;
-    private string? _errorMessage;
 
     protected override void OnInitialized()
     {
@@ -89,14 +83,14 @@
                 //error = await result.Content.ReadAsStringAsync();
                 var response = await result.Content.ReadAsStringAsync();
                 var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
-                _errorMessage = baseResponse.Message;
+                errorMessage.Message = baseResponse.Message;
                 _loading = false;
                 StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
             _loading = false;
             StateHasChanged();
         }

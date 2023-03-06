@@ -8,13 +8,9 @@
 @using Newtonsoft.Json
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Planned Budgets</PageTitle>
-
-@if (!string.IsNullOrEmpty(_errorMessage))
-{
-    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-}
 
 @if (_getTableLoading)
 {
@@ -193,7 +189,6 @@ else
 }
 
 @code {
-    private string? _errorMessage;
     private bool _getTableLoading = true;
     private List<PlannedBudgetVM> _listOfPlannedBudgets = new();
     private List<PlannedBudgetDto> _listOfPlannedBudgetsDto = new();
@@ -272,11 +267,11 @@ else
             var responseMessage = await _httpService.CreateItem(plannedBudgetDto, "/api/plannedbudget/");
 
             if (responseMessage.StatusCode != System.Net.HttpStatusCode.Created)
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -297,11 +292,11 @@ else
             var responseMessage = await _httpService.UpdateItem(plannedBudgetDto, "/api/plannedbudget/");
 
             if (responseMessage.StatusCode != System.Net.HttpStatusCode.OK)
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -314,11 +309,11 @@ else
             var responseMessage = await _httpService.DeleteItem(_plannedBudgetToDelete.Id, "/api/plannedbudget/");
 
             if (responseMessage.StatusCode != System.Net.HttpStatusCode.NoContent)
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -378,11 +373,11 @@ else
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
                 _listOfYearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(await responseMessage.Content.ReadAsStringAsync()) ?? new();
             else
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         _listOfYearsForSelect = _listOfYearsWithMonths.Select(x => x.Key).ToList();
@@ -440,11 +435,11 @@ else
                 _listOfCategories = JsonConvert.DeserializeObject<List<CategoryVM>>(jsonResponse) ?? new List<CategoryVM>();
             }
             else
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         var recordsWithCategories =
@@ -473,7 +468,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.PlannedBudgets;
-        _errorMessage = null;
+        errorMessage.Message = null;
         await GetListOfYearsWithMonths();
     }
 }

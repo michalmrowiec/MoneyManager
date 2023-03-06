@@ -4,6 +4,7 @@
     {
         private bool _loggedIn;
         public event Action? OnChange;
+
         public bool LoggedIn
         {
             get { return _loggedIn; }

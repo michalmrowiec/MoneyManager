@@ -7,13 +7,9 @@
 @using System.Globalization
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Recurring records</PageTitle>
-
-@if (!string.IsNullOrEmpty(_errorMessage))
-{
-    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-}
 
 @if (_getTableLoading)
 {
@@ -181,7 +177,6 @@ else
 }
 
 @code {
-    private string? _errorMessage;
     private List<RecurringRecordVM> _listOfRecurringRecords = new();
     private List<CategoryVM> _listOfCategories = new();
     private string[] _str = { "", "", "", "", "", "" }; //caused number of types in enum for Record and RecurringRecord
@@ -267,12 +262,12 @@ else
             var response = await _httpService.DeleteItem(id, "/api/recurring/");
             if (response == null) return;
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                _errorMessage = await response.Content.ReadAsStringAsync();
+                errorMessage.Message = await response.Content.ReadAsStringAsync();
 
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -285,12 +280,12 @@ else
             if (response == null) return;
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                _errorMessage = await response.Content.ReadAsStringAsync();
+                errorMessage.Message = await response.Content.ReadAsStringAsync();
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -306,11 +301,11 @@ else
                 _listOfRecurringRecords = JsonConvert.DeserializeObject<List<RecurringRecordVM>>(jsonResponse) ?? new List<RecurringRecordVM>();
             }
             else
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         await GetCategoriesForRecurringRecords();
@@ -336,11 +331,11 @@ else
                 _listOfCategories = JsonConvert.DeserializeObject<List<CategoryVM>>(jsonResponse) ?? new List<CategoryVM>();
             }
             else
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         foreach (var record in _listOfRecurringRecords)
@@ -374,7 +369,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.RecurringRecords;
-        _errorMessage = null;
+        errorMessage.Message = null;
         await GetRecurringRecord();
     }
 }

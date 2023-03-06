@@ -15,13 +15,9 @@
 @inject ILocalStorageService _localStorage
 @inject IHttpRecordService _httpTracker
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Financial dashboard</PageTitle>
-
-@if (!string.IsNullOrEmpty(_errorMessage))
-{
-    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-}
 
 @if (_getTableLoading)
 {
@@ -196,7 +192,6 @@ else
 }
 
 @code {
-    private string? _errorMessage;
     private bool _getTableLoading = true;
 
     private RecordVM? _recordToDelete;
@@ -244,11 +239,11 @@ else
                 _sumOfTotalAmounts = JsonConvert.DeserializeObject<decimal>(jsonResponse);
             }
             else
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         StateHasChanged();
@@ -356,11 +351,11 @@ else
                     _filterParameters.Month = _listOfMonthsForSelect.First();
             }
             else
-                _errorMessage = respond.Content.ReadAsStringAsync().ToString();
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         StateHasChanged();
@@ -380,11 +375,11 @@ else
                 _listOfRecords = JsonConvert.DeserializeObject<List<RecordVM>>(jsonResponse) ?? new List<RecordVM>();
             }
             else
-                _errorMessage = await responseMessage.Content.ReadAsStringAsync();
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         if (_listOfRecords == null) return;
@@ -419,12 +414,12 @@ else
             var response = await _httpTracker.DeleteItem(id, "/api/tracker/");
             if (response == null) return;
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                _errorMessage = await response.Content.ReadAsStringAsync();
+                errorMessage.Message = await response.Content.ReadAsStringAsync();
 
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -437,19 +432,19 @@ else
             if (response == null) return;
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                _errorMessage = await response.Content.ReadAsStringAsync();
+                errorMessage.Message = await response.Content.ReadAsStringAsync();
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.FinancialDashboard;
-        _errorMessage = null;
+        errorMessage.Message = null;
         await GetTable();
     }
 
