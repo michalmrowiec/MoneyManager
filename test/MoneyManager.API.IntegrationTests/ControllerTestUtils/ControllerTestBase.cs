@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
+using MoneyManager.Domain.Entities;
 using MoneyManager.Infractructure;
 using System;
 using System.Linq;
@@ -36,8 +40,35 @@ namespace MoneyManager.API.IntegrationTests.ControllerTestUtils
 
                     // Add fake memory db
                     services.AddDbContext<MoneyManagerContext>(options => options.UseInMemoryDatabase(_dbName));
+                    //services.AddDbContext<MoneyManagerContext>(options =>
+                    //{
+                    //    options.UseInMemoryDatabase(_dbName);
+
+                    //});
+
+                    var options = new DbContextOptionsBuilder<MoneyManagerContext>()
+                    .UseInMemoryDatabase(databaseName: _dbName)
+                    .Options;
+
+                    using (var context = new MoneyManagerContext(options))
+                    {
+                        // Tworzenie nowego klucza API
+                        var apiKey = new ApiKey
+                        {
+                            Key = "temporary_key"
+                        };
+
+                        // Dodawanie klucza do kontekstu
+                        context.ApiKeys.Add(apiKey);
+
+                        // Zapisywanie zmian w bazie danych
+                        context.SaveChanges();
+                    }
+
                 });
             }).CreateClient();
+
+            _httpClient.DefaultRequestHeaders.Add("X-Api-Key", "temporary_key");
         }
     }
 }
