@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Middlewaare;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlanndeBudgetRecord;
 using MoneyManager.Application.Functions.PlannedBudget.Commands.DeletePlannedBudget;
@@ -13,6 +14,7 @@ using MoneyManager.Application.Functions.PlannedBudget.Queries.GetPlannedBudgets
 
 namespace MoneyManager.API.Controllers
 {
+    [ApiKeyRequired]
     [Authorize]
     [ApiController]
     [Route("api/plannedbudget")]

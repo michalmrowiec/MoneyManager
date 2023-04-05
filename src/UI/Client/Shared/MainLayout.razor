@@ -6,7 +6,6 @@
 @inject AppState appState
 @inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
-@implements IDisposable
 
 <div class="page">
     <div class="sidebar">
@@ -95,7 +94,7 @@
         errorMessage.OnChange += StateHasChanged;
     }
 
-    void IDisposable.Dispose()
+    void Dispose()
     {
         appState.OnChange -= ChceckIfLoggedIn;
         appState.OnChange -= StateHasChanged;

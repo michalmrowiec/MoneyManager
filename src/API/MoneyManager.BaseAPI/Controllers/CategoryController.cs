@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Middlewaare;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Categories.Commands.CreateCategory;
 using MoneyManager.Application.Functions.Categories.Commands.DeleteCategory;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 
 namespace MoneyManager.API.Controllers
 {
+    [ApiKeyRequired]
     [Authorize]
     [ApiController]
     [Route("api/category")]

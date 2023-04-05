@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Middlewaare;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Users.Commands.ChangePasswordUser;
 using MoneyManager.Application.Functions.Users.Commands.LoginUser;
@@ -11,6 +12,7 @@ using MoneyManager.Domain.Authentication;
 namespace MoneyManager.API.Controllers
 {
     [ApiController]
+    [ApiKeyRequired]
     [Route("api/account")]
     public class AccountController : ControllerBase
     {

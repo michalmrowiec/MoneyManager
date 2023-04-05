@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Middlewaare;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Statistics.Queries.GetCurrentTotalAmount;
 using MoneyManager.Application.Functions.Statistics.Queries.GetTotalForAllCategoryForEachMonthsOfYear;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.API.Controllers
 {
+    [ApiKeyRequired]
     [Authorize]
     [ApiController]
     [Route("api/stat")]
