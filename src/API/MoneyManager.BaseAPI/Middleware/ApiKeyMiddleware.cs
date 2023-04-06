@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
+using MoneyManager.API.Attributes;
 using MoneyManager.Application.Contracts.Persistence;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
-namespace MoneyManager.API.Middlewaare
+namespace MoneyManager.API.Middleware
 {
     public class ApiKeyMiddleware : IMiddleware
     {
@@ -22,7 +22,6 @@ namespace MoneyManager.API.Middlewaare
             
             if (apiKeyRequiredAttributeOnController != null || apiKeyRequiredAttributeOnAction != null)
             {
-                var he = context.Request.Headers;
                 if (!context.Request.Headers.TryGetValue("X-Api-Key", out var apiKeyHeaderValues))
                 //|| apiKeyHeaderValues.FirstOrDefault() == null)
                 {
@@ -31,13 +30,11 @@ namespace MoneyManager.API.Middlewaare
                     return;
                 }
 
-                var apiKey = apiKeyHeaderValues.First();
+                var apiKey = await _apiKeyRepository.GetApiKey(apiKeyHeaderValues.First());
 
-                var validApiKey = await _apiKeyRepository.GetApiKey(apiKey);
-
-                if (validApiKey == null)
+                if (apiKey == null || apiKey.Active == false || apiKey.ExpiresAt < DateTime.Now)
                 {
-                    context.User.Claims.Append(new Claim("ApiKey", apiKey));
+                    //context.User.Claims.Append(new Claim("ApiKey", apiKey));
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     await context.Response.WriteAsync("Invalid API key");
                     return;

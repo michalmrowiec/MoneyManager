@@ -18,7 +18,8 @@ namespace MoneyManager.Server.Migrations
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClientName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
                     Permissions = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>

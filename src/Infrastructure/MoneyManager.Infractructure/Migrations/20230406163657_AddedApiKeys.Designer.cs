@@ -12,7 +12,7 @@ using MoneyManager.Infractructure;
 namespace MoneyManager.Server.Migrations
 {
     [DbContext(typeof(MoneyManagerContext))]
-    [Migration("20230404193451_AddedApiKeys")]
+    [Migration("20230406163657_AddedApiKeys")]
     partial class AddedApiKeys
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,13 +32,16 @@ namespace MoneyManager.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ClientName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ExpiresAt")
+                    b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Key")

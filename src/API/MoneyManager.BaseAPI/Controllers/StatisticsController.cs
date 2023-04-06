@@ -1,17 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoneyManager.API.Middlewaare;
+using MoneyManager.API.Attributes;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Statistics.Queries.GetCurrentTotalAmount;
 using MoneyManager.Application.Functions.Statistics.Queries.GetTotalForAllCategoryForEachMonthsOfYear;
 using MoneyManager.Application.Functions.Statistics.Queries.GetTotalsForAllCategoryOfYear;
 using MoneyManager.Application.Functions.Statistics.Queries.GetTotalsForCategoryForEachMonthsOfYear;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.API.Controllers
 {

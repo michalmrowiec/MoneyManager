@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoneyManager.API.Middlewaare;
+using MoneyManager.API.Attributes;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Records;
 using MoneyManager.Application.Functions.Records.Queries.GetAllYearsWithMonths;

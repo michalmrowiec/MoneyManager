@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using MoneyManager.API.Middlewaare;
+using MoneyManager.API.Middleware;
 using MoneyManager.API.Services;
 using MoneyManager.Application;
 using MoneyManager.Application.Contracts.Persistence;

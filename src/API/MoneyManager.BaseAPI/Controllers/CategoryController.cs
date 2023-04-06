@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoneyManager.API.Middlewaare;
+using MoneyManager.API.Attributes;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.Categories.Commands.CreateCategory;
 using MoneyManager.Application.Functions.Categories.Commands.DeleteCategory;
@@ -9,7 +9,6 @@ using MoneyManager.Application.Functions.Categories.Commands.UpdateCategory;
 using MoneyManager.Application.Functions.Categories.Queries;
 using MoneyManager.Application.Functions.Categories.Queries.GetAllCategories;
 using MoneyManager.Application.Functions.Categories.Queries.GetCategoryById;
-using System.Security.Claims;
 
 namespace MoneyManager.API.Controllers
 {
