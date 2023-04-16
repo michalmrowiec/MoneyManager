@@ -1,14 +1,14 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using MoneyManager.API.IntegrationTests.ControllerTestUtils;
 using MoneyManager.Application.Functions.Records;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using MoneyManager.API.IntegrationTests.ControllerTestUtils;
 
 namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTests
 {

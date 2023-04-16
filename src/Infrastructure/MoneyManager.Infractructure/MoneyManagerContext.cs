@@ -13,6 +13,7 @@ namespace MoneyManager.Infractructure
         public DbSet<Category> Categories { get; set; }
         public DbSet<RecurringRecord> RecurringRecords { get; set; }
         public DbSet<PlannedBudget> PlannedBudgets { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
