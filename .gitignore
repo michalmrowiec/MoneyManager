@@ -7,6 +7,7 @@
 src/Server/appsettings.json
 src/API/MoneyManager.BaseAPI/appsettings.json
 src/API/MoneyManager.API/appsettings.json
+src/UI/Client/wwwroot/appsettings.json
 */appsettings.json
 
 # User-specific files

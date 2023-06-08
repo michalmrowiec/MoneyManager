@@ -4,10 +4,10 @@ using MoneyManager.Application.Functions.Users.Queries.CheckEmail;
 
 namespace MoneyManager.Application.Functions.Users.Commands.RegisterUser
 {
-    public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
+    internal class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
     {
         private readonly IMediator _mediator;
-        public RegisterUserCommandValidator(IMediator mediator)
+        internal RegisterUserCommandValidator(IMediator mediator)
         {
             _mediator = mediator;
 

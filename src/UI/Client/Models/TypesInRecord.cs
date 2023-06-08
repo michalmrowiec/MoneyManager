@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Models
 {
-    public enum TypesInRecord
+    public enum RecordField
     {
         Name,
         CategoryName,

@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MoneyManager.Domain.Entities
+﻿namespace MoneyManager.Domain.Entities
 {
     public class User
     {
         public int Id { get; set; }
-        public string Email { get; set; } = null!;
-        public string PasswordHash { get; set; } = null!;
-        public string Name { get; set; } = null!;
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public string Name { get; set; }
 
-        public virtual ICollection<Record>? Records { get; set; }
-        public virtual ICollection<Category>? Categories { get; set; }
-        public virtual ICollection<RecurringRecord>? RecurringRecords { get; set; }
-        public virtual ICollection<PlannedBudget>? PlannedBudgets { get; set; }
+        public List<Record> Records { get; set; } = new List<Record>();
+        public List<Category> Categories { get; set; } = new List<Category>();
+        public List<RecurringRecord> RecurringRecords { get; set; } = new List<RecurringRecord>();
+        public List<PlannedBudget> PlannedBudgets { get; set; } = new List<PlannedBudget>();
     }
 }

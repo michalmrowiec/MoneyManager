@@ -3,9 +3,9 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace MoneyManager.Client.Services
+namespace MoneyManager.Client.Services.XlsxFileService
 {
-    public class XmlGenerateService
+    public class XmlReportGenerateService
     {
         public byte[] CreateXmlDoc(List<RecordVM> data)
         {
@@ -60,9 +60,9 @@ namespace MoneyManager.Client.Services
                 row = new();
                 row.Append(
                     new Cell() { CellValue = new CellValue(item.Name), DataType = CellValues.String },
-                    new Cell() { CellValue = new CellValue(item.CategoryName ?? ""), DataType = CellValues.String },
+                    new Cell() { CellValue = new CellValue(item.Category?.Name ?? ""), DataType = CellValues.String },
                     new Cell() { CellValue = new CellValue(item.Amount), DataType = CellValues.Number },
-                    new Cell() { CellValue = new CellValue(item.TransactionDate.ToString("d")), DataType = CellValues.String });
+                    new Cell() { CellValue = new CellValue(item.TransactionDate.ToString("dd/MM/yyyy")), DataType = CellValues.String });
                 sheetData.Append(row);
             }
 

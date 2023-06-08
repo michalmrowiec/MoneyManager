@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoneyManager.API.Attributes;
 using MoneyManager.API.Services;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.CreateRecurringRecord;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.DeleteRecurringRecord;
@@ -12,6 +13,7 @@ using MoneyManager.Application.Functions.RecurringRecords.Queries.GetRecurringRe
 
 namespace MoneyManager.API.Controllers
 {
+    [ApiKeyRequired]
     [Authorize]
     [ApiController]
     [Route("api/recurring")]

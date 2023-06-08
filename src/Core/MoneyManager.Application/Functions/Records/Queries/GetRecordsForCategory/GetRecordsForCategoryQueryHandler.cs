@@ -17,7 +17,7 @@ namespace MoneyManager.Application.Functions.Records
 
         public async Task<List<RecordDto>> Handle(GetRecordsForCategoryQuery request, CancellationToken cancellationToken)
         {
-            var records = await _recordRepository.GetRecordsForCategory(request.UserId, request.CategoryId);
+            var records = await _recordRepository.GetRecordsForCategoryAsync(request.UserId, request.CategoryId);
 
             return _mapper.Map<List<RecordDto>>(records);
         }

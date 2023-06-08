@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Infractructure.Repositories.Items
 {
@@ -16,47 +11,39 @@ namespace MoneyManager.Infractructure.Repositories.Items
 
         public async Task<Record[]> AddRangeRecordAsync(Record[] records)
         {
-            await _dbContext.RecordItems.AddRangeAsync(records);
+            await _dbContext.Records.AddRangeAsync(records);
             await _dbContext.SaveChangesAsync();
-            return records;
-        }
-
-        public override async Task<IList<Record>> GetAllAsync(int userId)
-        {
-            var records = await _dbContext.RecordItems.Where(x => x.UserId == userId).ToListAsync();
-            var categories = await _dbContext.Categories.Where(x => x.UserId == userId).ToListAsync();
-
-            var recordsWithCategories =
-            from record in records
-            join category in categories on record.CategoryId equals category.Id into ps
-            from supCategory in ps.DefaultIfEmpty()
-            select new Record
-            {
-                Id = record.Id,
-                Name = record.Name,
-                Amount = record.Amount,
-                TransactionDate = record.TransactionDate,
-                CategoryId = supCategory?.Id,
-                Category = supCategory
-            };
-
-            return recordsWithCategories.ToList();
-        }
-
-        public async Task<IList<Record>> GetRecordsForCategory(int userId, int cateogryId)
-        {
-            var records = await _dbContext.RecordItems.Where(x => x.UserId == userId && x.CategoryId == cateogryId).ToListAsync();
-            var category = _dbContext.Categories.Where(x => x.UserId == userId).First(x => x.Id == cateogryId);
-
-            records.ForEach(x => { x.CategoryId = category.Id; x.Category = category; });
 
             return records;
         }
 
-        public async Task<IList<Record>> GetRecordsForMonth(int userId, int year, int month)
+        public override async Task<IList<Record>> GetAllRecordsAsync(int userId)
         {
-            return await _dbContext.RecordItems
-                .Where(x => x.UserId == userId && x.TransactionDate.Year == year && x.TransactionDate.Month == month).ToListAsync();
+            var records = await _dbContext.Records
+                .Include(r => r.Category)
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
+
+            return records;
+        }
+
+        public async Task<IList<Record>> GetRecordsForCategoryAsync(int userId, int cateogryId)
+        {
+            var records = await _dbContext.Records
+                .Include(r => r.Category)
+                .Where(r => r.UserId == userId && r.CategoryId == cateogryId)
+                .ToListAsync();
+
+            return records;
+        }
+
+        public async Task<IList<Record>> GetRecordsForMonthAsync(int userId, int year, int month)
+        {
+            var records = await _dbContext.Records
+                .Where(r => r.UserId == userId && r.TransactionDate.Year == year && r.TransactionDate.Month == month)
+                .ToListAsync();
+
+            return records;
         }
     }
 }

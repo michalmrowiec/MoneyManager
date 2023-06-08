@@ -1,12 +1,9 @@
 ﻿@page "/statistics"
 @using MoneyManager.Client.Components.Charts
+@inject ErrorMessage errorMessage
 
 <PageTitle>Statistics</PageTitle>
 
-@if (!string.IsNullOrEmpty(_errorMessage))
-{
-    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-}
 
 <div class="card mb-2">
     <div class="card-body">
@@ -21,10 +18,9 @@
 </div>
 
 @code {
-    private string _errorMessage = "";
 
     private void ErrorMessageSetter(string msg)
     {
-        _errorMessage = msg;
+        errorMessage.Message = msg;
     }
 }

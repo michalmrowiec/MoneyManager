@@ -1,7 +1,10 @@
 ﻿using MediatR;
+using MoneyManager.API.Middleware;
 using MoneyManager.API.Services;
 using MoneyManager.Application;
+using MoneyManager.Application.Contracts.Persistence;
 using MoneyManager.Infractructure;
+using MoneyManager.Infractructure.Repositories;
 
 namespace MoneyManager.API
 {
@@ -19,12 +22,14 @@ namespace MoneyManager.API
             services.AddMoneyManagerApplication();
             services.AddEFRegistrationServices(Configuration);
             services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddTransient<ApiKeyMiddleware>();
             services.AddHttpContextAccessor();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddMediatR(typeof(Startup));
             services.AddSwaggerGen();
             services.AddScoped<IUserContextService, UserContextService>();
+            services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
             services.AddHttpContextAccessor();
         }
 
@@ -42,6 +47,7 @@ namespace MoneyManager.API
             }
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
+
             app.UseAuthentication();
             app.UseHttpsRedirection();
 
@@ -54,6 +60,7 @@ namespace MoneyManager.API
             app.UseRouting();
             app.UseAuthorization();
 
+            app.UseMiddleware<ApiKeyMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
@@ -62,6 +69,7 @@ namespace MoneyManager.API
                 endpoints.MapFallbackToFile("index.html");
                 //endpoints.MapDefaultControllerRoute();
                 //endpoints.MapRazorPages();
+
             });
         }
     }

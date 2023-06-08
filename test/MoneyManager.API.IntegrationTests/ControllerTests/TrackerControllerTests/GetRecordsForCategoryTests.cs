@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -43,9 +42,9 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
             {
                 new List<CreateRecordCommand>
                 {
-                    new CreateRecordCommand { Id = 9800, Name = "Test1", Amount = 79228162514.26M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 13954, CategoryName = "Retas" },
-                    new CreateRecordCommand { Id = 34779, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -79.09M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 13954, CategoryName = "Retas" },
-                    new CreateRecordCommand { Id = 965443, Name = "TestR", Amount = 0M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 68, CategoryName = "S P A C E" }
+                    new CreateRecordCommand { Id = 9800, Name = "Test1", Amount = 79228162514.26M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 13954 },
+                    new CreateRecordCommand { Id = 34779, Name = "Alsfjtme 4352 ptor aksdfg", Amount = -79.09M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 13954 },
+                    new CreateRecordCommand { Id = 965443, Name = "TestR", Amount = 0M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 68 }
                 },
                 new List<CreateCategoryCommand>
                 {
@@ -58,9 +57,9 @@ namespace MoneyManager.API.IntegrationTests.ControllerTests.TrackerControllerTes
             {
                 new List<CreateRecordCommand>
                 {
-                    new CreateRecordCommand { Id = 568, Name = "54376gfdh", Amount = -74.26M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 1124, CategoryName = "S P A C E" },
-                    new CreateRecordCommand { Id = 4569, Name = "test", Amount = -69.65M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 1124, CategoryName = "S P A C E" },
-                    new CreateRecordCommand { Id = 5678, Name = "opu{}", Amount = 678.87M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 1124, CategoryName = "S P A C E" }
+                    new CreateRecordCommand { Id = 568, Name = "54376gfdh", Amount = -74.26M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 1124 },
+                    new CreateRecordCommand { Id = 4569, Name = "test", Amount = -69.65M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 1124 },
+                    new CreateRecordCommand { Id = 5678, Name = "opu{}", Amount = 678.87M, TransactionDate = new DateTime(2020, 10, 30), CategoryId = 1124 }
                 },
                 new List<CreateCategoryCommand>
                 {

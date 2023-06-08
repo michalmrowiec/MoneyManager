@@ -26,7 +26,7 @@ namespace MoneyManager.Infractructure.Repositories.Items
             await _dbContext.SaveChangesAsync();
         }
 
-        public virtual async Task<IList<T>> GetAllAsync(int userId)
+        public virtual async Task<IList<T>> GetAllRecordsAsync(int userId)
         {
             return await _dbContext.Set<T>().Where(x => x.UserId == userId).ToListAsync();
         }

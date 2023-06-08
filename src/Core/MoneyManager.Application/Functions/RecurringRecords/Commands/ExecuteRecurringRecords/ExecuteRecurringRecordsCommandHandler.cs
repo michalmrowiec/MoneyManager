@@ -27,7 +27,7 @@ namespace MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRe
 
         public async Task<Unit> Handle(ExecuteRecurringRecordsCommand request, CancellationToken cancellationToken)
         {
-            var recurringRecords = await _recurringRecordRepository.GetAllAsync(request.UserId);
+            var recurringRecords = await _recurringRecordRepository.GetAllRecordsAsync(request.UserId);
             recurringRecords = recurringRecords.Where(x => x.IsActive == true).ToList();
 
             var executer = new RecurringRecordsExecuter();

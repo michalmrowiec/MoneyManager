@@ -21,7 +21,7 @@ namespace MoneyManager.Application.Functions.PlannedBudget.Queries.GetPlannedBud
         public async Task<List<PlannedBudgetDto>> Handle(GetPlannedBudgetsForMonthQuery request, CancellationToken cancellationToken)
         {
             var plannedBudgets = _mapper.Map<List<PlannedBudgetDto>>
-                (await _plannedBudgetRepository.GetRecordsForMonth(request.UserId, request.Year, request.Month));
+                (await _plannedBudgetRepository.GetRecordsForMonthAsync(request.UserId, request.Year, request.Month));
 
             if (plannedBudgets.Count == 0)
                 return new();

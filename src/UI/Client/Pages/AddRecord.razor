@@ -5,6 +5,7 @@
 @using MoneyManager.Client.ViewModels
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Add new record</PageTitle>
 
@@ -13,9 +14,16 @@
     <p>@_error</p>
 </div>
 
-@if (DeleteDialogOpen)
+@if (AddDialogOpen)
 {
-    <RecordFormDialog Title="Add new record" RecurringRecordsPanel="true" OnClose="CloseDeleteDialog" FormRecordItem="@((RecordVM recordVM) => {_recordItem = recordVM;})" RecurringRecordItem="ReturnedRecurringRecord" TypeOfDialog="TypeOfFormlDialog.AddRecord"></RecordFormDialog>
+    <RecordFormDialog
+        Title="Add new record"
+        RecurringRecordsPanel="true"
+        OnClose="CloseDeleteDialog"
+        FormRecordItem="@((recordVM) => {_recordItem = recordVM;})"
+        RecurringRecordItem="@((value) => _recurringRecordItem = value)"
+        TypeOfDialog="TypeOfFormlDialog.AddRecord">
+    </RecordFormDialog>
 }
 
 @code {
@@ -23,7 +31,7 @@
     private RecurringRecordVM? _recurringRecordItem;
     private string? _error;
 
-    private bool DeleteDialogOpen { get; set; }
+    private bool AddDialogOpen { get; set; }
 
     protected async Task CloseDeleteDialog(bool deleteConfirmed)
     {
@@ -35,11 +43,13 @@
                 if (response == null) return;
                 if (response.StatusCode != HttpStatusCode.Created)
                 {
+                    errorMessage.Message = await response.Content.ReadAsStringAsync();
                     _error = await response.Content.ReadAsStringAsync();
                 }
             }
             catch (Exception ex)
             {
+                errorMessage.Message = ex.Message;
                 _error = ex.Message;
             }
         }
@@ -51,33 +61,25 @@
                 if (response == null) return;
                 if (response.StatusCode != HttpStatusCode.Created)
                 {
+                    errorMessage.Message = await response.Content.ReadAsStringAsync();
                     _error = await response.Content.ReadAsStringAsync();
                 }
                 await _httpService.GetListOfItems("api/recurring/ex");
             }
             catch (Exception ex)
             {
+                errorMessage.Message = ex.Message;
                 _error = ex.Message;
             }
         }
-        DeleteDialogOpen = false;
+        AddDialogOpen = false;
         StateHasChanged();
     }
 
     private void OpenDeleteDialog()
     {
-        DeleteDialogOpen = true;
+        AddDialogOpen = true;
         StateHasChanged();
-    }
-
-    //private void ReturnedRecord(RecordVM RecordVM)
-    //{
-    //    _recordItem = RecordVM;
-    //}
-
-    private void ReturnedRecurringRecord(RecurringRecordVM RecurringRecordVM)
-    {
-        _recurringRecordItem = RecurringRecordVM;
     }
 
     protected override void OnInitialized()

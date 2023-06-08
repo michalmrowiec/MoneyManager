@@ -22,7 +22,7 @@ namespace MoneyManager.Application.Functions.Categories.Queries.GetAllCategories
 
         public async Task<List<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
-            var all = await _categoryRepository.GetAllAsync(request.UserId);
+            var all = await _categoryRepository.GetAllRecordsAsync(request.UserId);
             var mapped = _mapper.Map<List<CategoryDto>>(all);
             return mapped;
         }

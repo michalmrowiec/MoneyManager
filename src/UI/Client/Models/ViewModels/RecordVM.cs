@@ -24,5 +24,6 @@ namespace MoneyManager.Client.ViewModels
         /// </summary>
         public DateTime TransactionDate { get; set; }
         public int? CategoryId { get; set; }
+        public CategoryVM? Category { get; set; }
     }
 }

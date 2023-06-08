@@ -5,6 +5,7 @@
 @inject HttpClient http;
 @inject NavigationManager navigationManager;
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Register</PageTitle>
 
@@ -41,10 +42,6 @@
                     }
                     Register
                 </button>
-                @if (!string.IsNullOrEmpty(_errorMessage))
-                {
-                    <div class="alert alert-danger mt-3 mb-0">@_errorMessage</div>
-                }
             </EditForm>
         </div>
     </div>
@@ -53,7 +50,6 @@
 @code {
     private RegisterUserVM RegisterUserVM = new RegisterUserVM();
     private bool loading;
-    private string? _errorMessage;
 
     protected override void OnInitialized()
     {
@@ -76,15 +72,15 @@
                 //error = await result.Content.ReadAsStringAsync();
                 var response = await result.Content.ReadAsStringAsync();
                 var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
-                _errorMessage = baseResponse.Message;
-                baseResponse?.ValidationErrors?.ForEach(e => _errorMessage += $"{e}. ");
+                errorMessage.Message = baseResponse.Message;
+                baseResponse?.ValidationErrors?.ForEach(e => errorMessage.Message += $"{e}. ");
                 loading = false;
                 StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            errorMessage.Message = ex.Message;
             loading = false;
             StateHasChanged();
         }

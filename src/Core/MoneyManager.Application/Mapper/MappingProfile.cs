@@ -25,7 +25,6 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<Record, RecordDto>()
-                .ForMember(m => m.CategoryName, c => c.MapFrom(s => s.Category.CategoryName))
                 .ReverseMap();
 
             CreateMap<Record, UpdateRecordCommand>()
@@ -35,15 +34,12 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<Category, CreateCategoryCommand>()
-                .ForMember(m => m.Name, c => c.MapFrom(s => s.CategoryName))
                 .ReverseMap();
 
             CreateMap<Category, CategoryDto>()
-                .ForMember(m => m.Name, c => c.MapFrom(s => s.CategoryName))
                 .ReverseMap();
 
             CreateMap<Category, UpdateCategoryCammand>()
-                .ForMember(m => m.Name, c => c.MapFrom(s => s.CategoryName))
                 .ReverseMap();
 
             CreateMap<RegisterUser, RegisterUserCommand>()
