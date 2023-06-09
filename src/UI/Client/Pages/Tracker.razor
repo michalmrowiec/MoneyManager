@@ -321,7 +321,7 @@ else
                 var json = await respond.Content.ReadAsStringAsync();
                 var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
 
-                _yearsWithMonths = yearsWithMonths ?? new(); ;
+                _yearsWithMonths = yearsWithMonths ?? new();
 
                 _listOfYearsForSelect = yearsWithMonths?.Keys.OrderByDescending(x => x).ToList() ?? new();
 

@@ -6,7 +6,10 @@
 
 @if (!_loading)
 {
-    <h4>Total</h4>
+    <div class="d-flex justify-content-between">
+        <h4>Total chart</h4>
+        <h5>Total: @_total</h5>
+    </div>
 
     <Dropdown Class="d-inline pe-2">
         <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_type</DropdownToggle>
@@ -71,6 +74,7 @@ else
     Chart<decimal> barChart = new();
     List<decimal> data = new();
     BarChartDataset<decimal> dataset;
+    private decimal _total = 0;
 
     List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
     List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
@@ -173,7 +177,7 @@ else
 
                 _yearsWithMonths = yearsWithMonths ?? new(); ;
 
-                _years = yearsWithMonths?.Keys.ToList() ?? new();
+                _years = yearsWithMonths?.Keys.OrderByDescending(x => x).ToList() ?? new();
                 _selectedYear = _years.First();
             }
             else
@@ -230,6 +234,8 @@ else
         await barChart.Clear();
 
         await barChart.AddLabelsDatasetsAndUpdate(chartXAxisLabels, dataset);
+
+        _total = data.Sum();
     }
 
     private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
