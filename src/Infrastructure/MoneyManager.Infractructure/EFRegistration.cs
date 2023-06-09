@@ -50,13 +50,14 @@ namespace MoneyManager.Infractructure
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
             services.AddDbContext<MoneyManagerContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("TrackerDbWebio"))
+                options.UseSqlServer(configuration.GetConnectionString("TrackerDbConnectionPc"))
                 );
 
             services.AddScoped(typeof(IItemAsyncRepositoryBase<>), typeof(ItemRepositoryBase<>));
             services.AddScoped(typeof(IUserAsyncRepository), typeof(UserRepository));
             services.AddScoped(typeof(IRecurringRecordRepository), typeof(RecurringRecordRepository));
             services.AddScoped(typeof(IPlannedBudgetRepository), typeof(PlannedBudgetsRepository));
+            services.AddScoped(typeof(ICryptoAssetsRepository), typeof(CryptoAssetsRepository));
             services.AddScoped<IRecordRepository, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
 
