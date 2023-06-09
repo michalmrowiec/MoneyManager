@@ -8,6 +8,7 @@ namespace MoneyManager.Client.Services
     public interface ILocalStorageService
     {
         Task<UserTokenVM> GetItem<T>(string key);
+        Task<T?> GetItem2<T>(string key);
         Task SetItem<T>(string key, T value);
         Task RemoveItem(string key);
     }
@@ -34,6 +35,17 @@ namespace MoneyManager.Client.Services
                 return new UserTokenVM();
 
             return result;
+        }
+
+        public async Task<T?> GetItem2<T>(string key)
+        {
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+
+            if (json == null)
+                return default;
+
+            var r = JsonSerializer.Deserialize<T>(json);
+            return r;
         }
 
         public async Task SetItem<T>(string key, T value)
