@@ -1,4 +1,8 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@using MoneyManager.Client.Services;
+@inject ILocalStorageService _localStorage
+
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -9,4 +13,28 @@
             <p role="alert">Sorry, there's nothing at this address.</p>
         </LayoutView>
     </NotFound>
-</Router>
+</Router>   
+
+<Alert class="mb-0" Position="Position.Fixed.Bottom" Width="Width.Is100" Color="Color.Info" @bind-Visible="@visible">
+    <div class="w-75 m-auto">
+        <Heading Size="HeadingSize.Is4" TextColor="TextColor.Dark">
+            This website uses cookies
+        </Heading>
+        <Paragraph>
+            This website uses cookies and other technologies to process your personal data and provide you with a better service and functionality. We only store and use the necessary data for this purpose. By continuing to browse this site, you agree to our use of cookies and data processing.
+        </Paragraph>
+        <div class="d-flex justify-content-end">
+            <Button Color="Color.Secondary" Clicked="@(() => {visible = false; _localStorage.SetItem<bool>("showCookieAlert", false);})">Allow all cookies</Button>
+        </div>
+    </div>
+</Alert>
+
+@code {
+    bool visible = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        visible = await _localStorage.GetItem2<bool?>("showCookieAlert") ?? true;
+        StateHasChanged();
+    }
+}
