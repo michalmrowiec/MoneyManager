@@ -6,10 +6,12 @@ using Microsoft.IdentityModel.Tokens;
 using MoneyManager.Application.Contracts.Persistence;
 using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Application.Contracts.Persistence.Users;
+using MoneyManager.Application.Contracts.Services;
 using MoneyManager.Domain.Entities;
 using MoneyManager.Infractructure.Authentication;
 using MoneyManager.Infractructure.Repositories.Items;
 using MoneyManager.Infractructure.Repositories.Users;
+using MoneyManager.Infractructure.Services.CryptocurrencyServices;
 using MoneyManager.Infractructure.Services.EmailService;
 using MoneyManager.Infractructure.Services.JWTService;
 using System.Text;
@@ -63,6 +65,7 @@ namespace MoneyManager.Infractructure
 
             services.AddScoped<IEmailSender, Email>();
             services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
+            services.AddScoped<IAsyncCryptocurrencyService, CoingeckoApiService>();
 
             return services;
         }
