@@ -9,7 +9,6 @@ namespace MoneyManager.Domain.Entities.CryptoAssets
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
-        public string SymbolOfSettlementCurrency { get; set; }
 
         public User User { get; set; }
         public int UserId { get; set; }

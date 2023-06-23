@@ -1,0 +1,13 @@
+﻿@page "/cryptocurrencies"
+@inject NameOfSubpage nameOfSubpage
+
+<PageTitle>Crytpo Assets</PageTitle>
+
+<h3>Cryptocurrencies</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.CrytpoAssets;
+    }
+}

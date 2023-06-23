@@ -19,10 +19,15 @@ namespace MoneyManager.Infractructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CryptoAsset>()
-                .HasOne(c => c.User)
+            modelBuilder.Entity<CryptoAsset>(eb =>
+            {
+                eb.HasOne(c => c.User)
                 .WithMany(u => u.CryptoAssets)
                 .HasForeignKey(c => c.UserId);
+
+                eb.Property(p => p.Amount)
+                .HasColumnType("decimal(18,8)");
+            });
 
             modelBuilder.Entity<Category>()
                 .HasOne(c => c.User)

@@ -147,6 +147,11 @@
     [Parameter]
     public RecordVM? RecordToFill
     {
+        get
+        {
+            return new();    
+        }
+
         set
         {
             if (value is not null)

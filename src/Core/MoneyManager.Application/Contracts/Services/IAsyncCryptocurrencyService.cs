@@ -1,9 +1,5 @@
 ﻿using MoneyManager.Domain.Entities.CryptoAssets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net;
 
 namespace MoneyManager.Application.Contracts.Services
 {
@@ -15,6 +11,6 @@ namespace MoneyManager.Application.Contracts.Services
         /// <param name="cryptocurrencies">Full official names of cryptocurrencies, e.g.: "Bitcoin", "Ethereum", "BNB".</param>
         /// <param name="currency">The currency in which the given cryptocurrencies are to be valued, e.g.: "USD", "EUR".</param>
         /// <returns></returns>
-        Task<List<CryptocurrencySimpleData>> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, params string[] currency);
+        Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency);
     }
 }

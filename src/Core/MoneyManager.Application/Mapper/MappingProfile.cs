@@ -2,6 +2,8 @@
 using MoneyManager.Application.Functions.Categories.Commands.CreateCategory;
 using MoneyManager.Application.Functions.Categories.Commands.UpdateCategory;
 using MoneyManager.Application.Functions.Categories.Queries;
+using MoneyManager.Application.Functions.CryptoAssets.Commands.CreateCryptoAsset;
+using MoneyManager.Application.Functions.CryptoAssets.Commands.UpdateCryptoAsset;
 using MoneyManager.Application.Functions.PlannedBudget.Commands.CreatePlanndeBudgetRecord;
 using MoneyManager.Application.Functions.PlannedBudget.Commands.UpdatePlannedBudget;
 using MoneyManager.Application.Functions.PlannedBudget.Queries;
@@ -13,6 +15,7 @@ using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
 using MoneyManager.Domain.Authentication;
 using MoneyManager.Domain.Entities;
+using MoneyManager.Domain.Entities.CryptoAssets;
 
 namespace MoneyManager.Application.Mapper
 {
@@ -64,6 +67,12 @@ namespace MoneyManager.Application.Mapper
                 .ReverseMap();
 
             CreateMap<PlannedBudget, PlannedBudgetDto>()
+                .ReverseMap();
+
+            CreateMap<CryptoAsset, CreateCryptoAssetCommand>()
+                .ReverseMap();
+
+            CreateMap<CryptoAsset, UpdateCryptoAssetCommand>()
                 .ReverseMap();
         }
     }

@@ -20,20 +20,19 @@ namespace MoneyManager.Application.Functions.CryptoAssets.Queries.GetAllCryptoAs
 
         public async Task<List<CryptoAssetDto>> Handle(GetAllCryptoAssetsQuery request, CancellationToken cancellationToken)
         {
-            //return _mapper.Map<List<CryptoAssetDto>>(await _cryptoAssetsRepository.GetAllRecordsAsync(request.UserId));
-            //var listOfCryptoAssets = _mapper.Map<List<CryptoAssetDto>>(await _cryptoAssetsRepository.GetAllRecordsAsync(request.UserId));
-            
             var listOfCryptoAssets = await _cryptoAssetsRepository.GetAllRecordsAsync(request.UserId);
 
             var cryptocurrencySimpleDatas = await _cryptocurrencyService.GetSimplePriceForCryptocurrencies(
-                listOfCryptoAssets.Select(x => x.Name).ToArray(),
-                listOfCryptoAssets.Select(x => x.SymbolOfSettlementCurrency).ToArray());
+                listOfCryptoAssets.Select(x => x.Name).ToArray(), "usd");
 
             List<CryptoAssetDto> result = new();
 
+            if(cryptocurrencySimpleDatas.Status != System.Net.HttpStatusCode.OK)
+                return result;
+
             foreach (var cryptoAsset in listOfCryptoAssets)
             {
-                var cryptocurrencySimpleData = cryptocurrencySimpleDatas.FirstOrDefault(x => x.Name == cryptoAsset.Name) ?? new();
+                var cryptocurrencySimpleData = cryptocurrencySimpleDatas.Value.FirstOrDefault(x => x.Name == cryptoAsset.Name) ?? new();
 
                 result.Add(new CryptoAssetDto()
                 {
@@ -45,8 +44,7 @@ namespace MoneyManager.Application.Functions.CryptoAssets.Queries.GetAllCryptoAs
                     ActualPrice = cryptocurrencySimpleData.Price,
                     PricePercentChange24h = cryptocurrencySimpleData.PricePercentChange24h,
                     MarketCap = cryptocurrencySimpleData.MarketCap,
-                    SymbolOfSettlementCurrency = cryptoAsset.SymbolOfSettlementCurrency,
-                    DataForDateTime= cryptocurrencySimpleData.DataForDateTime,
+                    DataForDateTime= cryptocurrencySimpleData.UpdateDate,
                     UserId = cryptoAsset.UserId
                 });
             }
