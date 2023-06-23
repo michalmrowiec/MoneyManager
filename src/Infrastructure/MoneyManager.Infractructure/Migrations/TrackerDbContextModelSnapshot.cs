@@ -104,6 +104,37 @@ namespace MoneyManager.Server.Migrations
                     b.ToTable("CryptoAssets");
                 });
 
+            modelBuilder.Entity("MoneyManager.Domain.Entities.CryptoAssets.CryptocurrencySimpleData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("MarketCap")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,8)");
+
+                    b.Property<decimal>("PricePercentChange24h")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Symbol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CryptoSimpleDatas");
+                });
+
             modelBuilder.Entity("MoneyManager.Domain.Entities.PlannedBudget", b =>
                 {
                     b.Property<int>("Id")

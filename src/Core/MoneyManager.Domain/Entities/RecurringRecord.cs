@@ -2,7 +2,7 @@
 
 namespace MoneyManager.Domain.Entities
 {
-    public class RecurringRecord : IIdentifier
+    public class RecurringRecord : IIdentifier, IUserIdentiifier
     {
         public int Id { get; set; }
         public bool IsActive { get; set; }

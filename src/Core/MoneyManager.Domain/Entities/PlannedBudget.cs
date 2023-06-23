@@ -2,7 +2,7 @@
 
 namespace MoneyManager.Domain.Entities
 {
-    public class PlannedBudget : IIdentifier
+    public class PlannedBudget : IIdentifier, IUserIdentiifier
     {
         public int Id { get; set; } 
         public DateTime PlanForMonth { get; set; }

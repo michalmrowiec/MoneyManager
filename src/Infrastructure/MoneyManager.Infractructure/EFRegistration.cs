@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using MoneyManager.Application.Contracts.Persistence;
 using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Application.Contracts.Persistence.Users;
 using MoneyManager.Application.Contracts.Services;
@@ -60,12 +59,13 @@ namespace MoneyManager.Infractructure
             services.AddScoped(typeof(IRecurringRecordRepository), typeof(RecurringRecordRepository));
             services.AddScoped(typeof(IPlannedBudgetRepository), typeof(PlannedBudgetsRepository));
             services.AddScoped(typeof(ICryptoAssetsRepository), typeof(CryptoAssetsRepository));
+            services.AddScoped(typeof(ICryptoSimpleDatasRepository), typeof(CryptoSimpleDatasRepository));
             services.AddScoped<IRecordRepository, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             services.AddScoped<IEmailSender, Email>();
             services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
-            services.AddScoped<IAsyncCryptocurrencyService, CoingeckoApiService>();
+            services.AddScoped<IAsyncCryptocurrencyService, CryptoService>();
 
             return services;
         }

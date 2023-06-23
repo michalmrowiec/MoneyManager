@@ -5,7 +5,7 @@ using System.Net;
 
 namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 {
-    internal class CoingeckoApiService : IAsyncCryptocurrencyService
+    internal class CoingeckoApiService// : IAsyncCryptocurrencyService
     {
         private readonly HttpClient _httpClient = new();
 

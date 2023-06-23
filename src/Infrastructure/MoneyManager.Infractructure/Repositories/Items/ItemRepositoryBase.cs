@@ -4,7 +4,7 @@ using MoneyManager.Domain.Entities.Interfaces;
 
 namespace MoneyManager.Infractructure.Repositories.Items
 {
-    internal class ItemRepositoryBase<T> : IItemAsyncRepositoryBase<T> where T : class, IIdentifier
+    internal class ItemRepositoryBase<T> : IItemAsyncRepositoryBase<T> where T : class, IIdentifier, IUserIdentiifier
     {
         protected readonly MoneyManagerContext _dbContext;
         public ItemRepositoryBase(MoneyManagerContext moneyManagerContext)

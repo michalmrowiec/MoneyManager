@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MoneyManager.Application.Contracts.Persistence;
 using MoneyManager.Application.Contracts.Services;
 using MoneyManager.Application.Functions.Users.Queries.GetUserId;
 

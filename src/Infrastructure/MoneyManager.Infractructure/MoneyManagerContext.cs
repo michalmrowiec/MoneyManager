@@ -16,9 +16,14 @@ namespace MoneyManager.Infractructure
         public DbSet<PlannedBudget> PlannedBudgets { get; set; }
         public DbSet<ApiKey> ApiKeys { get; set; }
         public DbSet<CryptoAsset> CryptoAssets { get; set; }
+        public DbSet<CryptocurrencySimpleData> CryptoSimpleDatas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CryptocurrencySimpleData>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,8)");
+
             modelBuilder.Entity<CryptoAsset>(eb =>
             {
                 eb.HasOne(c => c.User)

@@ -2,7 +2,7 @@
 
 namespace MoneyManager.Domain.Entities.CryptoAssets
 {
-    public class CryptoAsset : IIdentifier
+    public class CryptoAsset : IIdentifier, IUserIdentiifier
     {
         public int Id { get; set; }
         public string Symbol { get; set; }

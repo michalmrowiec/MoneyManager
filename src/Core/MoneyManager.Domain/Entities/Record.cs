@@ -2,7 +2,7 @@
 
 namespace MoneyManager.Domain.Entities
 {
-    public class Record : IIdentifier
+    public class Record : IIdentifier, IUserIdentiifier
     {
         public int Id { get; set; }
         public string Name { get; set; }
