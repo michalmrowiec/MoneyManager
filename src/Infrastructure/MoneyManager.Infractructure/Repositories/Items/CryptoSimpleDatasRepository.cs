@@ -34,9 +34,9 @@ namespace MoneyManager.Infractructure.Repositories.Items
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<CryptocurrencySimpleData?> GetBySymbolAsync(string symbol)
+        public async Task<CryptocurrencySimpleData?> GetByNameAsync(string name)
         {
-            return await _dbContext.Set<CryptocurrencySimpleData>().FirstOrDefaultAsync(x => x.Symbol == symbol);
+            return await _dbContext.CryptoSimpleDatas.AsNoTracking().FirstOrDefaultAsync(x => x.Name == name);
         }
 
         public async Task UpdateAsync(CryptocurrencySimpleData entity)

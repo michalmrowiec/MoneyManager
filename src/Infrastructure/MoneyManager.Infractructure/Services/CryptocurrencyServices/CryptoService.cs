@@ -2,7 +2,6 @@
 using MoneyManager.Application.Contracts.Services;
 using MoneyManager.Domain.Entities.CryptoAssets;
 using System.Net;
-using System.Xml.Linq;
 
 namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 {
@@ -17,13 +16,13 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
         public async Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency)
         {
-            List<CryptocurrencySimpleData> cryptocurrenciesWitchData = new();
+            List<CryptocurrencySimpleData> cryptocurrenciesWithData = new();
             List<string> cryptocurrenciesNeedsData = new();
             List<string> cryptocurrenciesNeedsRefreshData = new();
 
             foreach (var c in cryptocurrencies)
             {
-                var cData = await _datasRepository.GetBySymbolAsync(c);
+                var cData = await _datasRepository.GetByNameAsync(c);
 
                 if (cData == null)
                 {
@@ -35,8 +34,9 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
                     cryptocurrenciesNeedsRefreshData.Add(c);
                 }
 
-                cryptocurrenciesWitchData.Add(new()
+                cryptocurrenciesWithData.Add(new()
                 {
+                    Id = cData.Id,
                     Name = cData.Name,
                     Symbol = cData.Symbol,
                     Price = cData.Price,
@@ -48,36 +48,35 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
             CoingeckoApiService cgs = new();
 
-            cryptocurrenciesNeedsData.AddRange(cryptocurrenciesNeedsRefreshData);
+            List<string> tmp = new();
+            tmp.AddRange(cryptocurrenciesNeedsData);
+            tmp.AddRange(cryptocurrenciesNeedsRefreshData);
 
-            var cryptocurrenciesWitchDataNew = await cgs.GetSimplePriceForCryptocurrencies(cryptocurrenciesNeedsData.ToArray(), currency);
+            var cryptocurrenciesWitchDataNew = await cgs.GetSimplePriceForCryptocurrencies(tmp.ToArray(), currency);
 
             if (cryptocurrenciesWitchDataNew.Status != HttpStatusCode.OK)
-                return (HttpStatusCode.OK, cryptocurrenciesWitchData);
+                return (HttpStatusCode.OK, cryptocurrenciesWithData);
 
-            //var a1 = cryptocurrenciesWitchDataNew.Value.Where(x => cryptocurrenciesNeedsData.All(y => y == x.Name)).ToArray();
-
-            List<CryptocurrencySimpleData> a1 = new();
-            List<CryptocurrencySimpleData> a2 = new();
+            List<CryptocurrencySimpleData> toAdd = new();
+            List<CryptocurrencySimpleData> toUpdate = new();
 
 
-            foreach ( var c in cryptocurrenciesWitchDataNew.Value)
+            foreach (var c in cryptocurrenciesWitchDataNew.Value)
             {
                 if (cryptocurrenciesNeedsData.Contains(c.Name))
-                    a1.Add(c);
+                    toAdd.Add(c);
                 else
-                    a2.Add(c);
+                {
+                    c.Id = cryptocurrenciesWithData.First(x => x.Symbol == c.Symbol).Id;
+                    toUpdate.Add(c);
+                }
             }
 
-            var a = await _datasRepository.AddRangeAsync(a1.ToArray());
+            await _datasRepository.AddRangeAsync(toAdd.ToArray());
 
-            //var a2 = cryptocurrenciesWitchDataNew.Value.Where(x => cryptocurrenciesNeedsRefreshData.All(y => y == x.Name)).ToList();
-
-            //a2.ForEach(x => _datasRepository.UpdateAsync(x));
-
-            foreach (var c in a1)
+            foreach (var c in toAdd)
             {
-                cryptocurrenciesWitchData.Add(new()
+                cryptocurrenciesWithData.Add(new()
                 {
                     Name = c.Name,
                     Symbol = c.Symbol,
@@ -88,19 +87,21 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
                 });
             }
 
-            foreach (var c in a2)
+            foreach (var c in toUpdate)
             {
                 await _datasRepository.UpdateAsync(c);
 
-                cryptocurrenciesWitchDataNew.Value.First(x => x.Symbol == c.Symbol).Name = c.Name;
-                cryptocurrenciesWitchDataNew.Value.First(x => x.Symbol == c.Symbol).Symbol = c.Symbol;
-                cryptocurrenciesWitchDataNew.Value.First(x => x.Symbol == c.Symbol).Price = c.Price;
-                cryptocurrenciesWitchDataNew.Value.First(x => x.Symbol == c.Symbol).PricePercentChange24h = Math.Round(c.PricePercentChange24h, 2);
-                cryptocurrenciesWitchDataNew.Value.First(x => x.Symbol == c.Symbol).MarketCap = Math.Round(c.MarketCap, 2);
-                cryptocurrenciesWitchDataNew.Value.First(x => x.Symbol == c.Symbol).UpdateDate = c.UpdateDate;
+                var existingCrypto = cryptocurrenciesWithData.First(x => x.Symbol == c.Symbol);
+
+                existingCrypto.Name = c.Name;
+                existingCrypto.Symbol = c.Symbol;
+                existingCrypto.Price = c.Price;
+                existingCrypto.PricePercentChange24h = Math.Round(c.PricePercentChange24h, 2);
+                existingCrypto.MarketCap = Math.Round(c.MarketCap, 2);
+                existingCrypto.UpdateDate = c.UpdateDate;
             }
 
-            return (HttpStatusCode.OK, cryptocurrenciesWitchData);
+            return (HttpStatusCode.OK, cryptocurrenciesWithData);
         }
     }
 }
