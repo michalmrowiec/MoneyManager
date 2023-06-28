@@ -1,15 +1,14 @@
-﻿using MoneyManager.Application.Contracts.Services;
-using MoneyManager.Domain.Entities.CryptoAssets;
+﻿using MoneyManager.Domain.Entities.CryptoAssets;
 using Newtonsoft.Json;
 using System.Net;
 
 namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 {
-    internal class CoingeckoApiService// : IAsyncCryptocurrencyService
+    internal class CoingeckoApiService : ICryptoApiProvider
     {
         private readonly HttpClient _httpClient = new();
 
-        public async Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency)
+        public async Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetBasicCryptocurrenciesInfo(string[] cryptocurrencies, string currency)
         {
             string baseUrl = "https://api.coingecko.com/api/v3/simple/price";
 

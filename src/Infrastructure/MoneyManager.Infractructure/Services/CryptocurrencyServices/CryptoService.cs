@@ -1,5 +1,6 @@
 ﻿using MoneyManager.Application.Contracts.Persistence.Items;
 using MoneyManager.Application.Contracts.Services;
+using MoneyManager.Application.Functions.CryptoAssets.Queries;
 using MoneyManager.Domain.Entities.CryptoAssets;
 using System.Net;
 
@@ -8,13 +9,15 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
     public class CryptoService : IAsyncCryptocurrencyService
     {
         private readonly ICryptoSimpleDatasRepository _datasRepository;
+        private readonly ICryptoApiProvider _cryptoApiProvider;
 
-        public CryptoService(ICryptoSimpleDatasRepository cryptoSimpleDatasRepository)
+        public CryptoService(ICryptoSimpleDatasRepository cryptoSimpleDatasRepository, ICryptoApiProvider cryptoApiProvider)
         {
             _datasRepository = cryptoSimpleDatasRepository;
+            _cryptoApiProvider = cryptoApiProvider;
         }
 
-        public async Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency)
+        public async Task<(ApiResponseStatus Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency)
         {
             List<CryptocurrencySimpleData> cryptocurrenciesWithData = new();
             List<string> cryptocurrenciesNeedsData = new();
@@ -22,6 +25,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
             foreach (var c in cryptocurrencies)
             {
+                //why get single record and not get all needed???
                 var cData = await _datasRepository.GetByNameAsync(c);
 
                 if (cData == null)
@@ -46,16 +50,17 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
                 });
             }
 
-            CoingeckoApiService cgs = new();
-
             List<string> tmp = new();
             tmp.AddRange(cryptocurrenciesNeedsData);
             tmp.AddRange(cryptocurrenciesNeedsRefreshData);
 
-            var cryptocurrenciesWitchDataNew = await cgs.GetSimplePriceForCryptocurrencies(tmp.ToArray(), currency);
+            var cryptocurrenciesWitchDataNew = await _cryptoApiProvider.GetBasicCryptocurrenciesInfo(tmp.ToArray(), currency);
+
+            if (cryptocurrenciesWitchDataNew.Status == HttpStatusCode.TooManyRequests)
+                return (ApiResponseStatus.ApiOverloaded, cryptocurrenciesWithData);
 
             if (cryptocurrenciesWitchDataNew.Status != HttpStatusCode.OK)
-                return (HttpStatusCode.OK, cryptocurrenciesWithData);
+                return (ApiResponseStatus.UnableConnectToApi, cryptocurrenciesWithData);
 
             List<CryptocurrencySimpleData> toAdd = new();
             List<CryptocurrencySimpleData> toUpdate = new();
@@ -101,7 +106,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
                 existingCrypto.UpdateDate = c.UpdateDate;
             }
 
-            return (HttpStatusCode.OK, cryptocurrenciesWithData);
+            return (ApiResponseStatus.Ok, cryptocurrenciesWithData);
         }
     }
 }

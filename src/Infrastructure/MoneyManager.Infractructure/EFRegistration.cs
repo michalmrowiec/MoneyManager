@@ -66,6 +66,7 @@ namespace MoneyManager.Infractructure
             services.AddScoped<IEmailSender, Email>();
             services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
             services.AddScoped<IAsyncCryptocurrencyService, CryptoService>();
+            services.AddScoped<ICryptoApiProvider, CoingeckoApiService>();
 
             return services;
         }

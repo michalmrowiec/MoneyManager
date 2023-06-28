@@ -27,7 +27,7 @@ namespace MoneyManager.Application.Functions.CryptoAssets.Queries.GetAllCryptoAs
 
             List<CryptoAssetDto> result = new();
 
-            if(cryptocurrencySimpleDatas.Status != System.Net.HttpStatusCode.OK)
+            if(cryptocurrencySimpleDatas.Status != ApiResponseStatus.Ok)
                 return result;
 
             foreach (var cryptoAsset in listOfCryptoAssets)
