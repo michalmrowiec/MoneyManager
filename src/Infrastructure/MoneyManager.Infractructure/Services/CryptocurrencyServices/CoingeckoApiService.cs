@@ -41,7 +41,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
             foreach (var cr in cryptocurrenciesIds)
             {
-                _ = decimal.TryParse(dl?[cr]?[currency]?.ToString(), out decimal cu);
+                _ = decimal.TryParse(dl?[cr]?[currency]?.ToString("0.########"), out decimal cu);
                 _ = decimal.TryParse(dl?[cr]?[currency + "_market_cap"]?.ToString(), out decimal mc);
                 _ = decimal.TryParse(dl?[cr]?[currency + "_24h_change"]?.ToString(), out decimal ch);
 

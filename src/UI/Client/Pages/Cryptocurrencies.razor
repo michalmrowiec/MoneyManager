@@ -1,13 +1,130 @@
 ﻿@page "/cryptocurrencies"
+@using MoneyManager.Application.Functions.CryptoAssets.Queries;
+@using MoneyManager.Client.Services;
+@using Newtonsoft.Json;
 @inject NameOfSubpage nameOfSubpage
+@inject IHttpRecordService _httpTracker
+@inject ErrorMessage errorMessage
 
 <PageTitle>Crytpo Assets</PageTitle>
 
-<h3>Cryptocurrencies</h3>
+@if (_getTableLoading)
+{
+    <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
+        <div class="h2">Loading</div>
+        <div class="h5 spinner-border"></div>
+    </div>
+}
+else if (_listOfCrytpos.Count is 0 && _listOfCrytposTemp.Count is 0)
+{
+    <p>The table is empty, you can add a new record <a href="/addrecord">here</a></p>
+}
+else
+{
+    <div class="">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr class="d-none d-md-table-row">
+                    <th width="5%">Symbol</th>
+                    <th width="10%">Name</th>
+                    <th width="15%" class="text-end">Amount</th>
+                    <th width="20%" class="text-end">Actual price</th>
+                    <th width="10%" class="text-end">Change 24h</th>
+                    <th width="20%" class="text-end pe-5">Value</th>
+                    <th width="5%"></th>
+                    <th width="5%"></th>
+                </tr>
+                <tr class="d-md-none">
+                    <th width="51%">Name</th>
+                    <th width="30%">Category</th>
+                    <th width="7%">Amount</th>
+                    <th width="8%">Date</th>
+                    <th width="4%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfCrytpos != null)
+                {
+                    @foreach (var item in _listOfCrytpos.ToList())
+                    {
+
+                        <tr>
+                            <td class="align-middle">@item.CryptocurrencySymbol</td>
+                            <td class="align-middle">@item.CryptocurrencyName</td>
+                            <td class="align-middle text-end">@item.Amount.ToString("0.########")</td>
+                            <td class="align-middle text-end">@item.ActualPrice.ToString("0.########")</td>
+                            <td class="align-middle text-end">@item.PricePercentChange24h.ToString("P")</td>
+                            <td class="align-middle text-end pe-5">@((item.Amount * item.ActualPrice).ToString("0.########"))</td>
+                            <td class="align-middle d-none d-md-table-cell">
+                                <button class="btn btn-outline-secondary btn-sm align-middle" >Edit</button>
+                            </td>
+                            <td class="align-middle d-none d-md-table-cell" width="5%">
+                                <button class="btn-close"></button>
+                            </td>
+                            <td class="align-middle d-md-none">
+                                <Dropdown>
+                                    <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem>Edit</DropdownItem>
+                                        <DropdownItem>Delete</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total summary:</td>
+                    <td></td>
+                    <td>Place holder</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+
 
 @code {
+    private bool _getTableLoading = true;
+    private List<CryptoAssetVM> _listOfCrytpos = new();
+    private List<CryptoAssetVM> _listOfCrytposTemp = new();
+
+    private async Task GetCryptos()
+    {
+        //https://localhost:7153/api/crytpoasset
+
+        try
+        {
+            var responseMessage = await _httpTracker.GetListOfItems("/api/crytpoasset/");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _listOfCrytpos = JsonConvert.DeserializeObject<List<CryptoAssetVM>>(jsonResponse) ?? new List<CryptoAssetVM>();
+            }
+            else
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Message = ex.Message;
+        }
+
+        if (_listOfCrytpos == null) return;
+
+        _listOfCrytposTemp = _listOfCrytpos;
+
+        _getTableLoading = false;
+
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.CrytpoAssets;
+
+        await GetCryptos();
     }
 }
