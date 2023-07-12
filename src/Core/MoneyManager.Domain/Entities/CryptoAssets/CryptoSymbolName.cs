@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-public class CoinSimple
+public class CryptoSymbolName
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string CoinGeckoId { get; set; }
     [JsonPropertyName("symbol")]
     public string Symbol { get; set; }
     [JsonPropertyName("name")]

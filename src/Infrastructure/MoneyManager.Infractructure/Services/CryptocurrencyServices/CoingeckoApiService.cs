@@ -1,4 +1,5 @@
-﻿using MoneyManager.Domain.Entities.CryptoAssets;
+﻿using MoneyManager.Application.Functions.CryptoAssets.Queries;
+using MoneyManager.Domain.Entities.CryptoAssets;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -21,7 +22,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
             var cryptocurrenciesIds = cryptocurrenciesList
                 .Where(x => x.Name == cryptocurrencies.FirstOrDefault(y => y == x.Name))
-                .Select(x => x.Id)
+                .Select(x => x.CoinGeckoId)
                 .ToArray();
 
             UriBuilder builder = new(baseUrl)
@@ -47,8 +48,8 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
                 cryptocurrenciesWitchData.Add(new()
                 {
-                    Name = cryptocurrenciesList.FirstOrDefault(x => x.Id == cr)?.Name ?? "",
-                    Symbol = cryptocurrenciesList.FirstOrDefault(x => x.Id == cr)?.Symbol ?? "",
+                    Name = cryptocurrenciesList.FirstOrDefault(x => x.CoinGeckoId == cr)?.Name ?? "",
+                    Symbol = cryptocurrenciesList.FirstOrDefault(x => x.CoinGeckoId == cr)?.Symbol ?? "",
                     Price = cu,
                     PricePercentChange24h = Math.Round(ch, 2),
                     MarketCap = Math.Round(mc, 2),
@@ -59,7 +60,19 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
             return (httpResponse.StatusCode, cryptocurrenciesWitchData);
         }
 
-        private async Task<(HttpStatusCode Status, List<CoinSimple> Value)> GetAllCurrencies()
+        // TODO
+        public async Task<(ApiResponseStatus Status, Dictionary<string, string> CryptocurrencySymbolsAndNames)> GetCryptocurrencySymbolsAndNames()
+        {
+            var (Status, Value) = await GetAllCurrencies();
+
+            Dictionary<string, string> res = Value.Select(x => new { x.Name, x.Symbol })
+                                                  .DistinctBy(x => x.Name)
+                                                  .ToDictionary(k => k.Name, v => v.Symbol);
+
+            return (ApiResponseStatus.Ok, res);
+        }
+
+        private async Task<(HttpStatusCode Status, List<CryptoSymbolName> Value)> GetAllCurrencies()
         {
             string url = @"https://api.coingecko.com/api/v3/coins/list?include_platform=false";
 
@@ -68,7 +81,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
                 return (httpResponse.StatusCode, new());
 
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
-            var coins = JsonConvert.DeserializeObject<List<CoinSimple>>(responseContent) ?? new();
+            var coins = JsonConvert.DeserializeObject<List<CryptoSymbolName>>(responseContent) ?? new();
 
             return (httpResponse.StatusCode, coins);
         }

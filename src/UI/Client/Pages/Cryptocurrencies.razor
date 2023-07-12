@@ -1,5 +1,6 @@
 ﻿@page "/cryptocurrencies"
 @using MoneyManager.Application.Functions.CryptoAssets.Queries;
+@using MoneyManager.Client.Components
 @using MoneyManager.Client.Services;
 @using Newtonsoft.Json;
 @inject NameOfSubpage nameOfSubpage
@@ -7,6 +8,13 @@
 @inject ErrorMessage errorMessage
 
 <PageTitle>Crytpo Assets</PageTitle>
+
+<button class="btn btn-secondary" @onclick="@(() => {_caFormIsOpen = true; StateHasChanged(); })">Add</button>
+
+@if(_caFormIsOpen)
+{
+    <CryptoAssetFormDialog OnClose="@(x => _caFormIsOpen = false)"></CryptoAssetFormDialog>
+}
 
 @if (_getTableLoading)
 {
@@ -53,10 +61,10 @@ else
                             <td class="align-middle">@item.CryptocurrencyName</td>
                             <td class="align-middle text-end">@item.Amount.ToString("0.########")</td>
                             <td class="align-middle text-end">@item.ActualPrice.ToString("0.########")</td>
-                            <td class="align-middle text-end">@item.PricePercentChange24h.ToString("P")</td>
+                            <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
                             <td class="align-middle text-end pe-5">@((item.Amount * item.ActualPrice).ToString("0.########"))</td>
                             <td class="align-middle d-none d-md-table-cell">
-                                <button class="btn btn-outline-secondary btn-sm align-middle" >Edit</button>
+                                <button class="btn btn-outline-secondary btn-sm align-middle">Edit</button>
                             </td>
                             <td class="align-middle d-none d-md-table-cell" width="5%">
                                 <button class="btn-close"></button>
@@ -90,6 +98,7 @@ else
     private bool _getTableLoading = true;
     private List<CryptoAssetVM> _listOfCrytpos = new();
     private List<CryptoAssetVM> _listOfCrytposTemp = new();
+    private bool _caFormIsOpen = false;
 
     private async Task GetCryptos()
     {
@@ -97,7 +106,7 @@ else
 
         try
         {
-            var responseMessage = await _httpTracker.GetListOfItems("/api/crytpoasset/");
+            var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets/");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {

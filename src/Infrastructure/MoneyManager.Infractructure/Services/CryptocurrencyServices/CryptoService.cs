@@ -17,6 +17,11 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
             _cryptoApiProvider = cryptoApiProvider;
         }
 
+        public async Task<(ApiResponseStatus Status, Dictionary<string, string> CryptocurrencySymbolsAndNames)> GetCryptocurrencySymbolsAndNames()
+        {
+            return await _cryptoApiProvider.GetCryptocurrencySymbolsAndNames();
+        }
+
         public async Task<(ApiResponseStatus Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency)
         {
             List<CryptocurrencySimpleData> cryptocurrenciesWithData = new();

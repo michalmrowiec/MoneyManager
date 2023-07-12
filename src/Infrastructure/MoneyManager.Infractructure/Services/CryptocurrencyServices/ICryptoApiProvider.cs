@@ -1,4 +1,5 @@
-﻿using MoneyManager.Domain.Entities.CryptoAssets;
+﻿using MoneyManager.Application.Functions.CryptoAssets.Queries;
+using MoneyManager.Domain.Entities.CryptoAssets;
 using System.Net;
 
 namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
@@ -12,5 +13,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
         /// <param name="currency">The currency in which the given cryptocurrencies are to be valued, e.g.: "USD", "EUR".</param>
         /// <returns></returns>
         Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetBasicCryptocurrenciesInfo(string[] cryptocurrencies, string currency);
+        Task<(ApiResponseStatus Status, Dictionary<string, string> CryptocurrencySymbolsAndNames)> GetCryptocurrencySymbolsAndNames();
+
     }
 }

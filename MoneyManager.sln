@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyManager.API.Integratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyManager.Application.UnitTests", "test\MoneyManager.Application.UnitTests\MoneyManager.Application.UnitTests.csproj", "{157C86A6-D37A-457F-9EF2-3712A05029AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyManager.Infrastructure.UnitTests", "test\MoneyManager.Infrastructure.UnitTests\MoneyManager.Infrastructure.UnitTests.csproj", "{14F298C5-316F-4533-85A8-1722E8C87037}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyManager.Infrastructure.UnitTests", "test\MoneyManager.Infrastructure.UnitTests\MoneyManager.Infrastructure.UnitTests.csproj", "{14F298C5-316F-4533-85A8-1722E8C87037}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
