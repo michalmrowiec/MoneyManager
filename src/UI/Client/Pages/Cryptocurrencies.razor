@@ -106,7 +106,7 @@ else
 
         try
         {
-            var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets/");
+            var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {

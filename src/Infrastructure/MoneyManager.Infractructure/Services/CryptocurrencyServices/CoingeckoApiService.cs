@@ -1,5 +1,4 @@
-﻿using MoneyManager.Application.Functions.CryptoAssets.Queries;
-using MoneyManager.Domain.Entities.CryptoAssets;
+﻿using MoneyManager.Domain.Entities.CryptoAssets;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -9,81 +8,50 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
     {
         private readonly HttpClient _httpClient = new();
 
-        public async Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetBasicCryptocurrenciesInfo(string[] cryptocurrencies, string currency)
+        public async Task<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)> GetCryptocurrenciesDataFromApi(int top, string currency)
         {
-            string baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+            List<CryptocurrencySimpleData> cryptocurrencySimpleDatas = new();
 
-            var dcl = await GetAllCurrencies();
-
-            if (dcl.Status != HttpStatusCode.OK)
-                return (dcl.Status, new());
-
-            var cryptocurrenciesList = dcl.Value;
-
-            var cryptocurrenciesIds = cryptocurrenciesList
-                .Where(x => x.Name == cryptocurrencies.FirstOrDefault(y => y == x.Name))
-                .Select(x => x.CoinGeckoId)
-                .ToArray();
-
-            UriBuilder builder = new(baseUrl)
+            UriBuilder uriBuilder = new("https://api.coingecko.com/api/v3/coins/markets")
             {
-                Query = $"ids={string.Join(",", cryptocurrenciesIds)}&vs_currencies={currency.ToLower()}&include_market_cap=true&include_24hr_change=true"
+                Query = $"vs_currency={currency}&order=market_cap_desc&per_page={top}&page=1&sparkline=false&price_change_percentage=24h%2C7d&locale=pl"
             };
 
-            var httpResponse = await _httpClient.GetAsync(builder.Uri);
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-                return (httpResponse.StatusCode, new());
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("MoneyManagerApp");
 
-            var a = await httpResponse.Content.ReadAsStringAsync();
+            var response = await _httpClient.GetAsync(uriBuilder.Uri);
 
-            var dl = JsonConvert.DeserializeObject<dynamic>(a);
+            if (response.StatusCode != HttpStatusCode.OK)
+                return (response.StatusCode, new());
 
-            List<CryptocurrencySimpleData> cryptocurrenciesWitchData = new();
+            var resposeContent = await response.Content.ReadAsStringAsync();
 
-            foreach (var cr in cryptocurrenciesIds)
+            var cryptocurrencies = JsonConvert.DeserializeObject<List<dynamic>>(resposeContent);
+
+            foreach (var c in cryptocurrencies)
             {
-                _ = decimal.TryParse(dl?[cr]?[currency]?.ToString("0.########"), out decimal cu);
-                _ = decimal.TryParse(dl?[cr]?[currency + "_market_cap"]?.ToString(), out decimal mc);
-                _ = decimal.TryParse(dl?[cr]?[currency + "_24h_change"]?.ToString(), out decimal ch);
+                decimal price, mc, pcp24h, pcp7d;
+                _ = decimal.TryParse(c?.current_price.ToString() ?? 0M, out price);
+                _ = decimal.TryParse(c?.market_cap.ToString() ?? 0M, out mc);
+                _ = decimal.TryParse(c?.price_change_percentage_24h_in_currency.ToString() ?? 0M, out pcp24h);
+                _ = decimal.TryParse(c?.price_change_percentage_7d_in_currency.ToString() ?? 0M, out pcp7d);
 
-                cryptocurrenciesWitchData.Add(new()
+                DateTimeOffset updateDateOffset = DateTimeOffset.ParseExact(c?.last_updated.ToString("yyyy-MM-ddThh:mm:ss.fffZ"), "yyyy-MM-ddThh:mm:ss.fffZ", null);
+                var updateDate = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(updateDateOffset, "Central European Standard Time").DateTime;
+
+                cryptocurrencySimpleDatas.Add(new CryptocurrencySimpleData
                 {
-                    Name = cryptocurrenciesList.FirstOrDefault(x => x.CoinGeckoId == cr)?.Name ?? "",
-                    Symbol = cryptocurrenciesList.FirstOrDefault(x => x.CoinGeckoId == cr)?.Symbol ?? "",
-                    Price = cu,
-                    PricePercentChange24h = Math.Round(ch, 2),
+                    Name = c?.name.ToString(),
+                    Symbol = c?.symbol.ToString(),
+                    Price = price,
+                    PricePercentChange24h = Math.Round(pcp24h, 2),
+                    PricePercentChange7d = Math.Round(pcp7d, 2),
                     MarketCap = Math.Round(mc, 2),
-                    UpdateDate = DateTime.Now,
+                    UpdateDate = updateDate,
                 });
             }
 
-            return (httpResponse.StatusCode, cryptocurrenciesWitchData);
-        }
-
-        // TODO
-        public async Task<(ApiResponseStatus Status, Dictionary<string, string> CryptocurrencySymbolsAndNames)> GetCryptocurrencySymbolsAndNames()
-        {
-            var (Status, Value) = await GetAllCurrencies();
-
-            Dictionary<string, string> res = Value.Select(x => new { x.Name, x.Symbol })
-                                                  .DistinctBy(x => x.Name)
-                                                  .ToDictionary(k => k.Name, v => v.Symbol);
-
-            return (ApiResponseStatus.Ok, res);
-        }
-
-        private async Task<(HttpStatusCode Status, List<CryptoSymbolName> Value)> GetAllCurrencies()
-        {
-            string url = @"https://api.coingecko.com/api/v3/coins/list?include_platform=false";
-
-            var httpResponse = await _httpClient.GetAsync(url);
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-                return (httpResponse.StatusCode, new());
-
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
-            var coins = JsonConvert.DeserializeObject<List<CryptoSymbolName>>(responseContent) ?? new();
-
-            return (httpResponse.StatusCode, coins);
+            return (response.StatusCode, cryptocurrencySimpleDatas);
         }
     }
 }

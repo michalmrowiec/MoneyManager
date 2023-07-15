@@ -17,101 +17,31 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
             _cryptoApiProvider = cryptoApiProvider;
         }
 
-        public async Task<(ApiResponseStatus Status, Dictionary<string, string> CryptocurrencySymbolsAndNames)> GetCryptocurrencySymbolsAndNames()
+        public async Task<Dictionary<string, string>> GetCryptocurrencySymbolsAndNames()
         {
-            return await _cryptoApiProvider.GetCryptocurrencySymbolsAndNames();
+            return await _datasRepository.GetSymbolsAndNames();
         }
 
         public async Task<(ApiResponseStatus Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency)
         {
-            List<CryptocurrencySimpleData> cryptocurrenciesWithData = new();
-            List<string> cryptocurrenciesNeedsData = new();
-            List<string> cryptocurrenciesNeedsRefreshData = new();
-
-            foreach (var c in cryptocurrencies)
-            {
-                //why get single record and not get all needed???
-                var cData = await _datasRepository.GetByNameAsync(c);
-
-                if (cData == null)
-                {
-                    cryptocurrenciesNeedsData.Add(c);
-                    continue;
-                }
-                else if (cData.UpdateDate.AddHours(1) < DateTime.Now)
-                {
-                    cryptocurrenciesNeedsRefreshData.Add(c);
-                }
-
-                cryptocurrenciesWithData.Add(new()
-                {
-                    Id = cData.Id,
-                    Name = cData.Name,
-                    Symbol = cData.Symbol,
-                    Price = cData.Price,
-                    PricePercentChange24h = Math.Round(cData.PricePercentChange24h, 2),
-                    MarketCap = Math.Round(cData.MarketCap, 2),
-                    UpdateDate = cData.UpdateDate,
-                });
-            }
-
-            List<string> tmp = new();
-            tmp.AddRange(cryptocurrenciesNeedsData);
-            tmp.AddRange(cryptocurrenciesNeedsRefreshData);
-
-            var cryptocurrenciesWitchDataNew = await _cryptoApiProvider.GetBasicCryptocurrenciesInfo(tmp.ToArray(), currency);
-
-            if (cryptocurrenciesWitchDataNew.Status == HttpStatusCode.TooManyRequests)
-                return (ApiResponseStatus.ApiOverloaded, cryptocurrenciesWithData);
-
-            if (cryptocurrenciesWitchDataNew.Status != HttpStatusCode.OK)
-                return (ApiResponseStatus.UnableConnectToApi, cryptocurrenciesWithData);
-
+            List<CryptocurrencySimpleData> result = new();
             List<CryptocurrencySimpleData> toAdd = new();
             List<CryptocurrencySimpleData> toUpdate = new();
 
+            var datas = await _datasRepository.GetByNamesAsync(cryptocurrencies);
 
-            foreach (var c in cryptocurrenciesWitchDataNew.Value)
+            if (datas.Count == 0 || (datas.Any(c => c.UpdateDate.AddHours(1) < DateTime.Now)))
             {
-                if (cryptocurrenciesNeedsData.Contains(c.Name))
-                    toAdd.Add(c);
-                else
-                {
-                    c.Id = cryptocurrenciesWithData.First(x => x.Symbol == c.Symbol).Id;
-                    toUpdate.Add(c);
-                }
+                await _datasRepository.DeleteAllAsync();
+
+                var (status, cryptos) = await _cryptoApiProvider.GetCryptocurrenciesDataFromApi(200, currency);
+
+                await _datasRepository.AddRangeAsync(cryptos.ToArray());
             }
 
-            await _datasRepository.AddRangeAsync(toAdd.ToArray());
+            datas = await _datasRepository.GetByNamesAsync(cryptocurrencies);
 
-            foreach (var c in toAdd)
-            {
-                cryptocurrenciesWithData.Add(new()
-                {
-                    Name = c.Name,
-                    Symbol = c.Symbol,
-                    Price = c.Price,
-                    PricePercentChange24h = Math.Round(c.PricePercentChange24h, 2),
-                    MarketCap = Math.Round(c.MarketCap, 2),
-                    UpdateDate = c.UpdateDate,
-                });
-            }
-
-            foreach (var c in toUpdate)
-            {
-                await _datasRepository.UpdateAsync(c);
-
-                var existingCrypto = cryptocurrenciesWithData.First(x => x.Symbol == c.Symbol);
-
-                existingCrypto.Name = c.Name;
-                existingCrypto.Symbol = c.Symbol;
-                existingCrypto.Price = c.Price;
-                existingCrypto.PricePercentChange24h = Math.Round(c.PricePercentChange24h, 2);
-                existingCrypto.MarketCap = Math.Round(c.MarketCap, 2);
-                existingCrypto.UpdateDate = c.UpdateDate;
-            }
-
-            return (ApiResponseStatus.Ok, cryptocurrenciesWithData);
+            return (ApiResponseStatus.Ok, await _datasRepository.GetByNamesAsync(cryptocurrencies));
         }
     }
 }

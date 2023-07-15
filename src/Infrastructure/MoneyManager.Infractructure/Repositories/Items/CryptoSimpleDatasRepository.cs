@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneyManager.Application.Contracts.Persistence.Items;
-using MoneyManager.Domain.Entities;
 using MoneyManager.Domain.Entities.CryptoAssets;
 
 namespace MoneyManager.Infractructure.Repositories.Items
@@ -28,6 +27,11 @@ namespace MoneyManager.Infractructure.Repositories.Items
             return entities;
         }
 
+        public async Task DeleteAllAsync()
+        {
+            _dbContext.CryptoSimpleDatas.RemoveRange(_dbContext.CryptoSimpleDatas.ToArray()); ;
+        }
+
         public async Task DeleteAsync(CryptocurrencySimpleData entity)
         {
             _dbContext.Set<CryptocurrencySimpleData>().Remove(entity);
@@ -36,7 +40,17 @@ namespace MoneyManager.Infractructure.Repositories.Items
 
         public async Task<CryptocurrencySimpleData?> GetByNameAsync(string name)
         {
-            return await _dbContext.CryptoSimpleDatas.AsNoTracking().FirstOrDefaultAsync(x => x.Name == name);
+            return await _dbContext.CryptoSimpleDatas.FirstOrDefaultAsync(x => x.Name == name);
+        }
+
+        public async Task<List<CryptocurrencySimpleData>> GetByNamesAsync(string[] names)
+        {
+            return await _dbContext.CryptoSimpleDatas.Where(c => names.Contains(c.Name)).ToListAsync();
+        }
+
+        public async Task<Dictionary<string, string>> GetSymbolsAndNames()
+        {
+            return await _dbContext.CryptoSimpleDatas.AsNoTracking().ToDictionaryAsync(c => c.Symbol, c => c.Name);
         }
 
         public async Task UpdateAsync(CryptocurrencySimpleData entity)

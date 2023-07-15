@@ -124,6 +124,9 @@ namespace MoneyManager.Server.Migrations
                     b.Property<decimal>("PricePercentChange24h")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("PricePercentChange7d")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Symbol")
                         .HasColumnType("nvarchar(max)");
 

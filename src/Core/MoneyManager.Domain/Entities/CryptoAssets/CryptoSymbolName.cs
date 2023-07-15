@@ -3,7 +3,7 @@
 public class CryptoSymbolName
 {
     [JsonPropertyName("id")]
-    public string CoinGeckoId { get; set; }
+    public string Id { get; set; }
     [JsonPropertyName("symbol")]
     public string Symbol { get; set; }
     [JsonPropertyName("name")]

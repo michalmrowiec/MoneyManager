@@ -8,7 +8,9 @@ namespace MoneyManager.Application.Contracts.Persistence.Items
         Task<CryptocurrencySimpleData> AddAsync(CryptocurrencySimpleData entity);
         Task UpdateAsync(CryptocurrencySimpleData entity);
         Task DeleteAsync(CryptocurrencySimpleData entity);
+        Task DeleteAllAsync();
         Task<CryptocurrencySimpleData[]> AddRangeAsync(CryptocurrencySimpleData[] entities);
-
+        Task<Dictionary<string, string>> GetSymbolsAndNames();
+        Task<List<CryptocurrencySimpleData>> GetByNamesAsync(string[] names);
     }
 }

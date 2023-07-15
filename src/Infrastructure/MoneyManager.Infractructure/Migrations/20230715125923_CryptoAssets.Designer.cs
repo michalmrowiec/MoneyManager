@@ -12,7 +12,7 @@ using MoneyManager.Infractructure;
 namespace MoneyManager.Server.Migrations
 {
     [DbContext(typeof(MoneyManagerContext))]
-    [Migration("20230623185630_CryptoAssets")]
+    [Migration("20230715125923_CryptoAssets")]
     partial class CryptoAssets
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,6 +124,9 @@ namespace MoneyManager.Server.Migrations
                         .HasColumnType("decimal(18,8)");
 
                     b.Property<decimal>("PricePercentChange24h")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePercentChange7d")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Symbol")

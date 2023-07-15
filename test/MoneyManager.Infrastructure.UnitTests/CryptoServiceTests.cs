@@ -14,9 +14,9 @@ namespace MoneyManager.Infrastructure.UnitTests
         {
             new object[]
             {
-                new string[] {"Bitcoin"},
-                "USD",
-                "Bitcoin",
+                new string[] {"Bitcoin"}, // cryptocurrencies
+                "USD", //
+                "Bitcoin", // repo crypto name?
                 new CryptocurrencySimpleData
                 {
                     Id = 1,
@@ -24,10 +24,11 @@ namespace MoneyManager.Infrastructure.UnitTests
                     Symbol = "BTC",
                     Price = 100_000m,
                     PricePercentChange24h = -2.87m,
+                    PricePercentChange7d = -1.40m,
                     MarketCap = 4350254917.33m,
                     UpdateDate = new DateTime(2023, 6, 28, 17, 9, 32, 702)
-                },
-                HttpStatusCode.OK,
+                }, // repo response
+                HttpStatusCode.OK, // repo response
                 new List<CryptocurrencySimpleData>()
                 {
                     new CryptocurrencySimpleData
@@ -37,10 +38,11 @@ namespace MoneyManager.Infrastructure.UnitTests
                         Symbol = "BTC",
                         Price = 100_000m,
                         PricePercentChange24h = -2.87m,
+                        PricePercentChange7d = -1.40m,
                         MarketCap = 4350254917.33m,
                         UpdateDate = new DateTime(2023, 6, 28, 17, 9, 32, 702)
                     }
-                },
+                }, // response from api
                 new List<CryptocurrencySimpleData>()
                 {
                     new CryptocurrencySimpleData
@@ -50,29 +52,30 @@ namespace MoneyManager.Infrastructure.UnitTests
                         Symbol = "BTC",
                         Price = 100_000m,
                         PricePercentChange24h = -2.87m,
+                        PricePercentChange7d = -1.40m,
                         MarketCap = 4350254917.33m,
                         UpdateDate = new DateTime(2023, 6, 28, 17, 9, 32, 702)
                     }
-                }
+                } // finally result
             }
         };
 
         [Theory]
         [MemberData(nameof(CryptoSimpleDatas))]
-        public async void GetBasicCrytpoDataInfo(string[] cryptocurrencies,
+        public async void GetSimplePriceForCryptocurrencies_ForValidData_ReturnsCorrectData(string[] cryptocurrencies,
                                                  string currency,
                                                  string repositoryCryptoName,
-                                                 CryptocurrencySimpleData repositoryAnsewar,
+                                                 CryptocurrencySimpleData repositoryResponse,
                                                  HttpStatusCode httpStatus,
                                                  List<CryptocurrencySimpleData> returnedCrytposDataFromApi,
                                                  List<CryptocurrencySimpleData> returnedAll)
         {
             var cryptoSimpleDatasRepository = new Mock<ICryptoSimpleDatasRepository>();
             cryptoSimpleDatasRepository.Setup(m => m.GetByNameAsync(repositoryCryptoName))
-                .Returns(Task.FromResult<CryptocurrencySimpleData?>(repositoryAnsewar));
+                .Returns(Task.FromResult<CryptocurrencySimpleData?>(repositoryResponse));
 
             var cryptoApiProvider = new Mock<ICryptoApiProvider>();
-            cryptoApiProvider.Setup(m => m.GetBasicCryptocurrenciesInfo(cryptocurrencies, currency))
+            cryptoApiProvider.Setup(m => m.GetCryptocurrenciesDataFromApi(1, currency))
                 .Returns(Task.FromResult<(HttpStatusCode Status, List<CryptocurrencySimpleData> Value)>((httpStatus, returnedCrytposDataFromApi)));
 
             CryptoService cryptoService = new(cryptoSimpleDatasRepository.Object, cryptoApiProvider.Object);

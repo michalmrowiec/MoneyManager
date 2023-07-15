@@ -1,4 +1,9 @@
 ﻿@using MoneyManager.Application.Functions.CryptoAssets.Queries;
+@using MoneyManager.Client.Models.ViewModels;
+@using MoneyManager.Client.Services;
+@using Newtonsoft.Json;
+@inject ErrorMessage errorMessage
+@inject IHttpRecordService _httpTracker
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
@@ -8,9 +13,9 @@
                 <button type="button" class="btn-close" @onclick="@(x => OnClose.InvokeAsync())"></button>
             </div>
             <div class="modal-body">
-                <EditForm Model="@_cryptoAsset" OnValidSubmit="@(x => OnClose.InvokeAsync())">
+                <EditForm Model="@_cryptoAsset" OnValidSubmit="HandleSubmit">
 
-                    <div class="d-flex align-items-center justify-content-between mb-2">
+                    @*<div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="flex-fill me-2">
                             @if (false)
                             {
@@ -38,10 +43,15 @@
                                 </InputSelect>
                             }
                         </div>
+                    </div>*@
+
+                    <div class="form-floating mb-2">
+                        <InputText id="name" class="form-control" @bind-Value="_cryptoAsset.Symbol" />
+                        <label for="floatingInput">Symbol</label>
                     </div>
 
                     <div class="form-floating mb-2">
-                        <InputText id="name" class="form-control disabled" @bind-Value="_cryptoAsset.CryptocurrencyName" />
+                        <InputText id="name" class="form-control" @bind-Value="_cryptoAsset.Name" />
                         <label for="floatingInput">Name</label>
                     </div>
 
@@ -67,13 +77,25 @@
 </div>
 
 @code {
-    private CryptoAssetVM _cryptoAsset = new();
+    private CreateCryptoAsset _cryptoAsset = new();
 
-    [Parameter]
-    public EventCallback<CryptoAssetVM> CryptoAsset { get; set; } = new();
+    //[Parameter]
+    //public EventCallback<CryptoAssetVM> CryptoAsset { get; set; } = new();
 
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
 
     private string[] _tempSymbols = { "BTC", "ETH" };
+
+    private async Task HandleSubmit()
+    {
+        var responseMessage = await _httpTracker.CreateItem(_cryptoAsset, "/api/crypto-assets");
+        if (responseMessage == null) return;
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            await OnClose.InvokeAsync();
+        }
+        else
+            errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+    }
 }

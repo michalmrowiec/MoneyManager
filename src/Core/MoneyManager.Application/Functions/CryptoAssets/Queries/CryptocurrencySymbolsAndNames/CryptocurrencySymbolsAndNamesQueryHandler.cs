@@ -16,8 +16,7 @@ namespace MoneyManager.Application.Functions.CryptoAssets.Queries.Cryptocurrency
 
         public async Task<Dictionary<string, string>> Handle(CryptocurrencySymbolsAndNamesQuery request, CancellationToken cancellationToken)
         {
-            var res = await _cryptocurrencyService.GetCryptocurrencySymbolsAndNames();
-            return res.CryptocurrencySymbolsAndNames;
+            return await _cryptocurrencyService.GetCryptocurrencySymbolsAndNames();
         }
     }
 }

@@ -42,6 +42,7 @@ namespace MoneyManager.Server.Migrations
                     Symbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,8)", nullable: false),
                     PricePercentChange24h = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PricePercentChange7d = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MarketCap = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
