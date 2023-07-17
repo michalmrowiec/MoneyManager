@@ -32,11 +32,13 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 
             if (datas.Count == 0 || (datas.Any(c => c.UpdateDate.AddHours(1) < DateTime.Now)))
             {
-                await _datasRepository.DeleteAllAsync();
-
                 var (status, cryptos) = await _cryptoApiProvider.GetCryptocurrenciesDataFromApi(200, currency);
 
-                await _datasRepository.AddRangeAsync(cryptos.ToArray());
+                if (cryptos.Count != 0)
+                {
+                    await _datasRepository.DeleteAllAsync();
+                    await _datasRepository.AddRangeAsync(cryptos.ToArray());
+                }
             }
 
             datas = await _datasRepository.GetByNamesAsync(cryptocurrencies);

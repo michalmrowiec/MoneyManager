@@ -11,7 +11,7 @@
 
 <button class="btn btn-secondary" @onclick="@(() => {_caFormIsOpen = true; StateHasChanged(); })">Add</button>
 
-@if(_caFormIsOpen)
+@if (_caFormIsOpen)
 {
     <CryptoAssetFormDialog OnClose="@(x => _caFormIsOpen = false)"></CryptoAssetFormDialog>
 }
@@ -57,7 +57,7 @@ else
                     {
 
                         <tr>
-                            <td class="align-middle">@item.CryptocurrencySymbol</td>
+                            <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
                             <td class="align-middle">@item.CryptocurrencyName</td>
                             <td class="align-middle text-end">@item.Amount.ToString("0.########")</td>
                             <td class="align-middle text-end">@item.ActualPrice.ToString("0.########")</td>
@@ -99,6 +99,15 @@ else
     private List<CryptoAssetVM> _listOfCrytpos = new();
     private List<CryptoAssetVM> _listOfCrytposTemp = new();
     private bool _caFormIsOpen = false;
+    public static event Func<Task>? _refresh;
+    public static async void Refresh()
+    {
+        if (_refresh == null)
+            return;
+
+        var tasks = _refresh.GetInvocationList().Select(handler => ((Func<Task>)handler).Invoke()).ToList();
+        await Task.WhenAll(tasks);
+    }
 
     private async Task GetCryptos()
     {
@@ -135,5 +144,7 @@ else
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.CrytpoAssets;
 
         await GetCryptos();
+
+        _refresh += GetCryptos;
     }
 }

@@ -1,5 +1,6 @@
 ﻿@using MoneyManager.Application.Functions.CryptoAssets.Queries;
 @using MoneyManager.Client.Models.ViewModels;
+@using MoneyManager.Client.Pages;
 @using MoneyManager.Client.Services;
 @using Newtonsoft.Json;
 @inject ErrorMessage errorMessage
@@ -15,9 +16,9 @@
             <div class="modal-body">
                 <EditForm Model="@_cryptoAsset" OnValidSubmit="HandleSubmit">
 
-                    @*<div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="flex-fill me-2">
-                            @if (false)
+                            @if (_symbolsAndNames.Count == 0)
                             {
                                 <div class="d-flex align-items-center">
                                     <strong>Loading...</strong>
@@ -27,32 +28,15 @@
                             else
                             {
                                 <label for="exampleDataList" class="form-label">Datalist example</label>
-                                <input autocomplete="on" class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type to search...">
-                                <datalist id="datalistOptions">
-                                    @foreach (var item in _tempSymbols)
+                                <input autocomplete="on" class="form-control" list="symbolsAndNames" id="exampleDataList" placeholder="Type to search..." @bind-value="_cryptoAsset.Name">
+                                <datalist id="symbolsAndNames">
+                                    @foreach (var s in _symbolsAndNames)
                                     {
-                                        <option value="@item"/>
+                                        <option value="@s.Value">@($"{s.Key} {s.Value}")</option>
                                     }
                                 </datalist>
-
-                                <InputSelect class="form-select" @bind-Value="_cryptoAsset.CryptocurrencySymbol">
-                                    @foreach (var item in _tempSymbols)
-                                    {
-                                        <option value="@item">@item</option>
-                                    }
-                                </InputSelect>
                             }
                         </div>
-                    </div>*@
-
-                    <div class="form-floating mb-2">
-                        <InputText id="name" class="form-control" @bind-Value="_cryptoAsset.Symbol" />
-                        <label for="floatingInput">Symbol</label>
-                    </div>
-
-                    <div class="form-floating mb-2">
-                        <InputText id="name" class="form-control" @bind-Value="_cryptoAsset.Name" />
-                        <label for="floatingInput">Name</label>
                     </div>
 
                     <div class="form-floating mb-2">
@@ -78,7 +62,7 @@
 
 @code {
     private CreateCryptoAsset _cryptoAsset = new();
-
+    private Dictionary<string, string> _symbolsAndNames = new();
     //[Parameter]
     //public EventCallback<CryptoAssetVM> CryptoAsset { get; set; } = new();
 
@@ -89,13 +73,35 @@
 
     private async Task HandleSubmit()
     {
+        _cryptoAsset.Symbol = _symbolsAndNames.First(x => x.Value == _cryptoAsset.Name).Key;
         var responseMessage = await _httpTracker.CreateItem(_cryptoAsset, "/api/crypto-assets");
         if (responseMessage == null) return;
-        if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Created)
         {
+            Cryptocurrencies.Refresh();
             await OnClose.InvokeAsync();
         }
         else
             errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+    }
+
+    private async Task GetSymbolsAndNames()
+    {
+        var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets/symbols-and-names");
+        if (responseMessage == null) return;
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            var a = await responseMessage.Content.ReadAsStringAsync();
+            _symbolsAndNames = JsonConvert.DeserializeObject<Dictionary<string, string>>(a) ?? new();
+        }
+        else
+            errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSymbolsAndNames();
     }
 }
