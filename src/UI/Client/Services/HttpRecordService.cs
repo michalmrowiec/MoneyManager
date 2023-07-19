@@ -36,6 +36,7 @@ namespace MoneyManager.Client.Services
             }
         }
 
+        // TODO UriBuilder => query params (if the uri doesn't contain last slash, the url will be invalid) 
         public async Task<HttpResponseMessage> DeleteItem(int id, string uri)
         {
             using (var request = new HttpRequestMessage(HttpMethod.Delete, uri + id))

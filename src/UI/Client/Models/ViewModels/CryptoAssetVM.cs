@@ -1,6 +1,8 @@
-﻿namespace MoneyManager.Application.Functions.CryptoAssets.Queries
+﻿using MoneyManager.Client.Models.ViewModels.Interfaces;
+
+namespace MoneyManager.Application.Functions.CryptoAssets.Queries
 {
-    public class CryptoAssetVM
+    public class CryptoAssetVM : IId
     {
         public int Id { get; set; }
         public string CryptocurrencySymbol { get; set; }
