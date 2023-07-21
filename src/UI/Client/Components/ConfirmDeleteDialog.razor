@@ -1,5 +1,9 @@
-﻿<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
-    <div class="modal-dialog">
+﻿@using MoneyManager.Client.Services;
+@inject IHttpRecordService _httpRecordService
+@inject ErrorMessage _errorMessage
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">@Title</h4>
@@ -36,19 +40,50 @@
     public string? Text { get; set; }
 
     [Parameter]
-    public EventCallback<bool> OnClose { get; set; }
+    public string? UriDelete { get; set; }
+
+    [Parameter]
+    public int? IdRecordToDelete { get; set; }
+
+    public async Task Delete()
+    {
+        if (UriDelete == null || IdRecordToDelete == null)
+            return;
+        try
+        {
+            var response = await _httpRecordService.DeleteItem((int)IdRecordToDelete, UriDelete);
+            if (response == null) return;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                _errorMessage.Message = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage.Message = ex.Message;
+        }
+    }
+
+    //[Parameter]
+    //public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public List<EventCallback>? EventCallbacks { get; set; }
+
+    private void ExecuteAll() => EventCallbacks?.ForEach(async x => await x.InvokeAsync());
 
     [Parameter]
     public ModalDialogType DialogType { get; set; }
 
-    private Task ModalCancel()
+    private void ModalCancel()
     {
-        return OnClose.InvokeAsync(false);
+        ExecuteAll();
+        //return OnClose.InvokeAsync(false);
     }
 
-    private Task ModalOk()
+    private async Task ModalOk()
     {
-        return OnClose.InvokeAsync(true);
+        await Delete();
+        ExecuteAll();
+        //return OnClose.InvokeAsync(true);
     }
 
     public enum ModalDialogType

@@ -11,7 +11,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">PLACE</h4>
-                <button type="button" class="btn-close" @onclick="@(x => OnClose.InvokeAsync())"></button>
+                <button type="button" class="btn-close" @onclick="@(x => ExecuteAll())"></button>
             </div>
             <div class="modal-body">
                 <EditForm Model="@_cryptoAsset" OnValidSubmit="HandleSubmit">
@@ -63,13 +63,14 @@
 @code {
     private CreateCryptoAsset _cryptoAsset = new();
     private Dictionary<string, string> _symbolsAndNames = new();
+
     //[Parameter]
-    //public EventCallback<CryptoAssetVM> CryptoAsset { get; set; } = new();
+    //public EventCallback<bool> OnClose { get; set; }
 
     [Parameter]
-    public EventCallback<bool> OnClose { get; set; }
+    public List<EventCallback>? EventCallbacks { get; set; }
 
-    private string[] _tempSymbols = { "BTC", "ETH" };
+    private void ExecuteAll() =>  EventCallbacks?.ForEach(async x => await x.InvokeAsync());
 
     private async Task HandleSubmit()
     {
@@ -78,8 +79,9 @@
         if (responseMessage == null) return;
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.Created)
         {
-            Cryptocurrencies.Refresh();
-            await OnClose.InvokeAsync();
+            ExecuteAll();
+
+            //await OnClose.InvokeAsync();
         }
         else
             errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();

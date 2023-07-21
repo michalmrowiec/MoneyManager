@@ -96,7 +96,7 @@ else
                                 <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenAddEditForm(item))">Edit</button>
                             </td>
                             <td class="align-middle" width="5%">
-                                <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                                <button class="btn-close" @onclick="@(x => { _plannedBudgetToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })"></button>
                             </td>
                         </tr>
                     }
@@ -152,7 +152,7 @@ else
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
                                     <DropdownMenu>
                                         <DropdownItem @onclick="@(x => OpenAddEditForm(item))">Edit</DropdownItem>
-                                        <DropdownItem @onclick="@(x => OpenDeleteDialog(item))">Delete</DropdownItem>
+                                        <DropdownItem @onclick="@(x => { _plannedBudgetToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })">Delete</DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
                             </td>
@@ -177,9 +177,15 @@ else
         <PlannedBudgetDialog Title="Edit Planned Budget" TypeOfDialog="TypeOfFormlDialog.EditRecord" PlannedBudgetToFill="_plannedBudgetToEdit" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
     }
 
-    if (AddEditFormOpen && _plannedBudgetToDelete is not null && _plannedBudgetToEdit is null)
+    if (_deleteDialogOpen)
     {
-        <ConfirmDeleteDialog Title="Are you sure?" Text=@($"Do you want to delete planned budget for the category: {_plannedBudgetToDelete.Name} for {_plannedBudgetToDelete.TransactionDate.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"))}?") DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" OnClose="CloseDialog"></ConfirmDeleteDialog>
+        <ConfirmDeleteDialog
+            UriDelete="/api/plannedbudget/"
+            IdRecordToDelete="_plannedBudgetToDelete?.Id"
+            EventCallbacks="OnCloseDeleteDialog"
+            Title="Are you sure?"
+            Text=@($"Do you want to delete planned budget for the category: {_plannedBudgetToDelete.Name} for {_plannedBudgetToDelete.TransactionDate.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"))}?")
+            DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"></ConfirmDeleteDialog>
     }
 }
 
@@ -208,26 +214,10 @@ else
     private PlannedBudgetVM? _plannedBudgetToEdit;
     private PlannedBudgetVM? _plannedBudgetToDelete;
 
+    private bool _deleteDialogOpen = false;
+    private List<EventCallback>? OnCloseDeleteDialog { get; set; }
+
     private bool AddEditFormOpen { get; set; }
-
-    private void ReturnedPlannedBudget(PlannedBudgetVM plannedBudgetVM)
-    {
-        _recordFromDialog = plannedBudgetVM;
-    }
-
-    private void OpenDeleteDialog(PlannedBudgetVM plannedBudget)
-    {
-        _plannedBudgetToDelete = plannedBudget;
-        AddEditFormOpen = true;
-        StateHasChanged();
-    }
-
-    private void OpenAddEditForm(PlannedBudgetVM? plannedBudget = null)
-    {
-        _plannedBudgetToEdit = plannedBudget;
-        AddEditFormOpen = true;
-        StateHasChanged();
-    }
 
     private async Task CloseDialog(bool editConfirmed)
     {
@@ -239,15 +229,24 @@ else
         if (editConfirmed && _recordFromDialog is not null && _plannedBudgetToEdit is not null)
             await EditPlannedBudget();
 
-        if (editConfirmed && _recordFromDialog is null && _plannedBudgetToDelete is not null)
-            await DeletePlannedBudget();
-
         await GetListOfYearsWithMonths();
 
         _recordFromDialog = null;
         _plannedBudgetToEdit = null;
         _plannedBudgetToDelete = null;
 
+        StateHasChanged();
+    }
+
+    private void ReturnedPlannedBudget(PlannedBudgetVM plannedBudgetVM)
+    {
+        _recordFromDialog = plannedBudgetVM;
+    }
+
+    private void OpenAddEditForm(PlannedBudgetVM? plannedBudget = null)
+    {
+        _plannedBudgetToEdit = plannedBudget;
+        AddEditFormOpen = true;
         StateHasChanged();
     }
 
@@ -292,23 +291,6 @@ else
             var responseMessage = await _httpService.UpdateItem(plannedBudgetDto, "/api/plannedbudget/");
 
             if (responseMessage.StatusCode != System.Net.HttpStatusCode.OK)
-                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage.Message = ex.Message;
-        }
-    }
-
-    private async Task DeletePlannedBudget()
-    {
-        if (_plannedBudgetToDelete == null) return;
-
-        try
-        {
-            var responseMessage = await _httpService.DeleteItem(_plannedBudgetToDelete.Id, "/api/plannedbudget/");
-
-            if (responseMessage.StatusCode != System.Net.HttpStatusCode.NoContent)
                 errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
@@ -470,5 +452,12 @@ else
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.PlannedBudgets;
         errorMessage.Message = null;
         await GetListOfYearsWithMonths();
+
+        OnCloseDeleteDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, GetListOfYearsWithMonths),
+            EventCallback.Factory.Create(this,  x => _deleteDialogOpen = false),
+            EventCallback.Factory.Create(this,  x => _plannedBudgetToDelete = null)
+        };
     }
 }
