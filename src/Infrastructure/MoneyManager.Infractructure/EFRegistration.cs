@@ -51,7 +51,7 @@ namespace MoneyManager.Infractructure
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
             services.AddDbContext<MoneyManagerContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("TrackerDbConnectionPc"))
+                options.UseSqlServer(configuration.GetConnectionString("TrackerDbWebio_dev"))
                 );
 
             services.AddScoped(typeof(IItemAsyncRepositoryBase<>), typeof(ItemRepositoryBase<>));

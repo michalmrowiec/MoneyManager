@@ -3,17 +3,18 @@
 @using MoneyManager.Client.Components
 @using MoneyManager.Client.Services;
 @using Newtonsoft.Json;
+@using static MoneyManager.Client.Components.CryptoAssetFormDialog;
 @inject NameOfSubpage nameOfSubpage
 @inject IHttpRecordService _httpTracker
 @inject ErrorMessage errorMessage
 
 <PageTitle>Crytpo Assets</PageTitle>
 
-<button class="btn btn-secondary" @onclick="@(() => {_caFormIsOpen = true; StateHasChanged(); })">Add</button>
+<button class="btn btn-secondary" @onclick="@(() => { _typeOfDialogCa = TypeOfCryptoDialog.Create; _caFormIsOpen = true; StateHasChanged(); })">Add</button>
 
 @if (_caFormIsOpen)
 {
-    <CryptoAssetFormDialog EventCallbacks="OnCloseCaDialog"></CryptoAssetFormDialog>
+    <CryptoAssetFormDialog DialogType="_typeOfDialogCa" CryptoAssetToUpdate="_recordToUpdate" EventCallbacks="OnCloseCaDialog"></CryptoAssetFormDialog>
 }
 
 @if (_getTableLoading)
@@ -35,8 +36,9 @@ else
                 <tr class="d-none d-md-table-row">
                     <th width="5%">Symbol</th>
                     <th width="10%">Name</th>
-                    <th width="15%" class="text-end">Amount</th>
-                    <th width="20%" class="text-end">Actual price</th>
+                    <th width="15%">Description</th>
+                    <th width="10%" class="text-end">Amount</th>
+                    <th width="10%" class="text-end">Actual price</th>
                     <th width="10%" class="text-end">Change 24h</th>
                     <th width="20%" class="text-end pe-5">Value</th>
                     <th width="5%"></th>
@@ -59,12 +61,13 @@ else
                         <tr>
                             <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
                             <td class="align-middle">@item.CryptocurrencyName</td>
+                            <td class="align-middle">@item.Description</td>
                             <td class="align-middle text-end">@item.Amount.ToString("0.########")</td>
                             <td class="align-middle text-end">@item.ActualPrice.ToString("0.########")</td>
                             <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
                             <td class="align-middle text-end pe-5">@((item.Amount * item.ActualPrice).ToString("0.########"))</td>
                             <td class="align-middle d-none d-md-table-cell">
-                                <button class="btn btn-outline-secondary btn-sm align-middle">Edit</button>
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</button>
                             </td>
                             <td class="align-middle d-none d-md-table-cell" width="5%">
                                 <button class="btn-close" @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })"></button>
@@ -112,6 +115,8 @@ else
     private bool _caFormIsOpen = false;
     private bool _delFormIsOpen = false;
     private CryptoAssetVM? _recordToDelete;
+    private CryptoAssetVM? _recordToUpdate;
+    private TypeOfCryptoDialog _typeOfDialogCa;
 
     private async Task GetCryptos()
     {
@@ -155,7 +160,8 @@ else
         OnCloseCaDialog = new List<EventCallback>
         {
             EventCallback.Factory.Create(this, GetCryptos),
-            EventCallback.Factory.Create(this,  x => _caFormIsOpen = false)
+            EventCallback.Factory.Create(this,  x => _caFormIsOpen = false),
+            EventCallback.Factory.Create(this,  x => _recordToUpdate = null)
         };
 
         OnCloseDelDialog = new List<EventCallback>
