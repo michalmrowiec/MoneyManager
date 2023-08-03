@@ -62,10 +62,10 @@ else
                             <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
                             <td class="align-middle">@item.CryptocurrencyName</td>
                             <td class="align-middle">@item.Description</td>
-                            <td class="align-middle text-end">@item.Amount.ToString("0.########")</td>
-                            <td class="align-middle text-end">@item.ActualPrice.ToString("0.########")</td>
+                            <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
+                            <td class="align-middle text-end">@item.ActualPrice.ToString("0.##########")</td>
                             <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
-                            <td class="align-middle text-end pe-5">@((item.Amount * item.ActualPrice).ToString("0.########"))</td>
+                            <td class="align-middle text-end pe-5">@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
                             <td class="align-middle d-none d-md-table-cell">
                                 <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</button>
                             </td>

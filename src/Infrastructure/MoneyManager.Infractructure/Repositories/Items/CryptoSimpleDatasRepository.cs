@@ -29,7 +29,7 @@ namespace MoneyManager.Infractructure.Repositories.Items
 
         public async Task DeleteAllAsync()
         {
-            _dbContext.CryptoSimpleDatas.RemoveRange(_dbContext.CryptoSimpleDatas.ToArray()); ;
+            _dbContext.CryptoSimpleDatas.RemoveRange(_dbContext.CryptoSimpleDatas.ToArray());
         }
 
         public async Task DeleteAsync(CryptocurrencySimpleData entity)

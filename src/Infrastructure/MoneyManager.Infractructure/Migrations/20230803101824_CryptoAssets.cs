@@ -18,7 +18,7 @@ namespace MoneyManager.Server.Migrations
                     Symbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Amount = table.Column<decimal>(type: "decimal(18,8)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(22,10)", precision: 22, scale: 10, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -40,7 +40,7 @@ namespace MoneyManager.Server.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Symbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,8)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(22,10)", precision: 22, scale: 10, nullable: false),
                     PricePercentChange24h = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PricePercentChange7d = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MarketCap = table.Column<decimal>(type: "decimal(18,2)", nullable: false),

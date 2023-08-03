@@ -22,7 +22,7 @@ namespace MoneyManager.Infractructure
         {
             modelBuilder.Entity<CryptocurrencySimpleData>()
                 .Property(p => p.Price)
-                .HasColumnType("decimal(18,8)");
+                .HasPrecision(22, 10);
 
             modelBuilder.Entity<CryptoAsset>(eb =>
             {
@@ -31,7 +31,7 @@ namespace MoneyManager.Infractructure
                 .HasForeignKey(c => c.UserId);
 
                 eb.Property(p => p.Amount)
-                .HasColumnType("decimal(18,8)");
+                .HasPrecision(22, 10);
             });
 
             modelBuilder.Entity<Category>()

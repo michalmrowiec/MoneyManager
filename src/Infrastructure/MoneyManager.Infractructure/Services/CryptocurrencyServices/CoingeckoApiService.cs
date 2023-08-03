@@ -1,5 +1,6 @@
 ﻿using MoneyManager.Domain.Entities.CryptoAssets;
 using Newtonsoft.Json;
+using System.Globalization;
 using System.Net;
 
 namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
@@ -31,7 +32,12 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
             foreach (var c in cryptocurrencies)
             {
                 decimal price, mc, pcp24h, pcp7d;
-                _ = decimal.TryParse(c?.current_price.ToString() ?? 0M, out price);
+
+                string priceText = c?.current_price.ToString(CultureInfo.GetCultureInfo("en-US")).ToLower() ?? "0";
+                if (priceText.Contains('e'))
+                    _ = decimal.TryParse(priceText, NumberStyles.Float | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out price);
+                else
+                    _ = decimal.TryParse(c?.current_price.ToString() ?? 0M, out price);
                 _ = decimal.TryParse(c?.market_cap.ToString() ?? 0M, out mc);
                 _ = decimal.TryParse(c?.price_change_percentage_24h_in_currency.ToString() ?? 0M, out pcp24h);
                 _ = decimal.TryParse(c?.price_change_percentage_7d_in_currency.ToString() ?? 0M, out pcp7d);

@@ -12,7 +12,7 @@ using MoneyManager.Infractructure;
 namespace MoneyManager.Server.Migrations
 {
     [DbContext(typeof(MoneyManagerContext))]
-    [Migration("20230715125923_CryptoAssets")]
+    [Migration("20230803101824_CryptoAssets")]
     partial class CryptoAssets
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,7 +85,8 @@ namespace MoneyManager.Server.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(22, 10)
+                        .HasColumnType("decimal(22,10)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -121,7 +122,8 @@ namespace MoneyManager.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(22, 10)
+                        .HasColumnType("decimal(22,10)");
 
                     b.Property<decimal>("PricePercentChange24h")
                         .HasColumnType("decimal(18,2)");
