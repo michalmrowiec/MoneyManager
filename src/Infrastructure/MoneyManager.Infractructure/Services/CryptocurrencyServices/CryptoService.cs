@@ -2,7 +2,6 @@
 using MoneyManager.Application.Contracts.Services;
 using MoneyManager.Application.Functions.CryptoAssets.Queries;
 using MoneyManager.Domain.Entities.CryptoAssets;
-using System.Net;
 
 namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
 {
