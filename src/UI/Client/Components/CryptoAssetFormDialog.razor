@@ -11,7 +11,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">PLACE</h4>
+                <h4 class="modal-title">@_modalTitle</h4>
                 <button type="button" class="btn-close" @onclick="@(x => ExecuteAll())"></button>
             </div>
             <div class="modal-body">
@@ -71,6 +71,7 @@
 @code {
     private CreateCryptoAsset _cryptoAsset = new();
     private Dictionary<string, string> _symbolsAndNames = new();
+    private string _modalTitle = "";
 
     [Parameter]
     public TypeOfCryptoDialog DialogType { get; set; }
@@ -136,6 +137,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GetSymbolsAndNames();
+        _modalTitle = DialogType == TypeOfCryptoDialog.Create ? "Add new crypto asset" : "Update crypto asset";
     }
 
     public enum TypeOfCryptoDialog

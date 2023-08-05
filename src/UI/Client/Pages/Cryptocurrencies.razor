@@ -10,7 +10,16 @@
 
 <PageTitle>Crytpo Assets</PageTitle>
 
-<button class="btn btn-secondary" @onclick="@(() => { _typeOfDialogCa = TypeOfCryptoDialog.Create; _caFormIsOpen = true; StateHasChanged(); })">Add</button>
+<div class="d-flex justify-content-between px-2">
+    <div class="d-flex align-items-center">
+        <button class="btn btn-secondary" @onclick="@(() => { _typeOfDialogCa = TypeOfCryptoDialog.Create; _caFormIsOpen = true; StateHasChanged(); })">Add</button>
+    </div>
+
+    <div>
+        <img alt="CoinGecko logo" src="coingecko.svg" />
+        <p>Powered by <a href="https://www.coingecko.com/">CoinGecko</a></p>
+    </div>
+</div>
 
 @if (_caFormIsOpen)
 {
@@ -37,18 +46,18 @@ else
                     <th width="5%">Symbol</th>
                     <th width="10%">Name</th>
                     <th width="15%">Description</th>
-                    <th width="10%" class="text-end">Amount</th>
                     <th width="10%" class="text-end">Actual price</th>
                     <th width="10%" class="text-end">Change 24h</th>
+                    <th width="10%" class="text-end">Amount</th>
                     <th width="20%" class="text-end pe-5">Value</th>
                     <th width="5%"></th>
                     <th width="5%"></th>
                 </tr>
                 <tr class="d-md-none">
-                    <th width="51%">Name</th>
-                    <th width="30%">Category</th>
-                    <th width="7%">Amount</th>
-                    <th width="8%">Date</th>
+                    <th width="5%">Sym</th>
+                    <th width="35%" class="text-end">Actual price</th>
+                    <th width="26%" class="text-end">Amount</th>
+                    <th width="30%" class="text-end">Value</th>
                     <th width="4%"></th>
                 </tr>
             </thead>
@@ -58,26 +67,32 @@ else
                     @foreach (var item in _listOfCrytpos.ToList())
                     {
 
-                        <tr>
+                        <tr class="d-none d-md-table-row">
                             <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
                             <td class="align-middle">@item.CryptocurrencyName</td>
                             <td class="align-middle">@item.Description</td>
-                            <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
-                            <td class="align-middle text-end">@item.ActualPrice.ToString("0.##########")</td>
+                            <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
                             <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
-                            <td class="align-middle text-end pe-5">@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
-                            <td class="align-middle d-none d-md-table-cell">
+                            <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
+                            <td class="align-middle text-end pe-5">$@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
+                            <td class="align-middle">
                                 <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</button>
                             </td>
-                            <td class="align-middle d-none d-md-table-cell" width="5%">
+                            <td class="align-middle" width="5%">
                                 <button class="btn-close" @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })"></button>
                             </td>
+                        </tr>
+                        <tr class="align-middle d-md-none">
+                            <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
+                            <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
+                            <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
+                            <td class="align-middle text-end">$@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
                             <td class="align-middle d-md-none">
                                 <Dropdown>
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
                                     <DropdownMenu>
-                                        <DropdownItem>Edit</DropdownItem>
-                                        <DropdownItem>Delete</DropdownItem>
+                                        <DropdownItem @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</DropdownItem>
+                                        <DropdownItem @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })">Delete</DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
                             </td>
@@ -86,10 +101,18 @@ else
                 }
             </tbody>
             <tfoot>
-                <tr>
-                    <td>Total summary:</td>
+                <tr class="d-none d-md-table-row">
+                    <td class="align-middle" colspan="2">Total summary:</td>
                     <td></td>
-                    <td>Placeholder</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="align-middle text-end pe-5">$@Math.Round(_listOfCrytpos?.Sum(x => x.Amount * x.ActualPrice) ?? 0, 2)</td>
+                </tr>
+                <tr class="d-md-none">
+                    <td class="align-middle" colspan="2">Total summary:</td>
+                    <td></td>
+                    <td class="align-middle text-end">$@Math.Round(_listOfCrytpos?.Sum(x => x.Amount * x.ActualPrice) ?? 0, 2)</td>
                 </tr>
             </tfoot>
         </table>
@@ -98,13 +121,12 @@ else
 
 @if (_delFormIsOpen)
 {
-    <ConfirmDeleteDialog
-        DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
-        EventCallbacks="OnCloseDelDialog"
-        IdRecordToDelete="_recordToDelete?.Id"
-        UriDelete="/api/crypto-assets/"
-        Title="Are you sure?"
-        Text=@($"Do you want delete this: {_recordToDelete?.CryptocurrencyName}?")>
+    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+                     EventCallbacks="OnCloseDelDialog"
+                     IdRecordToDelete="_recordToDelete?.Id"
+                     UriDelete="/api/crypto-assets/"
+                     Title="Are you sure?"
+                     Text=@($"Do you want delete this: {_recordToDelete?.CryptocurrencyName}?")>
     </ConfirmDeleteDialog>
 }
 
