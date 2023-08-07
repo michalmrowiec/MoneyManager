@@ -30,11 +30,11 @@
 }
 else if (_listOfCrytpos.Count is 0 && _listOfCrytposTemp.Count is 0)
 {
-    <p>The table is empty, you can add a new record <a href="/addrecord">here</a></p>
+    <p>The table is empty, you can add a new record with the <b>ADD</b> button.</p>
 }
 else
 {
-    <div class="">
+    <div class="table-responsive">
         <table class="table table-sm table-striped">
             <thead>
                 <tr class="d-none d-md-table-row">
@@ -49,8 +49,8 @@ else
                     <th width="5%"></th>
                 </tr>
                 <tr class="d-md-none">
-                    <th width="5%">Sym</th>
-                    <th width="35%" class="text-end">Actual price</th>
+                    <th width="5%">Coin</th>
+                    <th width="35%" class="text-end">Price</th>
                     <th width="26%" class="text-end">Amount</th>
                     <th width="30%" class="text-end">Value</th>
                     <th width="4%"></th>
@@ -114,9 +114,9 @@ else
     </div>
 }
 
-<Row>
-    <Column ColumnSize="ColumnSize.Is4.OnWidescreen.Is4.WithOffset">
-        <Card Margin="Margin.Is4.OnY">
+<Row Width="Width.Max100" Margin="Margin.Is0.OnMobile.Is3.OnY">
+    <Column ColumnSize="ColumnSize.IsThird.OnWidescreen.IsThird.WithOffset.OnWidescreen.Is10.OnTablet.Is1.WithOffset.OnTablet">
+        <Card>
             <CardHeader>
                 <CardTitle TextAlignment="TextAlignment.Center">Pie chart</CardTitle>
             </CardHeader>
@@ -235,6 +235,8 @@ else
 
         _getTableLoading = false;
 
+        await HandleRedraw();
+
         StateHasChanged();
     }
 
@@ -246,12 +248,12 @@ else
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.CrytpoAssets;
 
         await GetCryptos();
-
-        await HandleRedraw();
+        //await HandleRedraw();
 
         OnCloseCaDialog = new List<EventCallback>
         {
             EventCallback.Factory.Create(this, GetCryptos),
+            //EventCallback.Factory.Create(this, HandleRedraw),
             EventCallback.Factory.Create(this,  x => _caFormIsOpen = false),
             EventCallback.Factory.Create(this,  x => _recordToUpdate = null)
         };
@@ -259,6 +261,7 @@ else
         OnCloseDelDialog = new List<EventCallback>
         {
             EventCallback.Factory.Create(this, GetCryptos),
+            //EventCallback.Factory.Create(this, HandleRedraw),
             EventCallback.Factory.Create(this,  x => _delFormIsOpen = false),
             EventCallback.Factory.Create(this,  x => _recordToDelete = null)
         };
