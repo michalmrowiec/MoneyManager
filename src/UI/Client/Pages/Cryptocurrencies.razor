@@ -17,14 +17,9 @@
 
     <div>
         <img alt="CoinGecko logo" src="coingecko.svg" />
-        <p>Powered by <a href="https://www.coingecko.com/">CoinGecko</a></p>
+        <p>Powered by <a target="_blank" href="https://www.coingecko.com/">CoinGecko</a></p>
     </div>
 </div>
-
-@if (_caFormIsOpen)
-{
-    <CryptoAssetFormDialog DialogType="_typeOfDialogCa" CryptoAssetToUpdate="_recordToUpdate" EventCallbacks="OnCloseCaDialog"></CryptoAssetFormDialog>
-}
 
 @if (_getTableLoading)
 {
@@ -119,9 +114,32 @@ else
     </div>
 }
 
+<Row>
+    <Column ColumnSize="ColumnSize.Is4.OnWidescreen.Is4.WithOffset">
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle TextAlignment="TextAlignment.Center">Pie chart</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Chart @ref="barChart" Type="ChartType.Pie" TItem="decimal" Clicked="@OnClicked" />
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+@if (_caFormIsOpen)
+{
+    <CryptoAssetFormDialog
+        DialogType="_typeOfDialogCa"
+        CryptoAssetToUpdate="_recordToUpdate"
+        EventCallbacks="OnCloseCaDialog">
+    </CryptoAssetFormDialog>
+}
+
 @if (_delFormIsOpen)
 {
-    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+    <ConfirmDeleteDialog
+        DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
                      EventCallbacks="OnCloseDelDialog"
                      IdRecordToDelete="_recordToDelete?.Id"
                      UriDelete="/api/crypto-assets/"
@@ -140,10 +158,60 @@ else
     private CryptoAssetVM? _recordToUpdate;
     private TypeOfCryptoDialog _typeOfDialogCa;
 
+    Chart<decimal> barChart = new();
+    List<decimal> data = new();
+    PieChartDataset<decimal> dataset;
+    string[] chartXAxisLabels;
+    List<string> backgroundColors = new();// = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
+    List<string> borderColors = new();// = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+
+    async Task HandleRedraw()
+    {
+        //data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+        data = _listOfCrytpos.Select(x => x.Amount * x.ActualPrice).ToList();
+
+        for (int i = 0; i < data.Count; i++)
+        {
+            var r = new Random();
+            var color = ChartColor.FromRgba((byte)r.Next(0, 255), (byte)r.Next(0, 255), (byte)r.Next(0, 255), 0.2f);
+            backgroundColors.Add(color);
+            borderColors.Add(color);
+        }
+
+        dataset = GetBarChartDatasetGenerator($"Cryptos", data, backgroundColors, borderColors);
+
+        await barChart.Clear();
+
+        chartXAxisLabels = _listOfCrytpos.Select(x => x.CryptocurrencySymbol).ToArray();
+        await barChart.AddLabelsDatasetsAndUpdate(chartXAxisLabels, dataset);
+
+        StateHasChanged();
+    }
+
+    private PieChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
+    {
+        return new()
+            {
+                Label = label,
+                Data = data,
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
+                BorderWidth = 1
+            };
+    }
+
+    Task OnClicked(ChartMouseEventArgs e)
+    {
+        var model = e.Model as PieChartModel;
+
+        Console.WriteLine($"Handling event for {nameof(PieChartModel)}: x:{model.X} y:{model.Y}");
+        return Task.CompletedTask;
+    }
+    //================
+
     private async Task GetCryptos()
     {
-        //https://localhost:7153/api/crytpoasset
-
         try
         {
             var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets");
@@ -178,6 +246,8 @@ else
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.CrytpoAssets;
 
         await GetCryptos();
+
+        await HandleRedraw();
 
         OnCloseCaDialog = new List<EventCallback>
         {
