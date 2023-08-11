@@ -17,8 +17,9 @@
 
     <div>
         <img alt="CoinGecko logo" src="coingecko.svg" />
-        <p>Powered by <a target="_blank" href="https://www.coingecko.com/">CoinGecko</a></p>
+        <p class="pb-0">Powered by <a target="_blank" href="https://www.coingecko.com/">CoinGecko</a></p>
     </div>
+
 </div>
 
 @if (_getTableLoading)
@@ -34,6 +35,10 @@ else if (_listOfCrytpos.Count is 0 && _listOfCrytposTemp.Count is 0)
 }
 else
 {
+    <div class="d-flex justify-content-end">
+        <p style="font-size: small;" class="mb-0 px-2">Date of last price update: @_lastUpdateDate</p>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-sm table-striped">
             <thead>
@@ -63,7 +68,7 @@ else
                     {
 
                         <tr class="d-none d-md-table-row">
-                            <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
+                            <td class="align-middle">@item.CryptocurrencySymbol</td>
                             <td class="align-middle">@item.CryptocurrencyName</td>
                             <td class="align-middle">@item.Description</td>
                             <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
@@ -78,7 +83,7 @@ else
                             </td>
                         </tr>
                         <tr class="align-middle d-md-none">
-                            <td class="align-middle">@item.CryptocurrencySymbol.ToUpper()</td>
+                            <td class="align-middle">@item.CryptocurrencySymbol</td>
                             <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
                             <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
                             <td class="align-middle text-end">$@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
@@ -86,6 +91,7 @@ else
                                 <Dropdown>
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
                                     <DropdownMenu>
+                                        <DropdownItem @onclick="@(x => { _itemToPreview = item; _itemPreviewIsOpen = true; StateHasChanged(); })">Details</DropdownItem>
                                         <DropdownItem @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</DropdownItem>
                                         <DropdownItem @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })">Delete</DropdownItem>
                                     </DropdownMenu>
@@ -129,17 +135,15 @@ else
 
 @if (_caFormIsOpen)
 {
-    <CryptoAssetFormDialog
-        DialogType="_typeOfDialogCa"
-        CryptoAssetToUpdate="_recordToUpdate"
-        EventCallbacks="OnCloseCaDialog">
+    <CryptoAssetFormDialog DialogType="_typeOfDialogCa"
+                       CryptoAssetToUpdate="_recordToUpdate"
+                       EventCallbacks="OnCloseCaDialog">
     </CryptoAssetFormDialog>
 }
 
 @if (_delFormIsOpen)
 {
-    <ConfirmDeleteDialog
-        DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
                      EventCallbacks="OnCloseDelDialog"
                      IdRecordToDelete="_recordToDelete?.Id"
                      UriDelete="/api/crypto-assets/"
@@ -148,15 +152,28 @@ else
     </ConfirmDeleteDialog>
 }
 
+@if(_itemPreviewIsOpen)
+{
+    <ItemPreviewDialog
+        Title="Crypto record preview"
+        EventCallbacks="OnCloseItemPrievDialog"
+        ItemToPrievew="@_itemToPreview"
+        PropertiesToDisplay="@(new Dictionary<string, string> { {"CryptocurrencySymbol", "Symbol"}, {"CryptocurrencyName", "Name"}, {"ActualPrice", "Price"}, {"Amount", "Amount"}, {"PricePercentChange24h", "24h percent change"} })">
+    </ItemPreviewDialog>
+}
+
 @code {
     private bool _getTableLoading = true;
     private List<CryptoAssetVM> _listOfCrytpos = new();
     private List<CryptoAssetVM> _listOfCrytposTemp = new();
     private bool _caFormIsOpen = false;
     private bool _delFormIsOpen = false;
+    private bool _itemPreviewIsOpen = false;
     private CryptoAssetVM? _recordToDelete;
     private CryptoAssetVM? _recordToUpdate;
+    private object? _itemToPreview;
     private TypeOfCryptoDialog _typeOfDialogCa;
+    private string _lastUpdateDate = "No data";
 
     Chart<decimal> barChart = new();
     List<decimal> data = new();
@@ -231,9 +248,13 @@ else
 
         if (_listOfCrytpos == null) return;
 
+        _listOfCrytpos.ForEach(x => x.CryptocurrencySymbol = x.CryptocurrencySymbol.ToUpper());
+
         _listOfCrytposTemp = _listOfCrytpos;
 
         _getTableLoading = false;
+
+        _lastUpdateDate = $"{_listOfCrytpos.First().DataForDateTime.ToShortDateString()} {_listOfCrytpos.First().DataForDateTime.ToShortTimeString()}" ?? "No Data";
 
         await HandleRedraw();
 
@@ -242,6 +263,7 @@ else
 
     private List<EventCallback> OnCloseCaDialog { get; set; }
     private List<EventCallback> OnCloseDelDialog { get; set; }
+    private List<EventCallback> OnCloseItemPrievDialog { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -253,7 +275,6 @@ else
         OnCloseCaDialog = new List<EventCallback>
         {
             EventCallback.Factory.Create(this, GetCryptos),
-            //EventCallback.Factory.Create(this, HandleRedraw),
             EventCallback.Factory.Create(this,  x => _caFormIsOpen = false),
             EventCallback.Factory.Create(this,  x => _recordToUpdate = null)
         };
@@ -261,9 +282,14 @@ else
         OnCloseDelDialog = new List<EventCallback>
         {
             EventCallback.Factory.Create(this, GetCryptos),
-            //EventCallback.Factory.Create(this, HandleRedraw),
             EventCallback.Factory.Create(this,  x => _delFormIsOpen = false),
             EventCallback.Factory.Create(this,  x => _recordToDelete = null)
+        };
+
+        OnCloseItemPrievDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this,  x => _itemPreviewIsOpen = false),
+            EventCallback.Factory.Create(this,  x => _itemToPreview = null)
         };
     }
 }
