@@ -42,7 +42,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
                 _ = decimal.TryParse(c?.price_change_percentage_24h_in_currency.ToString() ?? 0M, out pcp24h);
                 _ = decimal.TryParse(c?.price_change_percentage_7d_in_currency.ToString() ?? 0M, out pcp7d);
 
-                DateTimeOffset updateDateOffset = DateTimeOffset.ParseExact(c?.last_updated.ToString("yyyy-MM-ddThh:mm:ss.fffZ"), "yyyy-MM-ddThh:mm:ss.fffZ", null);
+                DateTimeOffset updateDateOffset = DateTimeOffset.ParseExact(c?.last_updated.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), "yyyy-MM-ddTHH:mm:ss.fffZ", null);
                 var updateDate = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(updateDateOffset, "Central European Standard Time").DateTime;
 
                 cryptocurrencySimpleDatas.Add(new CryptocurrencySimpleData
