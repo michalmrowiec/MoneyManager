@@ -81,6 +81,11 @@
     [Parameter]
     public CryptoAssetVM? CryptoAssetToUpdate
     {
+        get
+        {
+            return new();
+        }
+
         set
         {
             if (value != null)

@@ -11,7 +11,7 @@
                 {
                     <div class="form-floating mb-2">
                         <input class="form-control" disabled="disabled" value="@item.Value">
-                        <label>@item.Key</label>
+                        <label>@item.DisplayName</label>
                     </div>
                 }
 
@@ -25,59 +25,61 @@
 
 @code {
     [Parameter]
-    public string Title { get; set; }
+    public string? Title { get; set; }
     [Parameter]
-    public object? ItemToPrievew { get; set; }
+    public List<object>? ItemsToPrievew { get; set; }
 
     [Parameter]
     public List<EventCallback>? EventCallbacks { get; set; }
 
     /// <summary>
-    /// Key is path to property
-    /// Value is display name this properties
+    /// Path is the path to the property or to a nested property. E.g.: "Record.RecordName" or "Record.Category.CategoryName"
+    /// DisplayName is the name under which the property value will be displayed in the preview dialog.
     /// </summary>
-    /// <param name="key">Path</param>
-    /// <param name="value">Display name</param>
     [Parameter]
-    public Dictionary<string, string>? PropertiesToDisplay { get; set; }
+    public List<(string Path, string DisplayName)>? PropertiesToDisplay { get; set; }
 
-    /// <summary>
-    /// Key is display name
-    /// Value is a value of preperty
-    /// </summary>
-    public Dictionary<string, string> _info = new();
+    public List<(string DisplayName, string Value)>? _info = new();
 
     protected override void OnInitialized()
     {
-        DefineOfFields();
+        if (ItemsToPrievew is null || PropertiesToDisplay is null) OnClose();
+
+        DefineFields();
+
         StateHasChanged();
     }
 
-    private void DefineOfFields()
+    private void DefineFields()
     {
         foreach (var prop in PropertiesToDisplay)
         {
-            var propertyPath = prop.Key.Split('.');
+            var propertyPath = prop.Path.Split('.');
             var value = GetNestedPropertyValue(propertyPath);
 
-            _info.Add(prop.Value, value.ToString() ?? " ");
+            _info?.Add((prop.DisplayName, value.ToString() ?? ""));
         }
     }
 
     private object GetNestedPropertyValue(string[] propertyPath)
     {
-        object obj = ItemToPrievew;
+        object res = "";
 
-        foreach (var propertyName in propertyPath)
+        foreach (var item in ItemsToPrievew)
         {
-            var currentProperty = obj.GetType().GetProperty(propertyName);
-            if (currentProperty == null) return null;
+            object obj = item;
 
-            obj = currentProperty.GetValue(obj);
-            if (obj == null) return null;
+            foreach (var propertyName in propertyPath)
+            {
+                var currentProperty = obj.GetType().GetProperty(propertyName);
+                if (currentProperty == null) continue;
+
+                res = currentProperty.GetValue(obj);
+                if (res != null) return res;
+            }
         }
 
-        return obj;
+        return res;
     }
 
     private void OnClose()

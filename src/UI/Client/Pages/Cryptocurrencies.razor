@@ -1,4 +1,5 @@
 ﻿@page "/cryptocurrencies"
+@using Blazorise.Charts.DataLabels;
 @using MoneyManager.Application.Functions.CryptoAssets.Queries;
 @using MoneyManager.Client.Components
 @using MoneyManager.Client.Services;
@@ -72,7 +73,18 @@ else
                             <td class="align-middle">@item.CryptocurrencyName</td>
                             <td class="align-middle">@item.Description</td>
                             <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
-                            <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
+                            @if (item.PricePercentChange24h > 0)
+                            {
+                                <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")% 📈</td>
+                            }
+                            else if (item.PricePercentChange24h < 0)
+                            {
+                                <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")% 📉</td>
+                            }
+                            else
+                            {
+                                <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
+                            }
                             <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
                             <td class="align-middle text-end pe-5">$@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
                             <td class="align-middle">
@@ -90,14 +102,14 @@ else
                             <td class="align-middle d-md-none">
                                 <Dropdown>
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
-                                    <DropdownMenu>
-                                        <DropdownItem @onclick="@(x => { _itemToPreview = item; _itemPreviewIsOpen = true; StateHasChanged(); })">Details</DropdownItem>
-                                        <DropdownItem @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</DropdownItem>
-                                        <DropdownItem @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })">Delete</DropdownItem>
-                                    </DropdownMenu>
-                                </Dropdown>
-                            </td>
-                        </tr>
+                                     <DropdownMenu>
+                                         <DropdownItem @onclick="@(x => { _itemToPreview.Add(item); _itemToPreview.Add(new {Value = (item.Amount * item.ActualPrice).ToString("0.##########")}); _itemPreviewIsOpen = true; StateHasChanged(); })">Details</DropdownItem>
+                                         <DropdownItem @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</DropdownItem>
+                                         <DropdownItem @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })">Delete</DropdownItem>
+                                     </DropdownMenu>
+                                 </Dropdown>
+                             </td>
+                         </tr>
                     }
                 }
             </tbody>
@@ -124,7 +136,7 @@ else
     <Column ColumnSize="ColumnSize.IsThird.OnWidescreen.IsThird.WithOffset.OnWidescreen.Is10.OnTablet.Is1.WithOffset.OnTablet">
         <Card>
             <CardHeader>
-                <CardTitle TextAlignment="TextAlignment.Center">Pie chart</CardTitle>
+                <CardTitle TextAlignment="TextAlignment.Center">Percentage share in the portfolio</CardTitle>
             </CardHeader>
             <CardBody>
                 <Chart @ref="barChart" Type="ChartType.Pie" TItem="decimal" Clicked="@OnClicked" />
@@ -136,29 +148,37 @@ else
 @if (_caFormIsOpen)
 {
     <CryptoAssetFormDialog DialogType="_typeOfDialogCa"
-                       CryptoAssetToUpdate="_recordToUpdate"
-                       EventCallbacks="OnCloseCaDialog">
+                           CryptoAssetToUpdate="_recordToUpdate"
+                           EventCallbacks="OnCloseCaDialog">
     </CryptoAssetFormDialog>
 }
 
 @if (_delFormIsOpen)
 {
     <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
-                     EventCallbacks="OnCloseDelDialog"
-                     IdRecordToDelete="_recordToDelete?.Id"
-                     UriDelete="/api/crypto-assets/"
-                     Title="Are you sure?"
-                     Text=@($"Do you want delete this: {_recordToDelete?.CryptocurrencyName}?")>
+                         EventCallbacks="OnCloseDelDialog"
+                         IdRecordToDelete="_recordToDelete?.Id"
+                         UriDelete="/api/crypto-assets/"
+                         Title="Are you sure?"
+                         Text=@($"Do you want delete this: {_recordToDelete?.CryptocurrencyName}?")>
     </ConfirmDeleteDialog>
 }
 
-@if(_itemPreviewIsOpen)
+@if (_itemPreviewIsOpen)
 {
-    <ItemPreviewDialog
-        Title="Crypto record preview"
-        EventCallbacks="OnCloseItemPrievDialog"
-        ItemToPrievew="@_itemToPreview"
-        PropertiesToDisplay="@(new Dictionary<string, string> { {"CryptocurrencySymbol", "Symbol"}, {"CryptocurrencyName", "Name"}, {"ActualPrice", "Price"}, {"Amount", "Amount"}, {"PricePercentChange24h", "24h percent change"} })">
+    <ItemPreviewDialog Title="Crypto record preview"
+                       EventCallbacks="OnCloseItemPrievDialog"
+                       ItemsToPrievew="@_itemToPreview"
+                       PropertiesToDisplay="@(
+                            new List<(string Path, string DisplayName)>
+                            {
+                                ("CryptocurrencySymbol", "Symbol"),
+                                ("CryptocurrencyName", "Name"),
+                                ("ActualPrice", "Price"),
+                                ("Amount", "Amount"),
+                                ("PricePercentChange24h", "24h percent change"),
+                                ("Value", "Value")
+                            })">
     </ItemPreviewDialog>
 }
 
@@ -171,7 +191,7 @@ else
     private bool _itemPreviewIsOpen = false;
     private CryptoAssetVM? _recordToDelete;
     private CryptoAssetVM? _recordToUpdate;
-    private object? _itemToPreview;
+    private List<object> _itemToPreview = new();
     private TypeOfCryptoDialog _typeOfDialogCa;
     private string _lastUpdateDate = "No data";
 
@@ -179,14 +199,12 @@ else
     List<decimal> data = new();
     PieChartDataset<decimal> dataset;
     string[] chartXAxisLabels;
-    List<string> backgroundColors = new();// = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
-    List<string> borderColors = new();// = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+    List<string> backgroundColors = new();
+    List<string> borderColors = new();
 
     async Task HandleRedraw()
     {
-        //data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-        data = _listOfCrytpos.Select(x => x.Amount * x.ActualPrice).ToList();
+        data = _listOfCrytpos.Select(x => Math.Round((x.Amount * x.ActualPrice) / _listOfCrytpos.Sum(x => x.Amount * x.ActualPrice) * 100.0M, 2)).ToList();
 
         for (int i = 0; i < data.Count; i++)
         {
@@ -214,7 +232,7 @@ else
                 Data = data,
                 BackgroundColor = backgroundColors,
                 BorderColor = borderColors,
-                BorderWidth = 1
+                BorderWidth = 1,
             };
     }
 
@@ -225,7 +243,6 @@ else
         Console.WriteLine($"Handling event for {nameof(PieChartModel)}: x:{model.X} y:{model.Y}");
         return Task.CompletedTask;
     }
-    //================
 
     private async Task GetCryptos()
     {
@@ -248,6 +265,7 @@ else
 
         if (_listOfCrytpos == null) return;
 
+        _listOfCrytpos = _listOfCrytpos.OrderByDescending(x => x.Amount * x.ActualPrice).ToList();
         _listOfCrytpos.ForEach(x => x.CryptocurrencySymbol = x.CryptocurrencySymbol.ToUpper());
 
         _listOfCrytposTemp = _listOfCrytpos;
@@ -261,9 +279,9 @@ else
         StateHasChanged();
     }
 
-    private List<EventCallback> OnCloseCaDialog { get; set; }
-    private List<EventCallback> OnCloseDelDialog { get; set; }
-    private List<EventCallback> OnCloseItemPrievDialog { get; set; }
+    private List<EventCallback>? OnCloseCaDialog { get; set; }
+    private List<EventCallback>? OnCloseDelDialog { get; set; }
+    private List<EventCallback>? OnCloseItemPrievDialog { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -289,7 +307,7 @@ else
         OnCloseItemPrievDialog = new List<EventCallback>
         {
             EventCallback.Factory.Create(this,  x => _itemPreviewIsOpen = false),
-            EventCallback.Factory.Create(this,  x => _itemToPreview = null)
+            EventCallback.Factory.Create(this,  x => _itemToPreview.Clear())
         };
     }
 }
