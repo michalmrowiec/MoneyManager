@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using MoneyManager.Application.Contracts.Persistence;
+using MoneyManager.Application.Contracts.Services;
 using MoneyManager.Domain.Authentication;
 using MoneyManager.Infractructure.Authentication;
 using System.IdentityModel.Tokens.Jwt;

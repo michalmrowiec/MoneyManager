@@ -1,0 +1,152 @@
+﻿@using MoneyManager.Application.Functions.CryptoAssets.Queries;
+@using MoneyManager.Client.Models.ViewModels;
+@using MoneyManager.Client.Pages;
+@using MoneyManager.Client.Services;
+@using Newtonsoft.Json;
+@using System.Net;
+@inject ErrorMessage errorMessage
+@inject IHttpRecordService _httpTracker
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@_modalTitle</h4>
+                <button type="button" class="btn-close" @onclick="@(x => ExecuteAll())"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@_cryptoAsset" class="disabled" OnValidSubmit="HandleSubmit">
+
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="flex-fill me-2">
+                            @if (_symbolsAndNames.Count == 0)
+                            {
+                                <div class="d-flex align-items-center">
+                                    <strong>Loading...</strong>
+                                    <div class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></div>
+                                </div>
+                            }
+                            else
+                            {
+                                <input autocomplete="on" class="form-control" list="symbolsAndNames" id="exampleDataList" placeholder="Type or select a cryptocurrency symbol..." @bind-value="_cryptoAsset.Name">
+                                <datalist id="symbolsAndNames">
+                                    @foreach (var s in _symbolsAndNames)
+                                    {
+                                        <option value="@s.Value">@($"{s.Key} {s.Value}")</option>
+                                    }
+                                </datalist>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-2">
+                        <InputTextArea id="name" class="form-control" style="height: 5%;" @bind-Value="_cryptoAsset.Description" />
+                        <ValidationMessage For="@(() => _cryptoAsset.Description)" />
+                        <label for="floatingInput">Description</label>
+                    </div>
+
+                    <div class="form-floating mb-2">
+                        <InputNumber id="amount" class="form-control" @bind-Value="_cryptoAsset.Amount"></InputNumber>
+                        <label for="floatingTextarea">Amount</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        @if (DialogType == TypeOfCryptoDialog.Create)
+                        {
+                            <button class="btn btn-outline-success mb-3" type="submit">Submit</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-success mb-3" type="submit">Update</button>
+                        }
+                    </div>
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreateCryptoAsset _cryptoAsset = new();
+    private Dictionary<string, string> _symbolsAndNames = new();
+    private string _modalTitle = "";
+
+    [Parameter]
+    public TypeOfCryptoDialog DialogType { get; set; }
+
+    [Parameter]
+    public List<EventCallback>? EventCallbacks { get; set; }
+
+    [Parameter]
+    public CryptoAssetVM? CryptoAssetToUpdate
+    {
+        get
+        {
+            return new();
+        }
+
+        set
+        {
+            if (value != null)
+            {
+                _cryptoAsset.Id = (int)value.Id;
+                _cryptoAsset.Symbol = value.CryptocurrencySymbol;
+                _cryptoAsset.Name = value.CryptocurrencyName;
+                _cryptoAsset.Description = value.Description;
+                _cryptoAsset.Amount = value.Amount;
+
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void ExecuteAll() => EventCallbacks?.ForEach(async x => await x.InvokeAsync());
+
+    private async Task HandleSubmit()
+    {
+        Dictionary<TypeOfCryptoDialog, (Func<Task<HttpResponseMessage>> Operations, HttpStatusCode StatusCode)> operationsOnSubmit = new()
+    {
+            {TypeOfCryptoDialog.Create, (async () => { return await _httpTracker.CreateItem(new { Symbol = _cryptoAsset.Symbol, Name = _cryptoAsset.Name, Description = _cryptoAsset.Description, Amount = _cryptoAsset.Amount }, "/api/crypto-assets"); }, HttpStatusCode.Created) },
+            {TypeOfCryptoDialog.Update, (async () => { return await _httpTracker.UpdateItem(_cryptoAsset, "/api/crypto-assets"); }, HttpStatusCode.OK) }
+    };
+
+        _cryptoAsset.Symbol = _symbolsAndNames.First(x => x.Value == _cryptoAsset.Name).Key;
+
+        var responseMessage = await operationsOnSubmit[DialogType].Operations.Invoke();
+
+        if (responseMessage == null) return;
+
+        if (responseMessage.StatusCode == operationsOnSubmit[DialogType].StatusCode)
+            ExecuteAll();
+        else
+            errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+    }
+
+    private async Task GetSymbolsAndNames()
+    {
+        var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets/symbols-and-names");
+        if (responseMessage == null) return;
+        if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            var a = await responseMessage.Content.ReadAsStringAsync();
+            _symbolsAndNames = JsonConvert.DeserializeObject<Dictionary<string, string>>(a) ?? new();
+        }
+        else
+            errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSymbolsAndNames();
+        _modalTitle = DialogType == TypeOfCryptoDialog.Create ? "Add new crypto asset" : "Update crypto asset";
+    }
+
+    public enum TypeOfCryptoDialog
+    {
+        Create,
+        Update
+    }
+}

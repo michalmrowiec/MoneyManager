@@ -146,14 +146,14 @@ else
                                 <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
                             </td>
                             <td class="align-middle d-none d-md-table-cell" width="5%">
-                                <button class="btn-close" @onclick="@(x => OpenDeleteDialog(item))"></button>
+                                <button class="btn-close" @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })"></button>
                             </td>
                             <td class="align-middle d-md-none">
                                 <Dropdown>
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
                                     <DropdownMenu>
                                         <DropdownItem @onclick="@(x => OpenEditForm(item))">Edit</DropdownItem>
-                                        <DropdownItem @onclick="@(x => OpenDeleteDialog(item))">Delete</DropdownItem>
+                                        <DropdownItem @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })">Delete</DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
                             </td>
@@ -181,9 +181,16 @@ else
     </button>
 }
 
-@if (_deleteDialogOpen && _recordToDelete != null)
+@if (_deleteDialogOpen)
 {
-    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel" Title="Are you sure?" Text=@($"Do you want delete this: {_recordToDelete.Name}?") OnClose="@CloseDeleteDialog"></ConfirmDeleteDialog>
+    <ConfirmDeleteDialog
+        DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+        EventCallbacks="OnCloseDeleteDialog"
+        UriDelete="/api/tracker/"
+        IdRecordToDelete="_recordToDelete?.Id"
+        Title="Are you sure?"
+        Text=@($"Do you want delete this: {_recordToDelete?.Name}?")>
+    </ConfirmDeleteDialog>
 }
 
 @if (_editFormOpen && _editRecord != null)
@@ -196,6 +203,8 @@ else
 
     private RecordVM? _recordToDelete;
     private RecordVM? _editRecord = null;
+
+    private List<EventCallback> OnCloseDeleteDialog { get; set; }
 
     private bool _deleteDialogOpen;
     private bool _editFormOpen;
@@ -266,27 +275,6 @@ else
         else
             _sortClickDesc = sortBy;
     }
-
-    #region Delete dialog
-    private async Task CloseDeleteDialog(bool deleteConfirmed)
-    {
-        if (deleteConfirmed && _recordToDelete != null)
-        {
-            await Delete(_recordToDelete.Id);
-        }
-        _deleteDialogOpen = false;
-        //await GetTable(_selectedYearByUser, _selectedMonthByUser);
-        await GetTable();
-        StateHasChanged();
-    }
-
-    private void OpenDeleteDialog(RecordVM record)
-    {
-        _deleteDialogOpen = true;
-        _recordToDelete = record;
-        StateHasChanged();
-    }
-    #endregion
 
     #region Edit form
     private async Task CloseEditForm(bool editConfirmed)
@@ -407,22 +395,6 @@ else
         StateHasChanged();
     }
 
-    private async Task Delete(int id)
-    {
-        try
-        {
-            var response = await _httpTracker.DeleteItem(id, "/api/tracker/");
-            if (response == null) return;
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                errorMessage.Message = await response.Content.ReadAsStringAsync();
-
-        }
-        catch (Exception ex)
-        {
-            errorMessage.Message = ex.Message;
-        }
-    }
-
     private async Task Update()
     {
         try
@@ -446,6 +418,13 @@ else
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.FinancialDashboard;
         errorMessage.Message = null;
         await GetTable();
+
+        OnCloseDeleteDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, GetTable),
+            EventCallback.Factory.Create(this,  x => _deleteDialogOpen = false),
+            EventCallback.Factory.Create(this,  x => _recordToDelete = null)
+        };
     }
 
     #region Xlsx report file generate

@@ -74,6 +74,72 @@ namespace MoneyManager.Server.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MoneyManager.Domain.Entities.CryptoAssets.CryptoAsset", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(22, 10)
+                        .HasColumnType("decimal(22,10)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Symbol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CryptoAssets");
+                });
+
+            modelBuilder.Entity("MoneyManager.Domain.Entities.CryptoAssets.CryptocurrencySimpleData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("MarketCap")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(22, 10)
+                        .HasColumnType("decimal(22,10)");
+
+                    b.Property<decimal>("PricePercentChange24h")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePercentChange7d")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Symbol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CryptoSimpleDatas");
+                });
+
             modelBuilder.Entity("MoneyManager.Domain.Entities.PlannedBudget", b =>
                 {
                     b.Property<int>("Id")
@@ -216,6 +282,17 @@ namespace MoneyManager.Server.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MoneyManager.Domain.Entities.CryptoAssets.CryptoAsset", b =>
+                {
+                    b.HasOne("MoneyManager.Domain.Entities.User", "User")
+                        .WithMany("CryptoAssets")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MoneyManager.Domain.Entities.PlannedBudget", b =>
                 {
                     b.HasOne("MoneyManager.Domain.Entities.Category", "Category")
@@ -276,6 +353,8 @@ namespace MoneyManager.Server.Migrations
             modelBuilder.Entity("MoneyManager.Domain.Entities.User", b =>
                 {
                     b.Navigation("Categories");
+
+                    b.Navigation("CryptoAssets");
 
                     b.Navigation("PlannedBudgets");
 

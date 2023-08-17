@@ -1,6 +1,6 @@
 ﻿using MoneyManager.Domain.Authentication;
 
-namespace MoneyManager.Application.Contracts.Persistence
+namespace MoneyManager.Application.Contracts.Services
 {
     public interface IGenerateResetPasswordJWT
     {

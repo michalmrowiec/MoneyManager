@@ -1,0 +1,90 @@
+﻿<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Title</h4>
+                <button type="button" class="btn-close" @onclick="@OnClose"></button>
+            </div>
+            <div class="modal-body">
+
+                @foreach (var item in _info)
+                {
+                    <div class="form-floating mb-2">
+                        <input class="form-control" disabled="disabled" value="@item.Value">
+                        <label>@item.DisplayName</label>
+                    </div>
+                }
+
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-outline-secondary mb-0 mt-1" type="submit" @onclick="OnClose">Close prieview</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+    [Parameter]
+    public List<object>? ItemsToPrievew { get; set; }
+
+    [Parameter]
+    public List<EventCallback>? EventCallbacks { get; set; }
+
+    /// <summary>
+    /// Path is the path to the property or to a nested property. E.g.: "Record.RecordName" or "Record.Category.CategoryName"
+    /// DisplayName is the name under which the property value will be displayed in the preview dialog.
+    /// </summary>
+    [Parameter]
+    public List<(string Path, string DisplayName)>? PropertiesToDisplay { get; set; }
+
+    public List<(string DisplayName, string Value)>? _info = new();
+
+    protected override void OnInitialized()
+    {
+        if (ItemsToPrievew is null || PropertiesToDisplay is null) OnClose();
+
+        DefineFields();
+
+        StateHasChanged();
+    }
+
+    private void DefineFields()
+    {
+        foreach (var prop in PropertiesToDisplay)
+        {
+            var propertyPath = prop.Path.Split('.');
+            var value = GetNestedPropertyValue(propertyPath);
+
+            _info?.Add((prop.DisplayName, value.ToString() ?? ""));
+        }
+    }
+
+    private object GetNestedPropertyValue(string[] propertyPath)
+    {
+        object res = "";
+
+        foreach (var item in ItemsToPrievew)
+        {
+            object obj = item;
+
+            foreach (var propertyName in propertyPath)
+            {
+                var currentProperty = obj.GetType().GetProperty(propertyName);
+                if (currentProperty == null) continue;
+
+                res = currentProperty.GetValue(obj);
+                if (res != null) return res;
+            }
+        }
+
+        return res;
+    }
+
+    private void OnClose()
+    {
+        EventCallbacks?.ForEach(async x => await x.InvokeAsync());
+        StateHasChanged();
+    }
+}

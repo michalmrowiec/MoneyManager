@@ -147,6 +147,11 @@
     [Parameter]
     public RecordVM? RecordToFill
     {
+        get
+        {
+            return new();    
+        }
+
         set
         {
             if (value is not null)
@@ -177,6 +182,11 @@
                 formRecordItem.TransactionDate = value.TransactionDate;
                 _selectedCategoryId = value.CategoryId;
             }
+        }
+
+        get
+        {
+            return recurringRecord;
         }
     }
 

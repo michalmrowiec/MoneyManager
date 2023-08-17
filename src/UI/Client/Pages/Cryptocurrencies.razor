@@ -1,0 +1,316 @@
+﻿@page "/cryptocurrencies"
+@using Blazorise.Charts.DataLabels;
+@using MoneyManager.Application.Functions.CryptoAssets.Queries;
+@using MoneyManager.Client.Components
+@using MoneyManager.Client.Services;
+@using Newtonsoft.Json;
+@using static MoneyManager.Client.Components.CryptoAssetFormDialog;
+@inject NameOfSubpage nameOfSubpage
+@inject IHttpRecordService _httpTracker
+@inject ErrorMessage errorMessage
+
+<PageTitle>Crytpo Assets</PageTitle>
+
+<div class="d-flex justify-content-between px-2">
+    <div class="d-flex align-items-center">
+        <button class="btn btn-secondary" @onclick="@(() => { _typeOfDialogCa = TypeOfCryptoDialog.Create; _caFormIsOpen = true; StateHasChanged(); })">Add</button>
+    </div>
+
+    <div>
+        <img alt="CoinGecko logo" src="coingecko.svg" />
+        <p class="pb-0">Powered by <a target="_blank" href="https://www.coingecko.com/">CoinGecko</a></p>
+    </div>
+
+</div>
+
+@if (_getTableLoading)
+{
+    <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
+        <div class="h2">Loading</div>
+        <div class="h5 spinner-border"></div>
+    </div>
+}
+else if (_listOfCrytpos.Count is 0 && _listOfCrytposTemp.Count is 0)
+{
+    <p>The table is empty, you can add a new record with the <b>ADD</b> button.</p>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <p style="font-size: small;" class="mb-0 px-2">Date of last price update: @_lastUpdateDate</p>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr class="d-none d-md-table-row">
+                    <th width="5%">Symbol</th>
+                    <th width="10%">Name</th>
+                    <th width="15%">Description</th>
+                    <th width="10%" class="text-end">Actual price</th>
+                    <th width="10%" class="text-end">Change 24h</th>
+                    <th width="10%" class="text-end">Amount</th>
+                    <th width="20%" class="text-end pe-5">Value</th>
+                    <th width="5%"></th>
+                    <th width="5%"></th>
+                </tr>
+                <tr class="d-md-none">
+                    <th width="5%">Coin</th>
+                    <th width="35%" class="text-end">Price</th>
+                    <th width="26%" class="text-end">Amount</th>
+                    <th width="30%" class="text-end">Value</th>
+                    <th width="4%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_listOfCrytpos != null)
+                {
+                    @foreach (var item in _listOfCrytpos.ToList())
+                    {
+
+                        <tr class="d-none d-md-table-row">
+                            <td class="align-middle">@item.CryptocurrencySymbol</td>
+                            <td class="align-middle">@item.CryptocurrencyName</td>
+                            <td class="align-middle">@item.Description</td>
+                            <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
+                            @if (item.PricePercentChange24h > 0)
+                            {
+                                <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")% 📈</td>
+                            }
+                            else if (item.PricePercentChange24h < 0)
+                            {
+                                <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")% 📉</td>
+                            }
+                            else
+                            {
+                                <td class="align-middle text-end">@item.PricePercentChange24h.ToString("0.##")%</td>
+                            }
+                            <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
+                            <td class="align-middle text-end pe-5">$@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
+                            <td class="align-middle">
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</button>
+                            </td>
+                            <td class="align-middle" width="5%">
+                                <button class="btn-close" @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })"></button>
+                            </td>
+                        </tr>
+                        <tr class="align-middle d-md-none">
+                            <td class="align-middle">@item.CryptocurrencySymbol</td>
+                            <td class="align-middle text-end">$@item.ActualPrice.ToString("0.##########")</td>
+                            <td class="align-middle text-end">@item.Amount.ToString("0.##########")</td>
+                            <td class="align-middle text-end">$@((item.Amount * item.ActualPrice).ToString("0.##########"))</td>
+                            <td class="align-middle d-md-none">
+                                <Dropdown>
+                                    <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
+                                     <DropdownMenu>
+                                         <DropdownItem @onclick="@(x => { _itemToPreview.Add(item); _itemToPreview.Add(new {Value = (item.Amount * item.ActualPrice).ToString("0.##########")}); _itemPreviewIsOpen = true; StateHasChanged(); })">Details</DropdownItem>
+                                         <DropdownItem @onclick="@(x => { _typeOfDialogCa = TypeOfCryptoDialog.Update; _recordToUpdate = item; _caFormIsOpen = true; StateHasChanged(); })">Edit</DropdownItem>
+                                         <DropdownItem @onclick="@(x => { _recordToDelete = item; _delFormIsOpen = true; StateHasChanged(); })">Delete</DropdownItem>
+                                     </DropdownMenu>
+                                 </Dropdown>
+                             </td>
+                         </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr class="d-none d-md-table-row">
+                    <td class="align-middle" colspan="2">Total summary:</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="align-middle text-end pe-5">$@Math.Round(_listOfCrytpos?.Sum(x => x.Amount * x.ActualPrice) ?? 0, 2)</td>
+                </tr>
+                <tr class="d-md-none">
+                    <td class="align-middle" colspan="2">Total summary:</td>
+                    <td></td>
+                    <td class="align-middle text-end">$@Math.Round(_listOfCrytpos?.Sum(x => x.Amount * x.ActualPrice) ?? 0, 2)</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+
+<Row Width="Width.Max100" Margin="Margin.Is0.OnMobile.Is3.OnY">
+    <Column ColumnSize="ColumnSize.IsThird.OnWidescreen.IsThird.WithOffset.OnWidescreen.Is10.OnTablet.Is1.WithOffset.OnTablet">
+        <Card>
+            <CardHeader>
+                <CardTitle TextAlignment="TextAlignment.Center">Percentage share in the portfolio</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Chart @ref="barChart" Type="ChartType.Pie" TItem="decimal" Clicked="@OnClicked" />
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+@if (_caFormIsOpen)
+{
+    <CryptoAssetFormDialog DialogType="_typeOfDialogCa"
+                           CryptoAssetToUpdate="_recordToUpdate"
+                           EventCallbacks="OnCloseCaDialog">
+    </CryptoAssetFormDialog>
+}
+
+@if (_delFormIsOpen)
+{
+    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+                         EventCallbacks="OnCloseDelDialog"
+                         IdRecordToDelete="_recordToDelete?.Id"
+                         UriDelete="/api/crypto-assets/"
+                         Title="Are you sure?"
+                         Text=@($"Do you want delete this: {_recordToDelete?.CryptocurrencyName}?")>
+    </ConfirmDeleteDialog>
+}
+
+@if (_itemPreviewIsOpen)
+{
+    <ItemPreviewDialog Title="Crypto record preview"
+                       EventCallbacks="OnCloseItemPrievDialog"
+                       ItemsToPrievew="@_itemToPreview"
+                       PropertiesToDisplay="@(
+                            new List<(string Path, string DisplayName)>
+                            {
+                                ("CryptocurrencySymbol", "Symbol"),
+                                ("CryptocurrencyName", "Name"),
+                                ("ActualPrice", "Price"),
+                                ("Amount", "Amount"),
+                                ("PricePercentChange24h", "24h percent change"),
+                                ("Value", "Value")
+                            })">
+    </ItemPreviewDialog>
+}
+
+@code {
+    private bool _getTableLoading = true;
+    private List<CryptoAssetVM> _listOfCrytpos = new();
+    private List<CryptoAssetVM> _listOfCrytposTemp = new();
+    private bool _caFormIsOpen = false;
+    private bool _delFormIsOpen = false;
+    private bool _itemPreviewIsOpen = false;
+    private CryptoAssetVM? _recordToDelete;
+    private CryptoAssetVM? _recordToUpdate;
+    private List<object> _itemToPreview = new();
+    private TypeOfCryptoDialog _typeOfDialogCa;
+    private string _lastUpdateDate = "No data";
+
+    Chart<decimal> barChart = new();
+    List<decimal> data = new();
+    PieChartDataset<decimal> dataset;
+    string[] chartXAxisLabels;
+    List<string> backgroundColors = new();
+    List<string> borderColors = new();
+
+    async Task HandleRedraw()
+    {
+        data = _listOfCrytpos.Select(x => Math.Round((x.Amount * x.ActualPrice) / _listOfCrytpos.Sum(x => x.Amount * x.ActualPrice) * 100.0M, 2)).ToList();
+
+        for (int i = 0; i < data.Count; i++)
+        {
+            var r = new Random();
+            var color = ChartColor.FromRgba((byte)r.Next(0, 255), (byte)r.Next(0, 255), (byte)r.Next(0, 255), 0.2f);
+            backgroundColors.Add(color);
+            borderColors.Add(color);
+        }
+
+        dataset = GetBarChartDatasetGenerator($"Cryptos", data, backgroundColors, borderColors);
+
+        await barChart.Clear();
+
+        chartXAxisLabels = _listOfCrytpos.Select(x => x.CryptocurrencySymbol).ToArray();
+        await barChart.AddLabelsDatasetsAndUpdate(chartXAxisLabels, dataset);
+
+        StateHasChanged();
+    }
+
+    private PieChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
+    {
+        return new()
+            {
+                Label = label,
+                Data = data,
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
+                BorderWidth = 1,
+            };
+    }
+
+    Task OnClicked(ChartMouseEventArgs e)
+    {
+        var model = e.Model as PieChartModel;
+
+        Console.WriteLine($"Handling event for {nameof(PieChartModel)}: x:{model.X} y:{model.Y}");
+        return Task.CompletedTask;
+    }
+
+    private async Task GetCryptos()
+    {
+        try
+        {
+            var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets");
+            if (responseMessage == null) return;
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                _listOfCrytpos = JsonConvert.DeserializeObject<List<CryptoAssetVM>>(jsonResponse) ?? new List<CryptoAssetVM>();
+            }
+            else
+                errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Message = ex.Message;
+        }
+
+        if (_listOfCrytpos == null) return;
+
+        _listOfCrytpos = _listOfCrytpos.OrderByDescending(x => x.Amount * x.ActualPrice).ToList();
+        _listOfCrytpos.ForEach(x => x.CryptocurrencySymbol = x.CryptocurrencySymbol.ToUpper());
+
+        _listOfCrytposTemp = _listOfCrytpos;
+
+        _getTableLoading = false;
+
+
+        if (_listOfCrytpos?.Count != 0)
+        {
+            _lastUpdateDate = $"{_listOfCrytpos?.First().DataForDateTime.ToShortDateString()} {_listOfCrytpos?.First().DataForDateTime.ToShortTimeString()}" ?? "No Data";
+            await HandleRedraw();
+        }
+
+        StateHasChanged();
+    }
+
+    private List<EventCallback>? OnCloseCaDialog { get; set; }
+    private List<EventCallback>? OnCloseDelDialog { get; set; }
+    private List<EventCallback>? OnCloseItemPrievDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.CrytpoAssets;
+
+        await GetCryptos();
+        //await HandleRedraw();
+
+        OnCloseCaDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, GetCryptos),
+            EventCallback.Factory.Create(this,  x => _caFormIsOpen = false),
+            EventCallback.Factory.Create(this,  x => _recordToUpdate = null)
+        };
+
+        OnCloseDelDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, GetCryptos),
+            EventCallback.Factory.Create(this,  x => _delFormIsOpen = false),
+            EventCallback.Factory.Create(this,  x => _recordToDelete = null)
+        };
+
+        OnCloseItemPrievDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this,  x => _itemPreviewIsOpen = false),
+            EventCallback.Factory.Create(this,  x => _itemToPreview.Clear())
+        };
+    }
+}

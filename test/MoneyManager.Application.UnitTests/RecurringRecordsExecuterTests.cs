@@ -1,10 +1,9 @@
-using Xunit;
-using MoneyManager.Domain.Entities;
+using FluentAssertions;
 using MoneyManager.Application.Functions.RecurringRecords.Commands.ExecuteRecurringRecords.Utils;
+using MoneyManager.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
-using MoneyManager.Application.Functions.Records;
+using Xunit;
 using Record = MoneyManager.Domain.Entities.Record;
 
 namespace MoneyManager.Application.UnitTests

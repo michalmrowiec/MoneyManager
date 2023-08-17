@@ -40,6 +40,8 @@ public enum NamesOfSubpageEnum
     Settings,
     [Description("Forgot Password")]
     ForgotPassword,
+    [Description("Crypto Assets")]
+    CrytpoAssets,
     [Description("")]
     Empty
 }

@@ -1,4 +1,6 @@
-﻿namespace MoneyManager.Domain.Entities
+﻿using MoneyManager.Domain.Entities.CryptoAssets;
+
+namespace MoneyManager.Domain.Entities
 {
     public class User
     {
@@ -11,5 +13,6 @@
         public List<Category> Categories { get; set; } = new List<Category>();
         public List<RecurringRecord> RecurringRecords { get; set; } = new List<RecurringRecord>();
         public List<PlannedBudget> PlannedBudgets { get; set; } = new List<PlannedBudget>();
+        public List<CryptoAsset> CryptoAssets { get; set; } = new List<CryptoAsset>();
     }
 }

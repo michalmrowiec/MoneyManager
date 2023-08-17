@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using System.Text;
-using MoneyManager.Application.Contracts.Persistence;
+using MoneyManager.Application.Contracts.Services;
 
 namespace MoneyManager.Infractructure.Services.EmailService
 {

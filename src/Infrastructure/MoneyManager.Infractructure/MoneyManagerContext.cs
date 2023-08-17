@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoneyManager.Domain.Entities;
+using MoneyManager.Domain.Entities.CryptoAssets;
 
 namespace MoneyManager.Infractructure
 {
@@ -14,9 +15,25 @@ namespace MoneyManager.Infractructure
         public DbSet<RecurringRecord> RecurringRecords { get; set; }
         public DbSet<PlannedBudget> PlannedBudgets { get; set; }
         public DbSet<ApiKey> ApiKeys { get; set; }
+        public DbSet<CryptoAsset> CryptoAssets { get; set; }
+        public DbSet<CryptocurrencySimpleData> CryptoSimpleDatas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CryptocurrencySimpleData>()
+                .Property(p => p.Price)
+                .HasPrecision(22, 10);
+
+            modelBuilder.Entity<CryptoAsset>(eb =>
+            {
+                eb.HasOne(c => c.User)
+                .WithMany(u => u.CryptoAssets)
+                .HasForeignKey(c => c.UserId);
+
+                eb.Property(p => p.Amount)
+                .HasPrecision(22, 10);
+            });
+
             modelBuilder.Entity<Category>()
                 .HasOne(c => c.User)
                 .WithMany(u => u.Categories)

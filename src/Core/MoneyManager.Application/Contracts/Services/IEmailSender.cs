@@ -1,4 +1,4 @@
-﻿namespace MoneyManager.Application.Contracts.Persistence
+﻿namespace MoneyManager.Application.Contracts.Services
 {
     public interface IEmailSender
     {
