@@ -15,15 +15,14 @@ In this project I also use such technologies and libraries as:
 - Entity Framework
 - MediatR
 - xUnit
-- Blazorise?
+- Blazorise
 
 ### Architecture of project
 
 I tried to implement the project using the onion architecture.
 So the entire project consist of some layers:
 - API
-- Domain
-- Aplication
+- Core
 - Infrasctructure
 - UI
 
@@ -40,3 +39,11 @@ The CQRS approach is implemented here. So the models of reading and writing are 
 #### Infrasctructure
 
 The Infrastructure project includes the implementation of communication with the database using Entity Framework, communication with external APIs (currently only with CoinGecko API), sending emails, and authentication of users (JWT tokens).
+
+#### UI
+
+The UI is built in Blazor WebAssembly. In it I use Razor pages and components and I use the Bootstrap library. Additionally, I use the Blazorise library.
+
+### Tests
+
+The *test* folder contains tests for individual projects. It tests most controllers and services there.
