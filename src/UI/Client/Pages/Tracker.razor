@@ -1,5 +1,6 @@
 ﻿@page "/tracker"
 @using MoneyManager.Client.Models
+@using MoneyManager.Client.Models.ViewModels;
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.Services.XlsxFileService
 @using MoneyManager.Client.Components
@@ -10,12 +11,14 @@
 @using System.Net.Http.Headers
 @using System.Text
 @using System.IO
+@using static MoneyManager.Client.Components.AddEditRecordFormDialog;
 @inject HttpClient http
 @inject IJSRuntime JS
 @inject ILocalStorageService _localStorage
-@inject IHttpRecordService _httpTracker
+@inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
+@inject AddEvents addEvents
 
 <PageTitle>Financial dashboard</PageTitle>
 
@@ -38,8 +41,8 @@ else
             <div width="20%" class="ms-2">
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@_filterParameters.Year</DropdownToggle>
-                    <DropdownMenu>
-                        @foreach (var year in _listOfYearsForSelect)
+                     <DropdownMenu>
+                         @foreach (var year in _listOfYearsForSelect)
                         {
                             <DropdownItem @onclick="@(async () => { _filterParameters.Year = year; await GetTable(); })">@year</DropdownItem>
                         }
@@ -49,8 +52,8 @@ else
             <div width="20%" class="ms-2">
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(_filterParameters.Month)</DropdownToggle>
-                    <DropdownMenu>
-                        @foreach (var month in _listOfMonthsForSelect)
+                     <DropdownMenu>
+                         @foreach (var month in _listOfMonthsForSelect)
                         {
                             <DropdownItem @onclick="@(async () => { _filterParameters.Month = month; await GetTable(); })">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</DropdownItem>
                         }
@@ -63,36 +66,36 @@ else
             <div width="20%" class="ms-2">
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@_filterParameters.TypeOfRecord</DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.All; LaunchFilter(); })">All</DropdownItem>
-                        <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.Incomes; LaunchFilter(); })">Incomes</DropdownItem>
-                        <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.Expenses; LaunchFilter(); })">Expenses</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-            </div>
-        </div>
-        <div class="d-flex flex-row align-items-center py-2">
-            <h5>Sort by:</h5>
-            <div width="20%" class="ms-2">
-                <Dropdown>
-                    <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.CategoryName); _sortBy = $"Category {_str[(int)RecordField.CategoryName]}";})">Category</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Date {_str[(int)RecordField.TransactionDate]}";})">Date</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-            </div>
-        </div>
-        <div class="d-flex flex-row align-items-center py-2">
-            <h5>Category filter:</h5>
-            <div width="20%" class="ms-2">
-                <Dropdown>
-                    <DropdownToggle Outline Color="Color.Info">@_selectedCategory.Name</DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = 0; LaunchFilter(); _selectedCategory = new CategoryVM { Id = 0, Name = "All category" }; SortButtonClick(RecordField.TransactionDate); StateHasChanged(); })">All category</DropdownItem>
-                        @foreach (var category in _listOfRecordsTemp.Select(r => new CategoryVM { Id = r.CategoryId ?? 0, Name = r.Category?.Name ?? "" }).DistinctBy(c => c.Name))
+                     <DropdownMenu>
+                         <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.All; LaunchFilter(); })">All</DropdownItem>
+                         <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.Incomes; LaunchFilter(); })">Incomes</DropdownItem>
+                         <DropdownItem @onclick="@(() => { _filterParameters.TypeOfRecord = TypeOfRecord.Expenses; LaunchFilter(); })">Expenses</DropdownItem>
+                     </DropdownMenu>
+                 </Dropdown>
+             </div>
+         </div>
+         <div class="d-flex flex-row align-items-center py-2">
+             <h5>Sort by:</h5>
+             <div width="20%" class="ms-2">
+                 <Dropdown>
+                     <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
+                     <DropdownMenu>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.CategoryName); _sortBy = $"Category {_str[(int)RecordField.CategoryName]}";})">Category</DropdownItem>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Date {_str[(int)RecordField.TransactionDate]}";})">Date</DropdownItem>
+                     </DropdownMenu>
+                 </Dropdown>
+             </div>
+         </div>
+         <div class="d-flex flex-row align-items-center py-2">
+             <h5>Category filter:</h5>
+             <div width="20%" class="ms-2">
+                 <Dropdown>
+                     <DropdownToggle Outline Color="Color.Info">@_selectedCategory.Name</DropdownToggle>
+                     <DropdownMenu>
+                         <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = 0; LaunchFilter(); _selectedCategory = new CategoryVM { Id = 0, Name = "All category" }; SortButtonClick(RecordField.TransactionDate); StateHasChanged(); })">All category</DropdownItem>
+                         @foreach (var category in _listOfRecordsTemp.Select(r => new CategoryVM { Id = r.CategoryId ?? 0, Name = r.Category?.Name ?? "" }).DistinctBy(c => c.Name))
                         {
                             <DropdownItem @onclick="@(() => { _filterParameters.CategoryId = category.Id; LaunchFilter(); _selectedCategory = category; SortButtonClick(RecordField.Amount); StateHasChanged(); })">@category.Name</DropdownItem>
                         }
@@ -138,12 +141,12 @@ else
                         }
 
                         <tr class="text-color" style="color:@colorOfTableRow;">
-                            <td class="align-middle" >@item.Name</td>
-                            <td class="align-middle" >@item.Category?.Name</td>
-                            <td class="align-middle" >@item.Amount.ToString()</td>
-                            <td class="align-middle" >@item.TransactionDate.ToString("dd/MM/yyyy")</td>
+                            <td class="align-middle">@item.Name</td>
+                            <td class="align-middle">@item.Category?.Name</td>
+                            <td class="align-middle">@item.Amount.ToString()</td>
+                            <td class="align-middle">@item.TransactionDate.ToString("dd/MM/yyyy")</td>
                             <td class="align-middle d-none d-md-table-cell">
-                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditRecordForm(item))">Edit</button>
                             </td>
                             <td class="align-middle d-none d-md-table-cell" width="5%">
                                 <button class="btn-close" @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })"></button>
@@ -151,13 +154,13 @@ else
                             <td class="align-middle d-md-none">
                                 <Dropdown>
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
-                                    <DropdownMenu>
-                                        <DropdownItem @onclick="@(x => OpenEditForm(item))">Edit</DropdownItem>
-                                        <DropdownItem @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })">Delete</DropdownItem>
-                                    </DropdownMenu>
-                                </Dropdown>
-                            </td>
-                        </tr>
+                                     <DropdownMenu>
+                                         <DropdownItem @onclick="@(x => OpenEditRecordForm(item))">Edit</DropdownItem>
+                                         <DropdownItem @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })">Delete</DropdownItem>
+                                     </DropdownMenu>
+                                 </Dropdown>
+                             </td>
+                         </tr>
                     }
                 }
             </tbody>
@@ -183,31 +186,23 @@ else
 
 @if (_deleteDialogOpen)
 {
-    <ConfirmDeleteDialog
-        DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
-        EventCallbacks="OnCloseDeleteDialog"
-        UriDelete="/api/tracker/"
-        IdRecordToDelete="_recordToDelete?.Id"
-        Title="Are you sure?"
-        Text=@($"Do you want delete this: {_recordToDelete?.Name}?")>
+    <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+                         EventCallbacks="OnCloseDeleteDialog"
+                         UriDelete="/api/tracker/"
+                         IdRecordToDelete="_recordToDelete?.Id"
+                         Title="Are you sure?"
+                         Text=@($"Do you want delete this: {_recordToDelete?.Name}?")>
     </ConfirmDeleteDialog>
-}
-
-@if (_editFormOpen && _editRecord != null)
-{
-    <RecordFormDialog Title="Edit record" OnClose="CloseEditForm" FormRecordItem="ReturnedRecord" RecordToFill="_editRecord" TypeOfDialog="TypeOfFormlDialog.EditRecord"></RecordFormDialog>
 }
 
 @code {
     private bool _getTableLoading = true;
 
     private RecordVM? _recordToDelete;
-    private RecordVM? _editRecord = null;
 
-    private List<EventCallback> OnCloseDeleteDialog { get; set; }
+    private List<EventCallback>? OnCloseDeleteDialog { get; set; }
 
     private bool _deleteDialogOpen;
-    private bool _editFormOpen;
 
     private List<RecordVM> _listOfRecords = new();
     private List<RecordVM> _listOfRecordsTemp = new();
@@ -222,25 +217,35 @@ else
     private Dictionary<int, List<int>> _yearsWithMonths = new();
     private FilterParameters _filterParameters = new();
 
-    //
     private CategoryVM _selectedCategory = new CategoryVM { Id = 0, Name = "All category" };
 
     private decimal _sumOfMonthlyAmounts = 0;
     private decimal _sumOfTotalAmounts = 0;
 
+    private List<EventCallback>? OnCloseRecordDialog { get; set; }
 
-    private void ReturnedRecord(RecordVM recordVM)
+    private void OpenEditRecordForm(RecordVM item)
     {
-        _editRecord = recordVM;
+        addEvents.TypeOfDialog = TypeOfAddEditFormDialog.EditRecord;
+        addEvents.RecordToEdit = new FormRecordModel
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Amount = item.Amount,
+            TransactionDate = item.TransactionDate,
+            CategoryId = item.CategoryId
+        };
+        addEvents.AddIsOpen = true;
+        StateHasChanged();
     }
 
-    // TODO: Poukładaj to please
+    // TODO: clean up and sort here
 
     private async Task GetTotalSummary()
     {
         try
         {
-            var responseMessage = await _httpTracker.GetListOfItems("/api/stat/total/");
+            var responseMessage = await _httpService.GetListOfItems("/api/stat/total/");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -276,33 +281,11 @@ else
             _sortClickDesc = sortBy;
     }
 
-    #region Edit form
-    private async Task CloseEditForm(bool editConfirmed)
-    {
-        _deleteDialogOpen = false;
-        if (editConfirmed && _editRecord != null)
-        {
-            await Update();
-        }
-        //await GetTable(_selectedYearByUser, _selectedMonthByUser);
-        await GetTable();
-        _editRecord = null;
-        StateHasChanged();
-    }
-
-    private void OpenEditForm(RecordVM record)
-    {
-        _editFormOpen = true;
-        _editRecord = record;
-        StateHasChanged();
-    }
-    #endregion
-
     private async Task GetaYearsWithMonths()
     {
         try
         {
-            var respond = await _httpTracker.GetListOfItems("/api/tracker/dates");
+            var respond = await _httpService.GetListOfItems("/api/tracker/dates");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -321,11 +304,8 @@ else
                         _filterParameters.Year = _listOfYearsForSelect.First();
                 }
 
-
                 _listOfMonthsForSelect = _yearsWithMonths[_filterParameters.Year].ToList();
 
-
-                //
                 if (_listOfMonthsForSelect.Any(x => x == _filterParameters.Month))
                     _filterParameters.Month = _filterParameters.Month;
 
@@ -355,7 +335,7 @@ else
 
         try
         {
-            var responseMessage = await _httpTracker.GetListOfItems("/api/tracker/");
+            var responseMessage = await _httpService.GetListOfItems("/api/tracker/");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -395,26 +375,12 @@ else
         StateHasChanged();
     }
 
-    private async Task Update()
-    {
-        try
-        {
-            if (_editRecord == null) return;
-            var response = await _httpTracker.UpdateItem(_editRecord, "/api/tracker/");
-            if (response == null) return;
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                errorMessage.Message = await response.Content.ReadAsStringAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage.Message = ex.Message;
-        }
-    }
-
     protected override async Task OnInitializedAsync()
     {
+        addEvents?.FuncsOnClose?.Add(EventCallback.Factory.Create(this, GetTable));
+
+        await _httpService.GetListOfItems("api/recurring/ex");
+
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.FinancialDashboard;
         errorMessage.Message = null;
         await GetTable();

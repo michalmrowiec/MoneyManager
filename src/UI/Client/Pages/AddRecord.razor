@@ -10,23 +10,33 @@
 <PageTitle>Add new record</PageTitle>
 
 <button class="btn btn-primary" @onclick="@(x => OpenDeleteDialog())">Add new record</button>
+
+<button class="btn btn-primary" @onclick="@(x => {_rdio2 = true; StateHasChanged();})">Add new record2</button>
+
 <div>
     <p>@_error</p>
 </div>
 
 @if (AddDialogOpen)
 {
-    <RecordFormDialog
-        Title="Add new record"
-        RecurringRecordsPanel="true"
-        OnClose="CloseDeleteDialog"
-        FormRecordItem="@((recordVM) => {_recordItem = recordVM;})"
-        RecurringRecordItem="@((value) => _recurringRecordItem = value)"
-        TypeOfDialog="TypeOfFormlDialog.AddRecord">
+    <RecordFormDialog Title="Add new record"
+                      RecurringRecordsPanel="true"
+                      OnClose="CloseDeleteDialog"
+                      FormRecordItem="@((recordVM) => {_recordItem = recordVM;})"
+                      RecurringRecordItem="@((value) => _recurringRecordItem = value)"
+                      TypeOfDialog="TypeOfFormlDialog.AddRecord">
     </RecordFormDialog>
 }
 
+@if (_rdio2)
+{
+    <NewRecordFormDialog
+        TypeOfDialog="NewRecordFormDialog.NewTypeOfFormlDialog.Add"
+        EventCallbacks="new List<EventCallback>() { EventCallback.Factory.Create(this, x => _rdio2 = false) }" />
+}
+
 @code {
+    private bool _rdio2;
     private RecordVM? _recordItem;
     private RecurringRecordVM? _recurringRecordItem;
     private string? _error;
@@ -39,7 +49,7 @@
         {
             try
             {
-                var response = await _httpService.CreateItem(_recordItem, "/api/tracker/");
+                var response = await _httpService.CreateItem(_recordItem, "/api/tracker");
                 if (response == null) return;
                 if (response.StatusCode != HttpStatusCode.Created)
                 {

@@ -1,4 +1,5 @@
-﻿@using MoneyManager.Client.Services
+﻿@using MoneyManager.Client.Components
+@using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using EnumsNET
 @inherits LayoutComponentBase
@@ -6,6 +7,7 @@
 @inject AppState appState
 @inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
+@inject AddEvents addEvents
 
 <div class="page">
     <div class="sidebar">
@@ -49,9 +51,16 @@
 
         @if (appState.LoggedIn)
         {
-            <a href="/addrecord" class="btn-float">
+            @if (addEvents.AddIsOpen)
+            {
+                <AddEditRecordFormDialog/>
+            }
+            <a class="btn-float" style="cursor: pointer;" @onclick="@( () => { addEvents.AddIsOpen = true; })">
                 <i class="oi oi-plus btn-float-icon"></i>
             </a>
+@*             <a href="/addrecord" class="btn-float">
+                <i class="oi oi-plus btn-float-icon"></i>
+            </a> *@
         }
 
     </main>
@@ -93,6 +102,8 @@
         appState.OnChange += StateHasChanged;
         nameOfSubpage.OnChange += StateHasChanged;
         errorMessage.OnChange += StateHasChanged;
+        addEvents?.FuncsOnOpen?.Add(EventCallback.Factory.Create(this, StateHasChanged));
+        addEvents?.FuncsOnClose?.Add(EventCallback.Factory.Create(this, StateHasChanged));
     }
 
     void Dispose()

@@ -4,7 +4,7 @@
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
-@inject IHttpRecordService _httpTracker
+@inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
 
@@ -122,7 +122,7 @@ else
 
         try
         {
-            var respond = await _httpTracker.DeleteItem(_categoryToDelete.Id, "/api/category/");
+            var respond = await _httpService.DeleteItem(_categoryToDelete.Id, "/api/category/");
             if (respond != null && respond.StatusCode != System.Net.HttpStatusCode.OK)
                 errorMessage.Message = await respond.Content.ReadAsStringAsync();
 
@@ -141,7 +141,7 @@ else
 
     private async Task<List<RecordVM>?> CheckCategoryReference(int categoryId)
     {
-        var recordWithCategoryToDelete = await _httpTracker.GetRecordsForCategoryId(categoryId, "/api/tracker/cat/");
+        var recordWithCategoryToDelete = await _httpService.GetRecordsForCategoryId(categoryId, "/api/tracker/cat/");
         var rwct = await recordWithCategoryToDelete.Content.ReadAsStringAsync();
         var listRe = JsonConvert.DeserializeObject<List<RecordVM>>(rwct) ?? new List<RecordVM>();
         if (listRe.Capacity == 0)
@@ -180,7 +180,7 @@ else
 
     private async Task GetAllategories()
     {
-        var respond = await _httpTracker.GetListOfItems("/api/category");
+        var respond = await _httpService.GetListOfItems("/api/category");
         var json = await respond.Content.ReadAsStringAsync();
         _categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 

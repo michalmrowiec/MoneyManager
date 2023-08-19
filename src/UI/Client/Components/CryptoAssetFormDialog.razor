@@ -5,7 +5,7 @@
 @using Newtonsoft.Json;
 @using System.Net;
 @inject ErrorMessage errorMessage
-@inject IHttpRecordService _httpTracker
+@inject IHttpRecordService _httpService
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
@@ -107,8 +107,8 @@
     {
         Dictionary<TypeOfCryptoDialog, (Func<Task<HttpResponseMessage>> Operations, HttpStatusCode StatusCode)> operationsOnSubmit = new()
     {
-            {TypeOfCryptoDialog.Create, (async () => { return await _httpTracker.CreateItem(new { Symbol = _cryptoAsset.Symbol, Name = _cryptoAsset.Name, Description = _cryptoAsset.Description, Amount = _cryptoAsset.Amount }, "/api/crypto-assets"); }, HttpStatusCode.Created) },
-            {TypeOfCryptoDialog.Update, (async () => { return await _httpTracker.UpdateItem(_cryptoAsset, "/api/crypto-assets"); }, HttpStatusCode.OK) }
+            {TypeOfCryptoDialog.Create, (async () => { return await _httpService.CreateItem(new { Symbol = _cryptoAsset.Symbol, Name = _cryptoAsset.Name, Description = _cryptoAsset.Description, Amount = _cryptoAsset.Amount }, "/api/crypto-assets"); }, HttpStatusCode.Created) },
+            {TypeOfCryptoDialog.Update, (async () => { return await _httpService.UpdateItem(_cryptoAsset, "/api/crypto-assets"); }, HttpStatusCode.OK) }
     };
 
         _cryptoAsset.Symbol = _symbolsAndNames.First(x => x.Value == _cryptoAsset.Name).Key;
@@ -125,7 +125,7 @@
 
     private async Task GetSymbolsAndNames()
     {
-        var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets/symbols-and-names");
+        var responseMessage = await _httpService.GetListOfItems("/api/crypto-assets/symbols-and-names");
         if (responseMessage == null) return;
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
         {

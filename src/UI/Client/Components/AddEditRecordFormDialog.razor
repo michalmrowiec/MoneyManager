@@ -1,0 +1,252 @@
+﻿@using MoneyManager.Client.Models.ViewModels;
+@using MoneyManager.Client.Services
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+@using MoneyManager.Client.ViewModels
+@using System.Net;
+@inject ErrorMessage _errorMessage
+@inject IHttpRecordService _httpService
+@inject AddEvents addEvents
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@_title</h4>
+                <button type="button" class="btn-close" @onclick="@(x => addEvents.Execute())"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@_record" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-floating mb-2">
+                        <InputText id="name" class="form-control" @bind-Value="_record.Name" />
+                        <ValidationMessage For="@(() => _record.Name)" />
+                        <label for="floatingInput">Name</label>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="flex-fill me-2">
+                            @if (_loadingCategories)
+                            {
+                                <div class="d-flex align-items-center">
+                                    <strong>Loading...</strong>
+                                    <div class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></div>
+                                </div>
+                            }
+                            else if (_categories.Count is 0)
+                            {
+                                <div>You don't have any categories</div>
+                            }
+                            else
+                            {
+                                <InputSelect class="form-select" @bind-Value="_record.CategoryId">
+                                    @foreach (var item in _categories)
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                </InputSelect>
+                            }
+                        </div>
+                        <div class="">
+                            <button class="btn btn-sm btn-secondary px-auto" type="button" @onclick="@(async () => {_categoryFormIsOpen = true; StateHasChanged();})">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-2">
+                        <InputNumber id="amount" class="form-control" @bind-Value="_record.Amount"></InputNumber>
+                        <label for="floatingTextarea">Amount</label>
+                    </div>
+
+                    <InputRadioGroup @bind-Value="_isIncome">
+                        <div class="form-check">
+                            <InputRadio class="form-check-input" Value="true" />
+                            <label>Income</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <InputRadio class="form-check-input" Value="false" />
+                            <label>Expense</label>
+                        </div>
+                    </InputRadioGroup>
+
+                    <div class="form-floating mb-2">
+                        <InputDate id="date" class="form-control" @bind-Value="TransactionDate"></InputDate>
+                        <label for="floatingTextarea">Transaction date</label>
+                    </div>
+
+                    @if (addEvents.TypeOfDialog == TypeOfAddEditFormDialog.Add)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind-value="RecurringRecordsPanelIsOpen" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">Recurring Record</label>
+                            </div>
+                            <div>
+                                <MyTooltip Text="The record will appear in the table on this date. The transaction will repeat itself automatically every month until you turn it off in the Recurring Records tab.">
+                                    ?
+                                </MyTooltip>
+                            </div>
+                        </div>
+                    }
+
+                    @if (addEvents.TypeOfDialog != TypeOfAddEditFormDialog.EditRecord && RecurringRecordsPanelIsOpen)
+                    {
+                        <div class="form-floating mb-2">
+                            <text class="form-control">@_record.NextDate.ToShortDateString()</text>
+                            <label for="floatingInput">Estimated next date</label>
+                        </div>
+
+                        if (addEvents.TypeOfDialog == TypeOfAddEditFormDialog.EditRecurringRecord)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="_record.IsActive" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">Is active</label>
+                            </div>
+                        }
+                    }
+
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-outline-success mb-3" type="submit">Submit</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+@if (_categoryFormIsOpen)
+{
+    <CategoryFormDialog Title="Add new category"
+                        OnClose="@(async (bool value) => { _categoryFormIsOpen = false; await GetCategory(); if(value) _record.CategoryId = _categories.OrderBy(x => x.Id).Last().Id; StateHasChanged(); })"
+                        TypeOfModal="CategoryFormDialog.TypeOfModalDialog.Create">
+    </CategoryFormDialog>
+}
+
+@code {
+    private DateTime TransactionDate
+    {
+        get { return _record.TransactionDate; }
+        set
+        {
+            _record.TransactionDate = value;
+            _record.NextDate = _record.TransactionDate.AddMonths(1);
+            _record.RepeatEveryDayOfMonth = value.Day;
+        }
+    }
+
+    private string _title = "";
+
+    private RecurringRecordVM _record = new();
+    private bool _isIncome;
+
+    private bool _recurringRecordsPanelIsOpen = false;
+
+    public bool RecurringRecordsPanelIsOpen
+    {
+        get
+        {
+            return _recurringRecordsPanelIsOpen;
+        }
+        set
+        {
+            _recurringRecordsPanelIsOpen = value;
+        }
+    }
+
+    private bool _loadingCategories;
+    private List<CategoryVM>? _categories;
+    private bool _categoryFormIsOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (addEvents.RecordToEdit != null)
+        {
+            _record.Id = addEvents.RecordToEdit.Id;
+            _record.Name = addEvents.RecordToEdit.Name;
+            _record.Amount = addEvents.RecordToEdit.Amount;
+
+            _isIncome = addEvents.RecordToEdit.Amount > 0 ? true : false;
+
+            _record.TransactionDate = addEvents.RecordToEdit.TransactionDate;
+            _record.CategoryId = addEvents.RecordToEdit.CategoryId;
+
+            _record.IsActive = addEvents.RecordToEdit.IsActive ?? default;
+            _record.NextDate = addEvents.RecordToEdit.NextDate ?? default;
+            _record.RepeatEveryDayOfMonth = addEvents.RecordToEdit.RepeatEveryDayOfMonth ?? 1;
+        }
+
+        if (addEvents.TypeOfDialog == TypeOfAddEditFormDialog.Add)
+            TransactionDate = DateTime.Today;
+
+        if (addEvents.TypeOfDialog == TypeOfAddEditFormDialog.EditRecurringRecord)
+            RecurringRecordsPanelIsOpen = true;
+
+        _title = addEvents.TypeOfDialog == TypeOfAddEditFormDialog.Add ? "Add new record" : "Edit record";
+
+        await GetCategory();
+
+        StateHasChanged();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        _record.Amount = _isIncome ? Math.Abs(_record.Amount) : Math.Abs(_record.Amount) * -1;
+        _record.IsActive = true;
+
+        Dictionary<(TypeOfAddEditFormDialog RDType, bool rec), (Func<Task<HttpResponseMessage>> Operations, HttpStatusCode StatusCode)> operationsOnSubmit = new()
+        {
+            {(TypeOfAddEditFormDialog.Add, false),                 (async () => { return await _httpService.CreateItem((RecordVM)_record, "/api/tracker"); }, HttpStatusCode.Created)},
+            {(TypeOfAddEditFormDialog.EditRecord, false),          (async () => { return await _httpService.UpdateItem((RecordVM)_record, "/api/tracker"); }, HttpStatusCode.OK)},
+            {(TypeOfAddEditFormDialog.Add, true),                  (async () => { var res = await _httpService.CreateItem(_record, "/api/recurring"); await _httpService.GetListOfItems("api/recurring/ex"); return res; }, HttpStatusCode.Created)},
+            {(TypeOfAddEditFormDialog.EditRecurringRecord, true),  (async () => { var res = await _httpService.UpdateItem(_record, "/api/recurring"); await _httpService.GetListOfItems("api/recurring/ex"); return res; }, HttpStatusCode.OK)}
+        };
+
+        var responseMessage = await operationsOnSubmit[(addEvents.TypeOfDialog, RecurringRecordsPanelIsOpen)].Operations.Invoke();
+
+        if (responseMessage == null) return;
+
+        if (responseMessage.StatusCode == operationsOnSubmit[(addEvents.TypeOfDialog, RecurringRecordsPanelIsOpen)].StatusCode)
+            addEvents.Execute();
+        else
+            _errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+    }
+
+    private async Task GetCategory()
+    {
+        _loadingCategories = true;
+        try
+        {
+            var respond = await _httpService.GetListOfItems("/api/category");
+
+            if (respond == null) return;
+
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
+
+                _categories = categories ?? new();
+                if (_record.CategoryId is null)
+                    _record.CategoryId = _categories.First().Id;
+            }
+            else
+            {
+                _categories = new();
+                _errorMessage.Message = await respond.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage.Message = ex.Message;
+        }
+
+        _loadingCategories = false;
+        StateHasChanged();
+    }
+
+    public enum TypeOfAddEditFormDialog
+    {
+        Add,
+        EditRecord,
+        EditRecurringRecord
+    }
+}
