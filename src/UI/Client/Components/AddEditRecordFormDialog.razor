@@ -34,7 +34,7 @@
                                     <div class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></div>
                                 </div>
                             }
-                            else if (_categories.Count is 0)
+                            else if (_categories.Count == 0)
                             {
                                 <div>You don't have any categories</div>
                             }
@@ -106,7 +106,10 @@
                     }
 
                     <div class="d-flex justify-content-end">
-                        <button class="btn btn-outline-success mb-3" type="submit">Submit</button>
+                        <button class="btn btn-outline-success mb-3" disabled="@_btnIsDisabled" type="submit">
+                            Submit
+                            <div class="spinner-border spinner-border-sm ms-2" hidden="@(!_btnIsDisabled)" role="status" aria-hidden="true"></div>
+                        </button>
                     </div>
                 </EditForm>
             </div>
@@ -116,8 +119,8 @@
 @if (_categoryFormIsOpen)
 {
     <CategoryFormDialog Title="Add new category"
-                        OnClose="@(async (bool value) => { _categoryFormIsOpen = false; await GetCategory(); if(value) _record.CategoryId = _categories.OrderBy(x => x.Id).Last().Id; StateHasChanged(); })"
-                        TypeOfModal="CategoryFormDialog.TypeOfModalDialog.Create">
+                    OnClose="@(async (bool value) => { _categoryFormIsOpen = false; await GetCategory(); if(value) _record.CategoryId = _categories.OrderBy(x => x.Id).Last().Id; StateHasChanged(); })"
+                    TypeOfModal="CategoryFormDialog.TypeOfModalDialog.Create">
     </CategoryFormDialog>
 }
 
@@ -134,6 +137,7 @@
     }
 
     private string _title = "";
+    private bool _btnIsDisabled = false;
 
     private RecurringRecordVM _record = new();
     private bool _isIncome;
@@ -189,6 +193,7 @@
 
     private async Task HandleValidSubmit()
     {
+        _btnIsDisabled = true;
         _record.Amount = _isIncome ? Math.Abs(_record.Amount) : Math.Abs(_record.Amount) * -1;
         _record.IsActive = true;
 
@@ -208,6 +213,8 @@
             addEvents.Execute();
         else
             _errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+
+        _btnIsDisabled = false;
     }
 
     private async Task GetCategory()
