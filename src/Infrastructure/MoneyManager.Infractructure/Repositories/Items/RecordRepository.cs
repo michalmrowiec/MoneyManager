@@ -40,6 +40,7 @@ namespace MoneyManager.Infractructure.Repositories.Items
         public async Task<IList<Record>> GetRecordsForMonthAsync(int userId, int year, int month)
         {
             var records = await _dbContext.Records
+                .Include(r => r.Category)
                 .Where(r => r.UserId == userId && r.TransactionDate.Year == year && r.TransactionDate.Month == month)
                 .ToListAsync();
 
