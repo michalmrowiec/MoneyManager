@@ -1,4 +1,5 @@
 ﻿@page "/tracker"
+@using MoneyManager.Client.Components.AddEditRecord;
 @using MoneyManager.Client.Models
 @using MoneyManager.Client.Models.ViewModels;
 @using MoneyManager.Client.Services
@@ -11,14 +12,13 @@
 @using System.Net.Http.Headers
 @using System.Text
 @using System.IO
-@using static MoneyManager.Client.Components.AddEditRecordFormDialog;
 @inject HttpClient http
 @inject IJSRuntime JS
 @inject ILocalStorageService _localStorage
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
-@inject AddEvents addEvents
+@inject RecordFormDialogEventHelper addEvents
 
 <PageTitle>Financial dashboard</PageTitle>
 
@@ -226,15 +226,15 @@ else
 
     private void OpenEditRecordForm(RecordVM item)
     {
-        addEvents.TypeOfDialog = TypeOfAddEditFormDialog.EditRecord;
+        addEvents.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecord;
         addEvents.RecordToEdit = new FormRecordModel
-        {
-            Id = item.Id,
-            Name = item.Name,
-            Amount = item.Amount,
-            TransactionDate = item.TransactionDate,
-            CategoryId = item.CategoryId
-        };
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Amount = item.Amount,
+                TransactionDate = item.TransactionDate,
+                CategoryId = item.CategoryId
+            };
         addEvents.AddIsOpen = true;
         StateHasChanged();
     }
@@ -377,7 +377,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        addEvents?.FuncsOnClose?.Add(EventCallback.Factory.Create(this, GetTable));
+        addEvents?.FuncsOnClose?.Add(new EventCallback(this, GetTable));
 
         await _httpService.GetListOfItems("api/recurring/ex");
 
@@ -393,7 +393,6 @@ else
         };
     }
 
-    #region Xlsx report file generate
     private Stream GetFileStream()
     {
         XmlReportGenerateService xmlGenerateService = new();
@@ -413,5 +412,4 @@ else
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
-    #endregion
 }

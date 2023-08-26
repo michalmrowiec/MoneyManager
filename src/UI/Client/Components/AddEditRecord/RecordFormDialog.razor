@@ -4,9 +4,10 @@
 @using Newtonsoft.Json
 @using MoneyManager.Client.ViewModels
 @using System.Net;
+@using static MoneyManager.Client.Components.AddEditRecord.RecordFormDialogEventHelper;
 @inject ErrorMessage _errorMessage
 @inject IHttpRecordService _httpService
-@inject AddEvents addEvents
+@inject RecordFormDialogEventHelper addEvents
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog">
@@ -248,12 +249,5 @@
 
         _loadingCategories = false;
         StateHasChanged();
-    }
-
-    public enum TypeOfAddEditFormDialog
-    {
-        Add,
-        EditRecord,
-        EditRecurringRecord
     }
 }

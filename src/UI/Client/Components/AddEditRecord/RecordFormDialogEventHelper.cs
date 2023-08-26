@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MoneyManager.Client.Models.ViewModels;
-using static MoneyManager.Client.Components.AddEditRecordFormDialog;
 
-namespace MoneyManager.Client
+namespace MoneyManager.Client.Components.AddEditRecord
 {
-    public class AddEvents
+    public partial class RecordFormDialogEventHelper
     {
         private bool _addIsOpen;
-        public bool AddIsOpen {
+        public bool AddIsOpen
+        {
             get
             {
                 return _addIsOpen;
@@ -30,6 +30,13 @@ namespace MoneyManager.Client
             RecordToEdit = null;
             FuncsOnClose?.ForEach(async x => await x.InvokeAsync());
             TypeOfDialog = TypeOfAddEditFormDialog.Add;
+        }
+
+        public enum TypeOfAddEditFormDialog
+        {
+            Add,
+            EditRecord,
+            EditRecurringRecord
         }
     }
 }

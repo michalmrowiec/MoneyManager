@@ -5,10 +5,10 @@
 @using Newtonsoft.Json
 @using System.IdentityModel.Tokens.Jwt
 @using System.Security.Claims
-@inject HttpClient http;
+@inject HttpClient httpClient;
 @inject NavigationManager navigationManager
 @inject ILocalStorageService _localStorage
-@inject AppState appState
+@inject AuthenticationState authenticationState
 @inject ErrorMessage errorMessage
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
@@ -64,7 +64,7 @@
         _loading = true;
         try
         {
-            var result = await http.PostAsJsonAsync("/api/account/login", _loginUserVM);
+            var result = await httpClient.PostAsJsonAsync("/api/account/login", _loginUserVM);
             //UserTokenVM token = new UserTokenVM();
             //token.Token = await result.Content.ReadAsStringAsync();
 
@@ -74,7 +74,7 @@
                 var tokenHandler = new JwtSecurityTokenHandler();
                 userToken.UserId = int.Parse(tokenHandler.ReadJwtToken(userToken.Token).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
                 await _localStorage.SetItem<UserTokenVM>("user", userToken);
-                appState.LoggedIn = true;
+                authenticationState.LoggedIn = true;
                 navigationManager.NavigateTo("tracker");
                 await _httpService.GetListOfItems("api/recurring/ex");
             }

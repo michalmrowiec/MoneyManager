@@ -1,13 +1,15 @@
 ﻿@using MoneyManager.Client.Components
+@using MoneyManager.Client.Components.AddEditRecord;
+@using MoneyManager.Client.Pages.LoginUsers;
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using EnumsNET
 @inherits LayoutComponentBase
 @inject ILocalStorageService _localStorage
-@inject AppState appState
+@inject AuthenticationState appState
 @inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
-@inject AddEvents addEvents
+@inject RecordFormDialogEventHelper addEvents
 
 <div class="page">
     <div class="sidebar">
@@ -53,14 +55,11 @@
         {
             @if (addEvents.AddIsOpen)
             {
-                <AddEditRecordFormDialog/>
+                <RecordFormDialog />
             }
             <a class="btn-float" style="cursor: pointer;" @onclick="@( () => { addEvents.AddIsOpen = true; })">
                 <i class="oi oi-plus btn-float-icon"></i>
             </a>
-@*             <a href="/addrecord" class="btn-float">
-                <i class="oi oi-plus btn-float-icon"></i>
-            </a> *@
         }
 
     </main>
@@ -100,10 +99,12 @@
     {
         appState.OnChange += ChceckIfLoggedIn;
         appState.OnChange += StateHasChanged;
+
         nameOfSubpage.OnChange += StateHasChanged;
         errorMessage.OnChange += StateHasChanged;
-        addEvents?.FuncsOnOpen?.Add(EventCallback.Factory.Create(this, StateHasChanged));
-        addEvents?.FuncsOnClose?.Add(EventCallback.Factory.Create(this, StateHasChanged));
+
+        addEvents?.FuncsOnOpen?.Add(new(this, StateHasChanged));
+        addEvents?.FuncsOnClose?.Add(new EventCallback(this, StateHasChanged));
     }
 
     void Dispose()

@@ -1,16 +1,16 @@
 ﻿@page "/recurring"
 @using MoneyManager.Client.Components
+@using MoneyManager.Client.Components.AddEditRecord;
 @using MoneyManager.Client.Models
 @using MoneyManager.Client.Models.ViewModels;
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @using System.Globalization
-@using static MoneyManager.Client.Components.AddEditRecordFormDialog;
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
-@inject AddEvents addEvents
+@inject RecordFormDialogEventHelper addEvents
 
 <PageTitle>Recurring records</PageTitle>
 
@@ -196,7 +196,7 @@ else
 
     private void OpenEditRecordForm(RecurringRecordVM item)
     {
-        addEvents.TypeOfDialog = TypeOfAddEditFormDialog.EditRecurringRecord;
+        addEvents.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecurringRecord;
         addEvents.RecordToEdit = new FormRecordModel
             {
                 Id = item.Id,
@@ -294,7 +294,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        addEvents?.FuncsOnClose?.Add(EventCallback.Factory.Create(this, GetRecurringRecord));
+        addEvents?.FuncsOnClose?.Add(new EventCallback(this, GetRecurringRecord));
 
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.RecurringRecords;
         errorMessage.Message = null;

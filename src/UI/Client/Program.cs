@@ -4,6 +4,8 @@ using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MoneyManager.Client;
+using MoneyManager.Client.Components.AddEditRecord;
+using MoneyManager.Client.Pages.LoginUsers;
 using MoneyManager.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -11,8 +13,8 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<AppState>();
-builder.Services.AddSingleton<AddEvents>();
+builder.Services.AddSingleton<AuthenticationState>();
+builder.Services.AddSingleton<RecordFormDialogEventHelper>();
 builder.Services.AddSingleton<ErrorMessage>();
 builder.Services.AddSingleton<NameOfSubpage>();
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
