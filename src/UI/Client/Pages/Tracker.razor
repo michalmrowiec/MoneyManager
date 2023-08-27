@@ -12,13 +12,13 @@
 @using System.Net.Http.Headers
 @using System.Text
 @using System.IO
-@inject HttpClient http
 @inject IJSRuntime JS
 @inject ILocalStorageService _localStorage
-@inject IHttpRecordService _httpService
+@inject IHttpRecordService httpService
+@inject IDisplayService displayService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
-@inject RecordFormDialogEventHelper addEvents
+@inject RecordFormDialogEventHelper recordFormDialogEventHelper
 
 <PageTitle>Financial dashboard</PageTitle>
 
@@ -51,11 +51,11 @@ else
             </div>
             <div width="20%" class="ms-2">
                 <Dropdown>
-                    <DropdownToggle Outline Color="Color.Info">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(_filterParameters.Month)</DropdownToggle>
+                    <DropdownToggle Outline Color="Color.Info">@displayService.DisplayMonth(_filterParameters.Month)</DropdownToggle>
                      <DropdownMenu>
                          @foreach (var month in _listOfMonthsForSelect)
                         {
-                            <DropdownItem @onclick="@(async () => { _filterParameters.Month = month; await GetTable(); })">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</DropdownItem>
+                            <DropdownItem @onclick="@(async () => { _filterParameters.Month = month; await GetTable(); })">@displayService.DisplayMonth(month)</DropdownItem>
                         }
                     </DropdownMenu>
                 </Dropdown>
@@ -226,8 +226,8 @@ else
 
     private void OpenEditRecordForm(RecordVM item)
     {
-        addEvents.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecord;
-        addEvents.RecordToEdit = new FormRecordModel
+        recordFormDialogEventHelper.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecord;
+        recordFormDialogEventHelper.RecordToEdit = new FormRecordModel
             {
                 Id = item.Id,
                 Name = item.Name,
@@ -235,7 +235,7 @@ else
                 TransactionDate = item.TransactionDate,
                 CategoryId = item.CategoryId
             };
-        addEvents.AddIsOpen = true;
+        recordFormDialogEventHelper.AddIsOpen = true;
         StateHasChanged();
     }
 
@@ -245,7 +245,7 @@ else
     {
         try
         {
-            var responseMessage = await _httpService.GetListOfItems("/api/stat/total/");
+            var responseMessage = await httpService.GetListOfItems("/api/stat/total/");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -285,7 +285,7 @@ else
     {
         try
         {
-            var respond = await _httpService.GetListOfItems("/api/tracker/dates");
+            var respond = await httpService.GetListOfItems("/api/tracker/dates");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -335,7 +335,7 @@ else
 
         try
         {
-            var responseMessage = await _httpService.GetListOfItems("/api/tracker/");
+            var responseMessage = await httpService.GetListOfItems("/api/tracker/");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -377,9 +377,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        addEvents?.FuncsOnClose?.Add(new EventCallback(this, GetTable));
+        recordFormDialogEventHelper?.FuncsOnClose?.Add(new EventCallback(this, GetTable));
 
-        await _httpService.GetListOfItems("api/recurring/ex");
+        await httpService.GetListOfItems("api/recurring/ex");
 
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.FinancialDashboard;
         errorMessage.Message = null;

@@ -7,10 +7,10 @@
 @using System.Security.Claims
 @inject HttpClient httpClient;
 @inject NavigationManager navigationManager
-@inject ILocalStorageService _localStorage
+@inject ILocalStorageService localStorage
 @inject AuthenticationState authenticationState
 @inject ErrorMessage errorMessage
-@inject IHttpRecordService _httpService
+@inject IHttpRecordService httpService
 @inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Login</PageTitle>
@@ -65,22 +65,19 @@
         try
         {
             var result = await httpClient.PostAsJsonAsync("/api/account/login", _loginUserVM);
-            //UserTokenVM token = new UserTokenVM();
-            //token.Token = await result.Content.ReadAsStringAsync();
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 UserTokenVM userToken = JsonConvert.DeserializeObject<UserTokenVM>(await result.Content.ReadAsStringAsync()) ?? new();
                 var tokenHandler = new JwtSecurityTokenHandler();
                 userToken.UserId = int.Parse(tokenHandler.ReadJwtToken(userToken.Token).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                await _localStorage.SetItem<UserTokenVM>("user", userToken);
+                await localStorage.SetItem<UserTokenVM>("user", userToken);
                 authenticationState.LoggedIn = true;
                 navigationManager.NavigateTo("tracker");
-                await _httpService.GetListOfItems("api/recurring/ex");
+                await httpService.GetListOfItems("api/recurring/ex");
             }
             else
             {
-                //error = await result.Content.ReadAsStringAsync();
                 var response = await result.Content.ReadAsStringAsync();
                 var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
                 errorMessage.Message = baseResponse.Message;

@@ -7,10 +7,10 @@
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @using System.Globalization
-@inject IHttpRecordService _httpService
+@inject IHttpRecordService httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
-@inject RecordFormDialogEventHelper addEvents
+@inject RecordFormDialogEventHelper recordFormDialogEventHelper
 
 <PageTitle>Recurring records</PageTitle>
 
@@ -196,8 +196,8 @@ else
 
     private void OpenEditRecordForm(RecurringRecordVM item)
     {
-        addEvents.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecurringRecord;
-        addEvents.RecordToEdit = new FormRecordModel
+        recordFormDialogEventHelper.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecurringRecord;
+        recordFormDialogEventHelper.RecordToEdit = new FormRecordModel
             {
                 Id = item.Id,
                 Name = item.Name,
@@ -208,7 +208,7 @@ else
                 NextDate = item.NextDate,
                 RepeatEveryDayOfMonth = item.RepeatEveryDayOfMonth
             };
-        addEvents.AddIsOpen = true;
+        recordFormDialogEventHelper.AddIsOpen = true;
         StateHasChanged();
     }
 
@@ -239,7 +239,7 @@ else
     {
         try
         {
-            var responseMessage = await _httpService.GetListOfItems("api/recurring");
+            var responseMessage = await httpService.GetListOfItems("api/recurring");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -269,7 +269,7 @@ else
     {
         try
         {
-            var responseMessage = await _httpService.GetListOfItems("api/category");
+            var responseMessage = await httpService.GetListOfItems("api/category");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -294,7 +294,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        addEvents?.FuncsOnClose?.Add(new EventCallback(this, GetRecurringRecord));
+        recordFormDialogEventHelper?.FuncsOnClose?.Add(new EventCallback(this, GetRecurringRecord));
 
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.RecurringRecords;
         errorMessage.Message = null;

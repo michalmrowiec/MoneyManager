@@ -5,8 +5,8 @@
 @using MoneyManager.Client.ViewModels
 @using System.Net;
 @using static MoneyManager.Client.Components.AddEditRecord.RecordFormDialogEventHelper;
-@inject ErrorMessage _errorMessage
-@inject IHttpRecordService _httpService
+@inject ErrorMessage errorMessage
+@inject IHttpRecordService httpService
 @inject RecordFormDialogEventHelper addEvents
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
@@ -158,7 +158,7 @@
     }
 
     private bool _loadingCategories;
-    private List<CategoryVM>? _categories;
+    private List<CategoryVM> _categories = new();
     private bool _categoryFormIsOpen;
 
     protected override async Task OnInitializedAsync()
@@ -200,10 +200,10 @@
 
         Dictionary<(TypeOfAddEditFormDialog RDType, bool rec), (Func<Task<HttpResponseMessage>> Operations, HttpStatusCode StatusCode)> operationsOnSubmit = new()
         {
-            {(TypeOfAddEditFormDialog.Add, false),                 (async () => { return await _httpService.CreateItem((RecordVM)_record, "/api/tracker"); }, HttpStatusCode.Created)},
-            {(TypeOfAddEditFormDialog.EditRecord, false),          (async () => { return await _httpService.UpdateItem((RecordVM)_record, "/api/tracker"); }, HttpStatusCode.OK)},
-            {(TypeOfAddEditFormDialog.Add, true),                  (async () => { var res = await _httpService.CreateItem(_record, "/api/recurring"); await _httpService.GetListOfItems("api/recurring/ex"); return res; }, HttpStatusCode.Created)},
-            {(TypeOfAddEditFormDialog.EditRecurringRecord, true),  (async () => { var res = await _httpService.UpdateItem(_record, "/api/recurring"); await _httpService.GetListOfItems("api/recurring/ex"); return res; }, HttpStatusCode.OK)}
+            {(TypeOfAddEditFormDialog.Add, false),                 (async () => { return await httpService.CreateItem((RecordVM)_record, "/api/tracker"); }, HttpStatusCode.Created)},
+            {(TypeOfAddEditFormDialog.EditRecord, false),          (async () => { return await httpService.UpdateItem((RecordVM)_record, "/api/tracker"); }, HttpStatusCode.OK)},
+            {(TypeOfAddEditFormDialog.Add, true),                  (async () => { var res = await httpService.CreateItem(_record, "/api/recurring"); await httpService.GetListOfItems("api/recurring/ex"); return res; }, HttpStatusCode.Created)},
+            {(TypeOfAddEditFormDialog.EditRecurringRecord, true),  (async () => { var res = await httpService.UpdateItem(_record, "/api/recurring"); await httpService.GetListOfItems("api/recurring/ex"); return res; }, HttpStatusCode.OK)}
         };
 
         var responseMessage = await operationsOnSubmit[(addEvents.TypeOfDialog, RecurringRecordsPanelIsOpen)].Operations.Invoke();
@@ -213,7 +213,7 @@
         if (responseMessage.StatusCode == operationsOnSubmit[(addEvents.TypeOfDialog, RecurringRecordsPanelIsOpen)].StatusCode)
             addEvents.Execute();
         else
-            _errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
+            errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
 
         _btnIsDisabled = false;
     }
@@ -223,7 +223,7 @@
         _loadingCategories = true;
         try
         {
-            var respond = await _httpService.GetListOfItems("/api/category");
+            var respond = await httpService.GetListOfItems("/api/category");
 
             if (respond == null) return;
 
@@ -239,12 +239,12 @@
             else
             {
                 _categories = new();
-                _errorMessage.Message = await respond.Content.ReadAsStringAsync();
+                errorMessage.Message = await respond.Content.ReadAsStringAsync();
             }
         }
         catch (Exception ex)
         {
-            _errorMessage.Message = ex.Message;
+            errorMessage.Message = ex.Message;
         }
 
         _loadingCategories = false;

@@ -5,11 +5,11 @@
 @using MoneyManager.Client.ViewModels
 @using EnumsNET
 @inherits LayoutComponentBase
-@inject ILocalStorageService _localStorage
+@inject ILocalStorageService localStorage
 @inject AuthenticationState appState
 @inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
-@inject RecordFormDialogEventHelper addEvents
+@inject RecordFormDialogEventHelper recordFormDialogEventHelper
 
 <div class="page">
     <div class="sidebar">
@@ -53,11 +53,11 @@
 
         @if (appState.LoggedIn)
         {
-            @if (addEvents.AddIsOpen)
+            @if (recordFormDialogEventHelper.AddIsOpen)
             {
                 <RecordFormDialog />
             }
-            <a class="btn-float" style="cursor: pointer;" @onclick="@( () => { addEvents.AddIsOpen = true; })">
+            <a class="btn-float" style="cursor: pointer;" @onclick="@( () => { recordFormDialogEventHelper.AddIsOpen = true; })">
                 <i class="oi oi-plus btn-float-icon"></i>
             </a>
         }
@@ -70,7 +70,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        UserTokenVM user = await _localStorage.GetItem<UserTokenVM>("user");
+        UserTokenVM user = await localStorage.GetItem<UserTokenVM>("user");
         if (user.Token is not null)
         {
             appState.LoggedIn = true;
@@ -79,13 +79,13 @@
 
     private async void Logout()
     {
-        await _localStorage.RemoveItem("user");
+        await localStorage.RemoveItem("user");
         appState.LoggedIn = false;
     }
 
     private async void ChceckIfLoggedIn()
     {
-        UserTokenVM UserTokenVM = await _localStorage.GetItem<UserTokenVM>("user");
+        UserTokenVM UserTokenVM = await localStorage.GetItem<UserTokenVM>("user");
         if (UserTokenVM is not null)
         {
             userName = UserTokenVM.Name;
@@ -103,8 +103,8 @@
         nameOfSubpage.OnChange += StateHasChanged;
         errorMessage.OnChange += StateHasChanged;
 
-        addEvents?.FuncsOnOpen?.Add(new(this, StateHasChanged));
-        addEvents?.FuncsOnClose?.Add(new EventCallback(this, StateHasChanged));
+        recordFormDialogEventHelper?.FuncsOnOpen?.Add(new(this, StateHasChanged));
+        recordFormDialogEventHelper?.FuncsOnClose?.Add(new(this, StateHasChanged));
     }
 
     void Dispose()

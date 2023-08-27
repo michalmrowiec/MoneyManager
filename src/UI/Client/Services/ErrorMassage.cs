@@ -1,4 +1,4 @@
-namespace MoneyManager.Client
+namespace MoneyManager.Client.Services
 {
     public class ErrorMessage
     {

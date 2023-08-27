@@ -9,6 +9,7 @@
 @inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
+@inject IDisplayService displayService
 
 <PageTitle>Planned Budgets</PageTitle>
 
@@ -33,17 +34,17 @@ else
             <h5>Select date:</h5>
             <div width="20%" class="ms-2">
                 <select class="form-select" value="@_selectedYearByUser" @onchange="SetYear">
-                    @foreach (var item in _listOfYearsForSelect)
+                    @foreach (var year in _listOfYearsForSelect)
                     {
-                        <option value="@item">@item</option>
+                        <option value="@year">@year</option>
                     }
                 </select>
             </div>
             <div width="20%" class="ms-2">
                 <select class="form-select" value="@_selectedMonthByUser" @onchange="SetMonth">
-                    @foreach (var item in _listOfMonthsForSelect)
+                    @foreach (var month in _listOfMonthsForSelect)
                     {
-                        <option value="@item">@(new DateTime(2022, item, 1).ToString("MMMM", CultureInfo.GetCultureInfo("en-US")))</option>
+                        <option value="@month">@displayService.DisplayMonth(month)</option>
                     }
                 </select>
             </div>
