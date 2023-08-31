@@ -1,8 +1,11 @@
 ﻿@page "/"
 @using System.IO
 @using MoneyManager.Client.Components
+@using MoneyManager.Client.Pages.LoginUsers;
+@using MoneyManager.Client.Services;
 @inject IJSRuntime JS
 @inject NameOfSubpage nameOfSubpage
+@inject AuthenticationState authenticationState
 
 <PageTitle>Home</PageTitle>
 
@@ -11,7 +14,14 @@
         <h4>
             This is your <a><b>Money Manager</b></a>. It will help you to track and analyse your finances and planning budgets.
         </h4>
+        @if (!authenticationState.LoggedIn)
+        {
+            <h5>To start tracking your finances, first <a href="register">create an account</a>.</h5>
+        }
         <p class="introduction mb-0">
+            <br />
+            You can add new expenses or income using the plus button in the bottom right corner of the screen.
+            <br />
             <br />
             You can save your incomes and expenses in the <span class="oi oi-list-rich" /><a href="/tracker"><b> Financial Dashboard</b></a>.
             <br />
@@ -33,7 +43,7 @@
     </div>
 </div>
 
-<div class="card">
+@* <div class="card">
     <div class="card-body">
         The last expense
     </div>
@@ -55,14 +65,7 @@
     <div class="card-body">
         Summary of the year
     </div>
-</div>
-
-@*<style>
-    a, a:hover, a:focus, a:active {
-        text-decoration: none;
-        color: inherit;
-    }
-</style>*@
+</div> *@
 
 @code {
     protected override void OnInitialized()

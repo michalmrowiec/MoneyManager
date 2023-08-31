@@ -1,6 +1,6 @@
 ﻿@using MoneyManager.Client.Services;
-@inject IHttpRecordService _httpRecordService
-@inject ErrorMessage _errorMessage
+@inject IHttpRecordService httpRecordService
+@inject ErrorMessage errorMessage
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
@@ -51,14 +51,14 @@
             return;
         try
         {
-            var response = await _httpRecordService.DeleteItem((int)IdRecordToDelete, UriDelete);
+            var response = await httpRecordService.DeleteItem((int)IdRecordToDelete, UriDelete);
             if (response == null) return;
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                _errorMessage.Message = await response.Content.ReadAsStringAsync();
+                errorMessage.Message = await response.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            _errorMessage.Message = ex.Message;
+            errorMessage.Message = ex.Message;
         }
     }
 

@@ -4,7 +4,7 @@
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
-@inject IHttpRecordService _httpTracker
+@inject IHttpRecordService _httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
 
@@ -51,7 +51,7 @@ else
                     <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditCategoryDialog(category))">Edit</button>
                 </td>
                 <td class="align-middle" width="10%">
-                    <button class="btn-close" @onclick="@(x => { _categoryToDelete = category; _deleteDialogOpen = true; StateHasChanged(); })"></button>
+                    <button class="btn-close" @onclick="@(x => OpenDeleteDialog(category))"></button>
                 </td>
             </tr>
         }
@@ -90,7 +90,26 @@ else
     public bool ReferenceToCategoryOpen { get; set; }
     public List<RecordVM>? ReferenceToCategoryListOfRecords { get; set; }
 
-    private List<EventCallback> OnCloseDeleteDialog { get; set; }
+    private List<EventCallback>? OnCloseDeleteDialog { get; set; }
+
+    private async Task OpenDeleteDialog(CategoryVM category)
+    {
+        List<RecordVM>? recordsReference = await CheckCategoryReference(category.Id);
+
+        _categoryToDelete = category;
+
+        if (recordsReference is null)
+        {
+            _deleteDialogOpen = true;
+        }
+        else
+        {
+            ReferenceToCategoryListOfRecords = recordsReference;
+            ReferenceToCategoryOpen = true;
+        }
+
+        StateHasChanged();
+    }
 
     private async Task CloseDeleteDialog(bool delete)
     {
@@ -122,7 +141,7 @@ else
 
         try
         {
-            var respond = await _httpTracker.DeleteItem(_categoryToDelete.Id, "/api/category/");
+            var respond = await _httpService.DeleteItem(_categoryToDelete.Id, "/api/category");
             if (respond != null && respond.StatusCode != System.Net.HttpStatusCode.OK)
                 errorMessage.Message = await respond.Content.ReadAsStringAsync();
 
@@ -141,13 +160,14 @@ else
 
     private async Task<List<RecordVM>?> CheckCategoryReference(int categoryId)
     {
-        var recordWithCategoryToDelete = await _httpTracker.GetRecordsForCategoryId(categoryId, "/api/tracker/cat/");
+        var recordWithCategoryToDelete = await _httpService.GetRecordsForCategoryId(categoryId, "/api/tracker/cat/");
         var rwct = await recordWithCategoryToDelete.Content.ReadAsStringAsync();
         var listRe = JsonConvert.DeserializeObject<List<RecordVM>>(rwct) ?? new List<RecordVM>();
+
         if (listRe.Capacity == 0)
             return null;
-        return listRe;
 
+        return listRe;
     }
 
     private async Task CloseEditDialog()
@@ -180,7 +200,7 @@ else
 
     private async Task GetAllategories()
     {
-        var respond = await _httpTracker.GetListOfItems("/api/category");
+        var respond = await _httpService.GetListOfItems("/api/category");
         var json = await respond.Content.ReadAsStringAsync();
         _categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
 

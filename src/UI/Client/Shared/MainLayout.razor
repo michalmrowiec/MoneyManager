@@ -1,11 +1,15 @@
-﻿@using MoneyManager.Client.Services
+﻿@using MoneyManager.Client.Components
+@using MoneyManager.Client.Components.AddEditRecord;
+@using MoneyManager.Client.Pages.LoginUsers;
+@using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using EnumsNET
 @inherits LayoutComponentBase
-@inject ILocalStorageService _localStorage
-@inject AppState appState
+@inject ILocalStorageService localStorage
+@inject AuthenticationState appState
 @inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
+@inject RecordFormDialogEventHelper recordFormDialogEventHelper
 
 <div class="page">
     <div class="sidebar">
@@ -20,8 +24,7 @@
             <div class="d-md-none">
                 <h4 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h4>
             </div>
-            @*            <div class="d-flex flex-row d-none d-sm-flex">
-            *@            <div class="user-info">
+            <div class="user-info">
                 @if (appState.LoggedIn)
                 {
                     <div class="">Hello <b>@userName</b></div>
@@ -49,7 +52,11 @@
 
         @if (appState.LoggedIn)
         {
-            <a href="/addrecord" class="btn-float">
+            @if (recordFormDialogEventHelper.AddIsOpen)
+            {
+                <RecordFormDialog />
+            }
+            <a class="btn-float" style="cursor: pointer;" @onclick="@( () => { recordFormDialogEventHelper.AddIsOpen = true; })">
                 <i class="oi oi-plus btn-float-icon"></i>
             </a>
         }
@@ -62,7 +69,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        UserTokenVM user = await _localStorage.GetItem<UserTokenVM>("user");
+        UserTokenVM user = await localStorage.GetItem<UserTokenVM>("user") ?? new();
         if (user.Token is not null)
         {
             appState.LoggedIn = true;
@@ -71,13 +78,13 @@
 
     private async void Logout()
     {
-        await _localStorage.RemoveItem("user");
+        await localStorage.RemoveItem("user");
         appState.LoggedIn = false;
     }
 
     private async void ChceckIfLoggedIn()
     {
-        UserTokenVM UserTokenVM = await _localStorage.GetItem<UserTokenVM>("user");
+        UserTokenVM UserTokenVM = await localStorage.GetItem<UserTokenVM>("user") ?? new();
         if (UserTokenVM is not null)
         {
             userName = UserTokenVM.Name;
@@ -91,8 +98,12 @@
     {
         appState.OnChange += ChceckIfLoggedIn;
         appState.OnChange += StateHasChanged;
+
         nameOfSubpage.OnChange += StateHasChanged;
         errorMessage.OnChange += StateHasChanged;
+
+        recordFormDialogEventHelper?.FuncsOnOpen?.Add(new(this, StateHasChanged));
+        recordFormDialogEventHelper?.FuncsOnClose?.Add(new(this, StateHasChanged));
     }
 
     void Dispose()

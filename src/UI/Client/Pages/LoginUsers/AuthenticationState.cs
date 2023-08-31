@@ -1,6 +1,6 @@
-﻿namespace MoneyManager.Client
+﻿namespace MoneyManager.Client.Pages.LoginUsers
 {
-    public class AppState
+    public class AuthenticationState
     {
         private bool _loggedIn;
         public event Action? OnChange;

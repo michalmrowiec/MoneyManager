@@ -10,35 +10,33 @@ namespace MoneyManager.Client.Services.XlsxFileService
         public byte[] CreateXmlDoc(List<RecordVM> data)
         {
             byte[] byteArray;
-            using (MemoryStream mem = new MemoryStream())
+
+            using MemoryStream mem = new();
+            using SpreadsheetDocument document = SpreadsheetDocument.Create(mem, SpreadsheetDocumentType.Workbook);
+
+            WorkbookPart workbookPart = document.AddWorkbookPart();
+            workbookPart.Workbook = new Workbook();
+
+            WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+            worksheetPart.Worksheet = new Worksheet();
+
+            Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
+
+            Sheet sheet = new()
             {
-                using (SpreadsheetDocument document = SpreadsheetDocument.Create(mem, SpreadsheetDocumentType.Workbook))
-                {
-                    WorkbookPart workbookPart = document.AddWorkbookPart();
-                    workbookPart.Workbook = new Workbook();
+                Id = workbookPart.GetIdOfPart(worksheetPart),
+                SheetId = 1,
+                Name = "Finance"
+            };
+            sheets.Append(sheet);
 
-                    WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-                    worksheetPart.Worksheet = new Worksheet();
+            WriteToExcel(worksheetPart, data);
 
-                    Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
+            workbookPart.Workbook.Save();
+            document.Close();
+            byteArray = mem.ToArray();
 
-                    Sheet sheet = new Sheet()
-                    {
-                        Id = workbookPart.GetIdOfPart(worksheetPart),
-                        SheetId = 1,
-                        Name = "Finance"
-                    };
-                    sheets.Append(sheet);
-
-                    WriteToExcel(worksheetPart, data);
-
-                    workbookPart.Workbook.Save();
-                    document.Close();
-                    byteArray = mem.ToArray();
-
-                    return byteArray;
-                }
-            }
+            return byteArray;
 
 
         }

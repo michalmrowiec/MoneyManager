@@ -1,5 +1,5 @@
 ﻿@using MoneyManager.Client.Services;
-@inject ILocalStorageService _localStorage
+@inject ILocalStorageService localStorage
 
 
 <Router AppAssembly="@typeof(App).Assembly">
@@ -24,7 +24,7 @@
             This website uses cookies and other technologies to process your personal data and provide you with a better service and functionality. We only store and use the necessary data for this purpose. By continuing to browse this site, you agree to our use of cookies and data processing.
         </Paragraph>
         <div class="d-flex justify-content-end">
-            <Button Color="Color.Secondary" Clicked="@(() => {visible = false; _localStorage.SetItem<bool>("showCookieAlert", false);})">Allow all cookies</Button>
+            <Button Color="Color.Secondary" Clicked="@(() => {visible = false; localStorage.SetItem<bool>("showCookieAlert", false);})">Allow all cookies</Button>
         </div>
     </div>
 </Alert>
@@ -34,7 +34,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        visible = await _localStorage.GetItem2<bool?>("showCookieAlert") ?? true;
+        visible = await localStorage.GetItem<bool?>("showCookieAlert") ?? true;
         StateHasChanged();
     }
 }

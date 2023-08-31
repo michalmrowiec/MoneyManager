@@ -1,13 +1,16 @@
 ﻿@page "/recurring"
 @using MoneyManager.Client.Components
+@using MoneyManager.Client.Components.AddEditRecord;
 @using MoneyManager.Client.Models
+@using MoneyManager.Client.Models.ViewModels;
 @using MoneyManager.Client.Services
 @using MoneyManager.Client.ViewModels
 @using Newtonsoft.Json
 @using System.Globalization
-@inject IHttpRecordService _httpService
+@inject IHttpRecordService httpService
 @inject NameOfSubpage nameOfSubpage
 @inject ErrorMessage errorMessage
+@inject RecordFormDialogEventHelper recordFormDialogEventHelper
 
 <PageTitle>Recurring records</PageTitle>
 
@@ -74,7 +77,7 @@ else
                                 </RecordPreviewHover>
                             </td>
                             <td class="align-middle" width="5%">
-                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditForm(item))">Edit</button>
+                                <button class="btn btn-outline-secondary btn-sm align-middle" @onclick="@(x => OpenEditRecordForm(item))">Edit</button>
                             </td>
                             <td class="align-middle" width="5%">
                                 <button class="btn-close" @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })"></button>
@@ -100,27 +103,27 @@ else
             <div width="20%" class="ms-2">
                 <Dropdown>
                     <DropdownToggle Outline Color="Color.Info">@_sortBy</DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.IsActive); _sortBy = $"Status {_str[(int)RecordField.IsActive]}";})">Status</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
-                        <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Next date {_str[(int)RecordField.TransactionDate]}";})">Next date</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-            </div>
-        </div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th width="20%">Status</th>
-                    <th width="56%">Name</th>
-                    <th width="7%">Amount</th>
-                    <th width="13%">Next date</th>
-                    <th width="4%"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (_listOfRecurringRecords != null)
+                     <DropdownMenu>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.IsActive); _sortBy = $"Status {_str[(int)RecordField.IsActive]}";})">Status</DropdownItem>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Name); _sortBy = $"Name {_str[(int)RecordField.Name]}";})">Name</DropdownItem>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.Amount); _sortBy = $"Amount {_str[(int)RecordField.Amount]}";})">Amout</DropdownItem>
+                         <DropdownItem @onclick="@(() => {SortButtonClick(RecordField.TransactionDate); _sortBy = $"Next date {_str[(int)RecordField.TransactionDate]}";})">Next date</DropdownItem>
+                     </DropdownMenu>
+                 </Dropdown>
+             </div>
+         </div>
+         <table class="table table-striped">
+             <thead>
+                 <tr>
+                     <th width="20%">Status</th>
+                     <th width="56%">Name</th>
+                     <th width="7%">Amount</th>
+                     <th width="13%">Next date</th>
+                     <th width="4%"></th>
+                 </tr>
+             </thead>
+             <tbody>
+                 @if (_listOfRecurringRecords != null)
                 {
                     @foreach (var item in _listOfRecurringRecords)
                     {
@@ -139,21 +142,21 @@ else
                             <td class="align-middle">
                                 <Dropdown>
                                     <DropdownToggle Outline Color="Color.Secondary" Size="Size.Small"></DropdownToggle>
-                                    <DropdownMenu>
-                                        <DropdownItem @onclick="@(x => OpenRecordPreview(item))">Details</DropdownItem>
-                                        <DropdownItem @onclick="@(x => OpenEditForm(item))">Edit</DropdownItem>
-                                        <DropdownItem @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })">Delete</DropdownItem>
-                                    </DropdownMenu>
-                                </Dropdown>
-                            </td>
-                        </tr>
+                                     <DropdownMenu>
+                                         <DropdownItem @onclick="@(x => OpenRecordPreview(item))">Details</DropdownItem>
+                                         <DropdownItem @onclick="@(x => OpenEditRecordForm(item))">Edit</DropdownItem>
+                                         <DropdownItem @onclick="@(x => { _recordToDelete = item; _deleteDialogOpen = true; StateHasChanged(); })">Delete</DropdownItem>
+                                     </DropdownMenu>
+                                 </Dropdown>
+                             </td>
+                         </tr>
                     }
                 }
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2">Summary<br/>(active only):</td>
-                    
+                    <td colspan="2">Summary<br />(active only):</td>
+
                     <td>@_listOfRecurringRecords?.Where(x => x.IsActive == true).Sum(x => x.Amount).ToString()</td>
                 </tr>
             </tfoot>
@@ -167,19 +170,13 @@ else
 
     @if (_deleteDialogOpen)
     {
-        <ConfirmDeleteDialog
-            DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
-            EventCallbacks="OnCloseDeleteDialog"
-            UriDelete="/api/recurring/"
-            IdRecordToDelete="_recordToDelete?.Id"
-            Title="Are you sure?"
-            Text=@($"Do you want delete this: {_recordToDelete?.Name}?")>
+        <ConfirmDeleteDialog DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"
+                             EventCallbacks="OnCloseDeleteDialog"
+                             UriDelete="/api/recurring/"
+                             IdRecordToDelete="_recordToDelete?.Id"
+                             Title="Are you sure?"
+                             Text=@($"Do you want delete this: {_recordToDelete?.Name}?")>
         </ConfirmDeleteDialog>
-    }
-
-    @if (EditFormOpen && _editRecord != null)
-    {
-        <RecordFormDialog Title="Edit Recurring Record" OnClose="CloseEditForm" RecurringRecordItem="ReturnedRecord" RecurringRecordToFill="_editRecord" TypeOfDialog="TypeOfFormlDialog.EditRecurringRecord" RecurringRecordsPanel="false"></RecordFormDialog>
     }
 }
 
@@ -190,14 +187,30 @@ else
     private string _sortBy = "";
     private RecordField? _sortClickDesc = null;
     private bool _getTableLoading = true;
-    private RecurringRecordVM? _editRecord = null;
-    private bool EditFormOpen { get; set; }
     private RecurringRecordVM? _recordPreview = null;
     private bool RecordPreviewOpen { get; set; }
     private bool _deleteDialogOpen = false;
     private RecurringRecordVM? _recordToDelete;
 
-    private List<EventCallback> OnCloseDeleteDialog { get; set; }
+    private List<EventCallback>? OnCloseDeleteDialog { get; set; }
+
+    private void OpenEditRecordForm(RecurringRecordVM item)
+    {
+        recordFormDialogEventHelper.TypeOfDialog = RecordFormDialogEventHelper.TypeOfAddEditFormDialog.EditRecurringRecord;
+        recordFormDialogEventHelper.RecordToEdit = new FormRecordModel
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Amount = item.Amount,
+                TransactionDate = item.TransactionDate,
+                CategoryId = item.CategoryId,
+                IsActive = item.IsActive,
+                NextDate = item.NextDate,
+                RepeatEveryDayOfMonth = item.RepeatEveryDayOfMonth
+            };
+        recordFormDialogEventHelper.AddIsOpen = true;
+        StateHasChanged();
+    }
 
     private void OpenRecordPreview(RecurringRecordVM recurringRecord)
     {
@@ -213,29 +226,6 @@ else
         StateHasChanged();
     }
 
-    private void ReturnedRecord(RecurringRecordVM RecordVM)
-    {
-        _editRecord = RecordVM;
-    }
-
-    private void OpenEditForm(RecurringRecordVM record)
-    {
-        EditFormOpen = true;
-        _editRecord = record;
-        StateHasChanged();
-    }
-
-    private async Task CloseEditForm(bool editConfirmed)
-    {
-        if (editConfirmed && _editRecord != null)
-        {
-            await Update();
-        }
-        _editRecord = null;
-        await GetRecurringRecord();
-        StateHasChanged();
-    }
-
     private void SortButtonClick(RecordField sortBy)
     {
         SortArrayService.SortByType<RecurringRecordVM>(sortBy, _sortClickDesc == sortBy, ref _listOfRecurringRecords, ref _str);
@@ -245,29 +235,11 @@ else
             _sortClickDesc = sortBy;
     }
 
-    private async Task Update()
-    {
-        try
-        {
-            if (_editRecord == null) return;
-            var response = await _httpService.UpdateItem(_editRecord, "/api/recurring");
-            if (response == null) return;
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                errorMessage.Message = await response.Content.ReadAsStringAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage.Message = ex.Message;
-        }
-    }
-
     private async Task GetRecurringRecord()
     {
         try
         {
-            var responseMessage = await _httpService.GetListOfItems("api/recurring");
+            var responseMessage = await httpService.GetListOfItems("api/recurring");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -297,7 +269,7 @@ else
     {
         try
         {
-            var responseMessage = await _httpService.GetListOfItems("api/category");
+            var responseMessage = await httpService.GetListOfItems("api/category");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -317,31 +289,13 @@ else
             record.CategoryName = _listOfCategories.FirstOrDefault(x => x.Id == record.CategoryId)?.Name;
         }
 
-        //var recordsWithCategories =
-        //from record in _listOfRecurringRecords
-        //join category in _listOfCategories on record.CategoryId equals category.Id into ps
-        //from supCategory in ps.DefaultIfEmpty()
-        //select new RecurringRecordVM
-        //    {
-        //        Id = record.Id,
-        //        Name = record.Name,
-        //        CategoryName = supCategory.Name,
-        //        Amount = record.Amount,
-        //        TransactionDate = record.TransactionDate,
-        //        CategoryId = record.CategoryId,
-        //        IsActive = record.IsActive,
-        //        NextDate = record.NextDate,
-        //        RepeatEveryDayOfMonth = record.RepeatEveryDayOfMonth
-
-        //    };
-
-        //_listOfRecurringRecords = recordsWithCategories.ToList();
-
         StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
     {
+        recordFormDialogEventHelper?.FuncsOnClose?.Add(new EventCallback(this, GetRecurringRecord));
+
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.RecurringRecords;
         errorMessage.Message = null;
         await GetRecurringRecord();

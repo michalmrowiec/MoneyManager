@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace MoneyManager.Client
+namespace MoneyManager.Client.Services
 {
     public class NameOfSubpage
     {
@@ -12,8 +12,8 @@ namespace MoneyManager.Client
             get { return _namesOfSubpage; }
             set
             {
-                if(_namesOfSubpage != value)
-                _namesOfSubpage = value;
+                if (_namesOfSubpage != value)
+                    _namesOfSubpage = value;
                 NotifyStateChanged();
             }
         }

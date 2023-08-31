@@ -2,8 +2,7 @@
 @using System.Net.Http.Headers
 @using Newtonsoft.Json
 @using MoneyManager.Client.ViewModels
-@using static MoneyManager.Client.Components.RecordFormDialog
-@inject IHttpRecordService _httpService
+@inject IHttpRecordService httpService
 
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
     <div class="modal-dialog">
@@ -174,7 +173,7 @@
     private async Task GetCategory()
     {
         _loadingCategories = true;
-        var respond = await _httpService.GetListOfItems("/api/category/");
+        var respond = await httpService.GetListOfItems("/api/category/");
         if (respond == null) return;
         var json = await respond.Content.ReadAsStringAsync();
         var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);

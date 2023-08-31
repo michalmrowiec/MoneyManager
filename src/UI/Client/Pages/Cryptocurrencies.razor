@@ -6,7 +6,7 @@
 @using Newtonsoft.Json;
 @using static MoneyManager.Client.Components.CryptoAssetFormDialog;
 @inject NameOfSubpage nameOfSubpage
-@inject IHttpRecordService _httpTracker
+@inject IHttpRecordService _httpService
 @inject ErrorMessage errorMessage
 
 <PageTitle>Crytpo Assets</PageTitle>
@@ -248,7 +248,7 @@ else
     {
         try
         {
-            var responseMessage = await _httpTracker.GetListOfItems("/api/crypto-assets");
+            var responseMessage = await _httpService.GetListOfItems("/api/crypto-assets");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {

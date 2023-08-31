@@ -3,6 +3,7 @@
 @using Newtonsoft.Json
 @using System.Globalization;
 @inject IHttpRecordService _httpService
+@inject IDisplayService displayService
 
 @if (!_loading)
 {
@@ -32,12 +33,12 @@
     @if (_monthsToo)
     {
         <Dropdown Class="d-inline pe-2">
-            <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(_selectedMonth)</DropdownToggle>
+            <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@displayService.DisplayMonth(_selectedMonth)</DropdownToggle>
             <DropdownMenu>
                 @foreach (var month in _months)
                 {
                     <DropdownItem @onclick="@(async () => {_selectedMonth = month; await HandleRedraw();})">
-                        @CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)
+                        @displayService.DisplayMonth(month)
                     </DropdownItem>
                 }
             </DropdownMenu>
