@@ -1,14 +1,12 @@
-﻿using MoneyManager.Client.ViewModels;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
+using MoneyManager.Client.ViewModels;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace MoneyManager.Client.Services
 {
     public interface ILocalStorageService
     {
-        Task<UserTokenVM> GetItem<T>(string key);
-        Task<T?> GetItem2<T>(string key);
+        Task<T?> GetItem<T>(string key);
         Task SetItem<T>(string key, T value);
         Task RemoveItem(string key);
     }
@@ -22,22 +20,7 @@ namespace MoneyManager.Client.Services
             _jsRuntime = jsRuntime;
         }
 
-        public async Task<UserTokenVM> GetItem<T>(string key)
-        {
-            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
-
-            if (json == null)
-                return new UserTokenVM();
-
-            var result = JsonSerializer.Deserialize<UserTokenVM>(json);
-
-            if (result == null)
-                return new UserTokenVM();
-
-            return result;
-        }
-
-        public async Task<T?> GetItem2<T>(string key)
+        public async Task<T?> GetItem<T>(string key)
         {
             var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
 

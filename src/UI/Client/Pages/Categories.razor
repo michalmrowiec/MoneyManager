@@ -141,7 +141,7 @@ else
 
         try
         {
-            var respond = await _httpService.DeleteItem(_categoryToDelete.Id, "/api/category/");
+            var respond = await _httpService.DeleteItem(_categoryToDelete.Id, "/api/category");
             if (respond != null && respond.StatusCode != System.Net.HttpStatusCode.OK)
                 errorMessage.Message = await respond.Content.ReadAsStringAsync();
 

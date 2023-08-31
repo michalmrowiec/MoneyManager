@@ -29,9 +29,9 @@
         <div class="h5 spinner-border"></div>
     </div>
 }
-else if (_listOfRecords.Count is 0 && _listOfRecordsTemp.Count is 0)
+else if (_listOfRecords.Count == 0 && _listOfRecordsTemp.Count == 0)
 {
-    <p>The table is empty, you can add a new record <a href="/addrecord">here</a></p>
+    <p>To add your first expense or income, use the plus button in the lower right corner of the screen or <b><a style="cursor: pointer;" @onclick="@(() => recordFormDialogEventHelper.AddIsOpen = true)">click here</a></b>.</p>
 }
 else
 {
@@ -239,13 +239,11 @@ else
         StateHasChanged();
     }
 
-    // TODO: clean up and sort here
-
     private async Task GetTotalSummary()
     {
         try
         {
-            var responseMessage = await httpService.GetListOfItems("/api/stat/total/");
+            var responseMessage = await httpService.GetListOfItems("/api/stat/total");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -292,6 +290,9 @@ else
                 var json = await respond.Content.ReadAsStringAsync();
                 var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
 
+                if (yearsWithMonths?.Count == 0)
+                    return;
+
                 _yearsWithMonths = yearsWithMonths ?? new();
 
                 _listOfYearsForSelect = yearsWithMonths?.Keys.OrderByDescending(x => x).ToList() ?? new();
@@ -335,7 +336,7 @@ else
 
         try
         {
-            var responseMessage = await httpService.GetListOfItems("/api/tracker/");
+            var responseMessage = await httpService.GetListOfItems("/api/tracker");
             if (responseMessage == null) return;
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
             {

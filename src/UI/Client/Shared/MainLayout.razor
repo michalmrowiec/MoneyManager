@@ -24,8 +24,7 @@
             <div class="d-md-none">
                 <h4 class="m-auto">@(((NamesOfSubpageEnum)nameOfSubpage.NamesOfSubpage).AsString(EnumFormat.Description))</h4>
             </div>
-            @*            <div class="d-flex flex-row d-none d-sm-flex">
-            *@            <div class="user-info">
+            <div class="user-info">
                 @if (appState.LoggedIn)
                 {
                     <div class="">Hello <b>@userName</b></div>
@@ -70,7 +69,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        UserTokenVM user = await localStorage.GetItem<UserTokenVM>("user");
+        UserTokenVM user = await localStorage.GetItem<UserTokenVM>("user") ?? new();
         if (user.Token is not null)
         {
             appState.LoggedIn = true;
@@ -85,7 +84,7 @@
 
     private async void ChceckIfLoggedIn()
     {
-        UserTokenVM UserTokenVM = await localStorage.GetItem<UserTokenVM>("user");
+        UserTokenVM UserTokenVM = await localStorage.GetItem<UserTokenVM>("user") ?? new();
         if (UserTokenVM is not null)
         {
             userName = UserTokenVM.Name;
