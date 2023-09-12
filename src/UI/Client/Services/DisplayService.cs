@@ -4,7 +4,8 @@ namespace MoneyManager.Client.Services
 {
     public interface IDisplayService
     {
-        string DisplayMonth(int month);
+        string DisplayNameOfMonth(int month);
+        string DisplayNameOfMonthAndYear(DateTime dateTime);
     }
 
     public class DisplayService : IDisplayService
@@ -16,6 +17,14 @@ namespace MoneyManager.Client.Services
             _culture = cultureInfo;
         }
 
-        public string DisplayMonth(int month) => _culture.DateTimeFormat.GetMonthName(month);
+        public string DisplayNameOfMonth(int month)
+        {
+            if (month < 1 || month > 12)
+                return "";
+
+            return _culture.DateTimeFormat.GetMonthName(month);
+        }
+        public string DisplayNameOfMonthAndYear(DateTime dateTime) => dateTime.ToString("MMMM yyyy", _culture);
+
     }
 }

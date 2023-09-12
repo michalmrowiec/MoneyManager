@@ -44,7 +44,7 @@ else
                 <select class="form-select" value="@_selectedMonthByUser" @onchange="SetMonth">
                     @foreach (var month in _listOfMonthsForSelect)
                     {
-                        <option value="@month">@displayService.DisplayMonth(month)</option>
+                        <option value="@month">@displayService.DisplayNameOfMonth(month)</option>
                     }
                 </select>
             </div>
@@ -178,14 +178,14 @@ else
         <PlannedBudgetDialog Title="Edit Planned Budget" TypeOfDialog="TypeOfFormlDialog.EditRecord" PlannedBudgetToFill="_plannedBudgetToEdit" FormRecordItem="ReturnedPlannedBudget" OnClose="CloseDialog"></PlannedBudgetDialog>
     }
 
-    if (_deleteDialogOpen)
+    if (_deleteDialogOpen && _plannedBudgetToDelete is not null)
     {
         <ConfirmDeleteDialog
             UriDelete="/api/plannedbudget/"
             IdRecordToDelete="_plannedBudgetToDelete?.Id"
             EventCallbacks="OnCloseDeleteDialog"
             Title="Are you sure?"
-            Text=@($"Do you want to delete planned budget for the category: {_plannedBudgetToDelete.Name} for {_plannedBudgetToDelete.TransactionDate.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("en-US"))}?")
+            Text=@($"Do you want to delete planned budget for the category: {_plannedBudgetToDelete?.Name} for {displayService.DisplayNameOfMonthAndYear(_plannedBudgetToDelete.TransactionDate)}?")
             DialogType="ConfirmDeleteDialog.ModalDialogType.DeleteCancel"></ConfirmDeleteDialog>
     }
 }

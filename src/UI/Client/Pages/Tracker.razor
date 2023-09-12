@@ -51,11 +51,11 @@ else
             </div>
             <div width="20%" class="ms-2">
                 <Dropdown>
-                    <DropdownToggle Outline Color="Color.Info">@displayService.DisplayMonth(_filterParameters.Month)</DropdownToggle>
+                    <DropdownToggle Outline Color="Color.Info">@displayService.DisplayNameOfMonth(_filterParameters.Month)</DropdownToggle>
                      <DropdownMenu>
                          @foreach (var month in _listOfMonthsForSelect)
                         {
-                            <DropdownItem @onclick="@(async () => { _filterParameters.Month = month; await GetTable(); })">@displayService.DisplayMonth(month)</DropdownItem>
+                            <DropdownItem @onclick="@(async () => { _filterParameters.Month = month; await GetTable(); })">@displayService.DisplayNameOfMonth(month)</DropdownItem>
                         }
                     </DropdownMenu>
                 </Dropdown>
