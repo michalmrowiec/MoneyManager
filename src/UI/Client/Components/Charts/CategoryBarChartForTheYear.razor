@@ -4,13 +4,20 @@
 @using System.Globalization;
 @using Blazorise
 @inject IHttpRecordService _httpService
+@inject IDisplayService displayService
 
 @if (!loading)
 {
     <div class="d-flex justify-content-between">
         <h4>Category chart</h4>
-        
-        <h5 style="text-align: right;">Average: @_averageNonZero</h5>
+
+        <div class="d-flex align-items-center">
+            <h5 style="text-align: right;">Average: @_averageNonZero</h5>
+            <button class="btn ms-2"
+                @onclick="@( () => { _selectMonthsDialogIsOpen = true; StateHasChanged(); } )">
+                <span class="oi oi-cog" />
+            </button>
+        </div>
     </div>
 
     <Dropdown Class="d-inline pe-2">
@@ -43,9 +50,19 @@ else
     </div>
 }
 
+@if (_selectMonthsDialogIsOpen)
+{
+    <SelectMonthForChart SelectedMonthsPassed="_dataWithAvgParam"
+                     SelectedMonths="HandleCallBack"
+                     EventCallbacks="OnCloseRecordDialog">
+    </SelectMonthForChart>
+}
+
 @code {
     [Parameter]
     public EventCallback<string> ErrorMessage { get; set; }
+
+    private List<EventCallback>? OnCloseRecordDialog { get; set; }
 
     bool loading = true;
     private decimal _averageNonZero = 0;
@@ -54,16 +71,24 @@ else
     private List<CategoryVM> _categories = new();
     private int _selectedYear;
     private CategoryVM _selectedCategory;
-    private bool[] _selectedMonthsAverage = { true, true, true, true, true, true, true, true, true, true, true, true };
-    Dropdown dropdown;
+    private List<(decimal Amount, bool InAverage)> _dataWithAvgParam = new() { (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true) };
 
     Chart<decimal> barChart = new();
-    List<decimal> data = new();
     BarChartDataset<decimal> dataset;
 
     List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
     List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
     string[] chartXAxisLabels = new string[12];
+
+    private bool _selectMonthsDialogIsOpen = false;
+
+    private void HandleCallBack(bool[] months)
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            _dataWithAvgParam[i] = (_dataWithAvgParam[i].Amount, months[i]);
+        }
+    }
 
     private async Task GetDataFrom(int catId, int yearId)
     {
@@ -75,14 +100,16 @@ else
             {
                 var jsonResponse = await respond.Content.ReadAsStringAsync();
                 var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
-                //data = resData.Values.ToList();
-                //data.ForEach(item => { item = Math.Abs(item); });
-                data = new List<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                _dataWithAvgParam = new() { (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true) };
                 foreach (var item in resData)
                 {
-                    //data[item.Key - 1] = Math.Abs(item.Value);
-                    data[item.Key - 1] = item.Value;
+                    _dataWithAvgParam[item.Key - 1] = (item.Value, item.Value != 0);
                 }
+
+                for (int i = 0; i < 12; i++)
+                    if (_dataWithAvgParam[i].Amount == 0)
+                        _dataWithAvgParam[i] = (0, false);
             }
             else
                 await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
@@ -147,11 +174,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        for (int i = 1; i < 13; i++)
+        OnCloseRecordDialog = new List<EventCallback>
         {
-            string month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i);
+            EventCallback.Factory.Create(this, CalculateAverage),
+            EventCallback.Factory.Create(this,  x => _selectMonthsDialogIsOpen = false),
+            EventCallback.Factory.Create(this,  x => StateHasChanged())
+        };
+
+        for (int i = 0; i < 12; i++)
+        {
+            string month = displayService.DisplayNameOfMonth(i + 1);
             month = char.ToUpper(month[0]) + month.Substring(1);
-            chartXAxisLabels[i - 1] = month;
+            chartXAxisLabels[i] = month;
         }
 
         await GetCategory();
@@ -169,13 +203,32 @@ else
     {
         await GetDataFrom(_selectedCategory.Id, _selectedYear);
 
-        dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", data, backgroundColors, borderColors);
+        dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", _dataWithAvgParam.Select(x => x.Amount).ToList(), backgroundColors, borderColors);
 
         await barChart.Clear();
 
         await barChart.AddLabelsDatasetsAndUpdate(chartXAxisLabels, dataset);
 
-        _averageNonZero = data.Where(x => x != 0).Count() == 0 ? 0 : Math.Round(data.Where(x => x != 0).Average(), 2);
+        CalculateAverage();
+
+        StateHasChanged();
+    }
+
+    private void CalculateAverage()
+    {
+        decimal sum = 0;
+
+        var inAverageArr = _dataWithAvgParam.Select(x => x.InAverage).ToArray();
+        for (int i = 0; i < 12; i++)
+        {
+            if (inAverageArr[i] == true)
+                sum += _dataWithAvgParam[i].Amount;
+        }
+
+        if (_dataWithAvgParam.Select(x => x.InAverage).Where(x => x == true).Count() != 0)
+            _averageNonZero = Math.Round(sum / _dataWithAvgParam.Select(x => x.InAverage).Where(x => x == true).Count(), 2);
+        else
+            _averageNonZero = 0;
     }
 
     private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
@@ -183,7 +236,7 @@ else
         return new()
             {
                 Label = label,
-                Data = data,
+                Data = _dataWithAvgParam.Select(x => x.Amount).ToList(),
                 BackgroundColor = backgroundColors,
                 BorderColor = borderColors,
                 BorderWidth = 1,

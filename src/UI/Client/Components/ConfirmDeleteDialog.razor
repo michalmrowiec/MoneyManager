@@ -62,9 +62,6 @@
         }
     }
 
-    //[Parameter]
-    //public EventCallback<bool> OnClose { get; set; }
-
     [Parameter]
     public List<EventCallback>? EventCallbacks { get; set; }
 
@@ -76,14 +73,12 @@
     private void ModalCancel()
     {
         ExecuteAll();
-        //return OnClose.InvokeAsync(false);
     }
 
     private async Task ModalOk()
     {
         await Delete();
         ExecuteAll();
-        //return OnClose.InvokeAsync(true);
     }
 
     public enum ModalDialogType
