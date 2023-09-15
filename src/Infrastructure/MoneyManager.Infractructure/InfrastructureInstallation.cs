@@ -17,7 +17,7 @@ using System.Text;
 
 namespace MoneyManager.Infractructure
 {
-    public static class EFRegistration
+    public static class InfrastructureInstallation
     {
         public static IServiceCollection AddEFRegistrationServices(this IServiceCollection services, IConfiguration configuration)
         {

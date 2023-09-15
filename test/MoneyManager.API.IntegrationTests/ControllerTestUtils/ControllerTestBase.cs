@@ -22,7 +22,7 @@ namespace MoneyManager.API.IntegrationTests.ControllerTestUtils
             {
                 builder.ConfigureServices(services =>
                 {
-                    var ef = services.SingleOrDefault(services => services.ServiceType == typeof(EFRegistration));
+                    var ef = services.SingleOrDefault(services => services.ServiceType == typeof(InfrastructureInstallation));
                     if (ef != null) services.Remove(ef);
 
                     var db = services.SingleOrDefault(services => services.ServiceType == typeof(DbContextOptions<MoneyManagerContext>));

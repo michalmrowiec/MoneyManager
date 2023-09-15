@@ -7,7 +7,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Months counted to the average</h4>
+                <h4 class="modal-title">Month Selector for Average Calculation</h4>
                 <button type="button" class="btn-close" @onclick="@ModalCancel"></button>
             </div>
             <div class="modal-body">
@@ -83,7 +83,7 @@
                     </label>
                 </div>
 
-                <button class="btn btn-sm btn-outline-primary mt-1" @onclick="@(() => {
+                <button class="btn btn-sm btn-outline-primary pt-1" @onclick="@(() => {
                     if(_selectedMonthsPassed.All(x => x == true))
                     {
                         for (int i = 0; i < 12; i++)

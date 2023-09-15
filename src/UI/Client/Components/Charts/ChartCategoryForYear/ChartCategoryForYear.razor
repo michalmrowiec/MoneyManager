@@ -3,18 +3,19 @@
 @using Newtonsoft.Json
 @using System.Globalization;
 @using Blazorise
-@inject IHttpRecordService _httpService
+@inject IHttpRecordService httpService
 @inject IDisplayService displayService
+@inject ErrorMessage errorMessage
 
-@if (!loading)
+@if (!_loading)
 {
     <div class="d-flex justify-content-between">
         <h4>Category chart</h4>
 
         <div class="d-flex align-items-center">
-            <h5 style="text-align: right;">Average: @_averageNonZero</h5>
-            <button class="btn ms-2"
-                @onclick="@( () => { _selectMonthsDialogIsOpen = true; StateHasChanged(); } )">
+            <h5 style="text-align: right; margin: auto;">Average: @_averageNonZero</h5>
+            <button class="btn btn-sm"
+            @onclick="@( () => { _selectMonthsDialogIsOpen = true; StateHasChanged(); } )">
                 <span class="oi oi-cog" />
             </button>
         </div>
@@ -22,8 +23,8 @@
 
     <Dropdown Class="d-inline pe-2">
         <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedCategory.Name</DropdownToggle>
-        <DropdownMenu>
-            @foreach (var category in _categories)
+         <DropdownMenu>
+             @foreach (var category in _categories)
             {
                 <DropdownItem @onclick="@(async () => {_selectedCategory = category; await HandleRedraw();})">@category.Name</DropdownItem>
             }
@@ -32,15 +33,15 @@
 
     <Dropdown Class="d-inline pe-2">
         <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedYear</DropdownToggle>
-        <DropdownMenu>
-            @foreach (var year in _years)
+         <DropdownMenu>
+             @foreach (var year in _years)
             {
                 <DropdownItem @onclick="@(async () => {_selectedYear = year; await HandleRedraw();})">@year</DropdownItem>
             }
         </DropdownMenu>
     </Dropdown>
 
-    <Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
+    <Chart @ref="_barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
 }
 else
 {
@@ -52,38 +53,37 @@ else
 
 @if (_selectMonthsDialogIsOpen)
 {
-    <SelectMonthForChart SelectedMonthsPassed="_dataWithAvgParam"
-                     SelectedMonths="HandleCallBack"
-                     EventCallbacks="OnCloseRecordDialog">
-    </SelectMonthForChart>
+    <MonthSelectorForAverageCalculation SelectedMonthsPassed="_dataWithAvgParam"
+                                        SelectedMonths="HandleCallBack"
+                                        EventCallbacks="_onCloseMonthSelector">
+    </MonthSelectorForAverageCalculation>
 }
 
 @code {
-    [Parameter]
-    public EventCallback<string> ErrorMessage { get; set; }
-
-    private List<EventCallback>? OnCloseRecordDialog { get; set; }
-
-    bool loading = true;
+    private bool _loading = true;
     private decimal _averageNonZero = 0;
 
     private List<int> _years = new();
     private List<CategoryVM> _categories = new();
     private int _selectedYear;
     private CategoryVM _selectedCategory;
+
+    private Chart<decimal> _barChart = new();
+    private BarChartDataset<decimal> _dataset;
     private List<(decimal Amount, bool InAverage)> _dataWithAvgParam = new() { (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true) };
 
-    Chart<decimal> barChart = new();
-    BarChartDataset<decimal> dataset;
-
-    List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
-    List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
-    string[] chartXAxisLabels = new string[12];
+    private List<string> _backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
+    private List<string> _borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+    private string[] _chartXAxisLabels = new string[12];
 
     private bool _selectMonthsDialogIsOpen = false;
+    private List<EventCallback>? _onCloseMonthSelector { get; set; }
 
     private void HandleCallBack(bool[] months)
     {
+        if (months.Length != 12)
+            return;
+
         for (int i = 0; i < 12; i++)
         {
             _dataWithAvgParam[i] = (_dataWithAvgParam[i].Amount, months[i]);
@@ -94,7 +94,7 @@ else
     {
         try
         {
-            var respond = await _httpService.GetListOfItems($"/api/stat/totalcatformonths/{catId}/{yearId}");
+            var respond = await httpService.GetListOfItems($"/api/stat/totalcatformonths/{catId}/{yearId}");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -112,13 +112,12 @@ else
                         _dataWithAvgParam[i] = (0, false);
             }
             else
-                await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
 
         }
         catch (Exception ex)
         {
-            await ErrorMessage.InvokeAsync(ex.Message);
-
+            errorMessage.Message = ex.Message;
         }
     }
 
@@ -126,7 +125,7 @@ else
     {
         try
         {
-            var respond = await _httpService.GetListOfItems("/api/category");
+            var respond = await httpService.GetListOfItems("/api/category");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -137,11 +136,11 @@ else
                 _selectedCategory = _categories.First();
             }
             else
-                await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
         }
         catch (Exception ex)
         {
-            await ErrorMessage.InvokeAsync(ex.Message);
+            errorMessage.Message =  ex.Message;
         }
 
         StateHasChanged();
@@ -151,7 +150,7 @@ else
     {
         try
         {
-            var respond = await _httpService.GetListOfItems("/api/tracker/dates");
+            var respond = await httpService.GetListOfItems("/api/tracker/dates");
             if (respond == null) return;
             if (respond.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -162,11 +161,11 @@ else
                 _selectedYear = _years.First();
             }
             else
-                await ErrorMessage.InvokeAsync(respond.Content.ReadAsStringAsync().ToString());
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
         }
         catch (Exception ex)
         {
-            await ErrorMessage.InvokeAsync(ex.Message);
+            errorMessage.Message = ex.Message;
         }
 
         StateHasChanged();
@@ -174,7 +173,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        OnCloseRecordDialog = new List<EventCallback>
+        _onCloseMonthSelector = new List<EventCallback>
         {
             EventCallback.Factory.Create(this, CalculateAverage),
             EventCallback.Factory.Create(this,  x => _selectMonthsDialogIsOpen = false),
@@ -185,12 +184,12 @@ else
         {
             string month = displayService.DisplayNameOfMonth(i + 1);
             month = char.ToUpper(month[0]) + month.Substring(1);
-            chartXAxisLabels[i] = month;
+            _chartXAxisLabels[i] = month;
         }
 
         await GetCategory();
         await GetaYearsWithMonths();
-        loading = false;
+        _loading = false;
 
         StateHasChanged();
 
@@ -203,11 +202,11 @@ else
     {
         await GetDataFrom(_selectedCategory.Id, _selectedYear);
 
-        dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", _dataWithAvgParam.Select(x => x.Amount).ToList(), backgroundColors, borderColors);
+        _dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", _dataWithAvgParam.Select(x => x.Amount).ToList(), _backgroundColors, _borderColors);
 
-        await barChart.Clear();
+        await _barChart.Clear();
 
-        await barChart.AddLabelsDatasetsAndUpdate(chartXAxisLabels, dataset);
+        await _barChart.AddLabelsDatasetsAndUpdate(_chartXAxisLabels, _dataset);
 
         CalculateAverage();
 
