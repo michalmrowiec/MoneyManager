@@ -101,7 +101,7 @@ namespace MoneyManager.Infractructure.Repositories.Users
 
         public async Task<bool> CheckEmail(string email)
         {
-            return await _dbContext.Users.AnyAsync(x => x.Email == email); 
+            return await _dbContext.Users.AnyAsync(x => x.Email == email);
         }
 
         public async Task<bool> ChangePassword(int userId, string password, string repeatPassword)
@@ -127,6 +127,19 @@ namespace MoneyManager.Infractructure.Repositories.Users
         {
             var user = await _dbContext.Users.FirstAsync(x => x.Email == userEmail);
             return user.Id;
+        }
+
+        public async Task<bool> ChangeEmail(int userId, string NewEmail)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return false;
+
+            user.Email = NewEmail;
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
     }
 }

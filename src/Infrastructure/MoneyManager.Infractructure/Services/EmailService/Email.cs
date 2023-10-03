@@ -27,6 +27,35 @@ namespace MoneyManager.Infractructure.Services.EmailService
             _senderName = emailParams.SenderName;
         }
 
+        public async Task SendChangeEmialEmailAsync(string ulrToChangeEmail, string recipient)
+        {
+            _mail = new MailMessage();
+
+            _mail.From = new MailAddress(_senderEmail, _senderName);
+            _mail.To.Add(new MailAddress(recipient));
+
+            _mail.SubjectEncoding = Encoding.UTF8;
+            _mail.Subject = "Reset Password";
+
+            _mail.BodyEncoding = Encoding.UTF8;
+            _mail.IsBodyHtml = true;
+            _mail.Body = ulrToChangeEmail;
+
+            _smtp = new SmtpClient
+            {
+                Host = _hostSmtp,
+                EnableSsl = _enableSsl,
+                Port = _port,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(_senderEmail, _senderEmailPassword)
+            };
+
+            _smtp.SendCompleted += OnSendCompleted;
+
+            await _smtp.SendMailAsync(_mail);
+        }
+
         public async Task SendForgotPasswordEmailAsync(string urlToResetPassword, string to)
         {
             _mail = new MailMessage();

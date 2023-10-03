@@ -62,6 +62,7 @@ namespace MoneyManager.Infractructure
             services.AddScoped(typeof(ICryptoSimpleDatasRepository), typeof(CryptoSimpleDatasRepository));
             services.AddScoped<IRecordRepository, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddMemoryCache();
 
             services.AddScoped<IEmailSender, Email>();
             services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();

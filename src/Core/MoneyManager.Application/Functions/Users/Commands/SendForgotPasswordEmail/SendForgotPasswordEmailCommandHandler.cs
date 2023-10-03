@@ -24,10 +24,8 @@ namespace MoneyManager.Application.Functions.Users.Commands.SendForgotPasswordEm
 
             var token = _generateResetPasswordJWT.GenerateToken(request.UserEmail, (int)userId, "").Token;
 
-            //TODO: uri as href in html syntax
             string rer = @"https://www.moneymanager.hostingasp.pl/forgotpassword?&access_token=" + token;
             string url = "<a href=" + rer + ">Reset password</a>";
-            //string url = @"https://www.moneymanager.hostingasp.pl/forgotpassword?&access_token=" + token;
 
             await _emailSender.SendForgotPasswordEmailAsync(url, request.UserEmail);
 
