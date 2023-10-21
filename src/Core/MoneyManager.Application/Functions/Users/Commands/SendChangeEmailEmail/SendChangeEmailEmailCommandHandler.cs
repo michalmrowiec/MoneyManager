@@ -6,10 +6,10 @@ namespace MoneyManager.Application.Functions.Users.Commands.SendChangeEmailEmail
 {
     internal class SendChangeEmailEmailCommandHandler : IRequestHandler<SendChangeEmailEmailCommand, bool>
     {
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
         private readonly IMemoryCache _memoryCache;
 
-        public SendChangeEmailEmailCommandHandler(IEmailSender emailSender, IMemoryCache memoryCache)
+        public SendChangeEmailEmailCommandHandler(IEmailService emailSender, IMemoryCache memoryCache)
         {
             _emailSender = emailSender;
             _memoryCache = memoryCache;
@@ -23,10 +23,7 @@ namespace MoneyManager.Application.Functions.Users.Commands.SendChangeEmailEmail
 
             _memoryCache.Set(keyConfirmingEmailChange, new ChangeEmailModel(request.UserId, request.NewEmail), cacheEntryOptions);
 
-            string rer = @"https://www.moneymanager.hostingasp.pl/confirm-change-email?&keyConfirmingEmailChange=" + keyConfirmingEmailChange;
-            string url = "<a href=" + rer + ">Confirm change emial</a>";
-
-            await _emailSender.SendChangeEmialEmailAsync(url, request.NewEmail);
+            await _emailSender.SendChangeEmailEmailAsync(request.NewEmail, keyConfirmingEmailChange.ToString());
 
             return true;
         }

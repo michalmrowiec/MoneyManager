@@ -7,9 +7,9 @@ namespace MoneyManager.Application.Functions.Users.Commands.SendForgotPasswordEm
     internal class SendForgotPasswordEmailCommandHandler : IRequestHandler<SendForgotPasswordEmailCommand, bool>
     {
         private readonly IMediator _mediator;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
         private readonly IGenerateResetPasswordJWT _generateResetPasswordJWT;
-        public SendForgotPasswordEmailCommandHandler(IMediator mediator, IEmailSender emailSender, IGenerateResetPasswordJWT generateResetPasswordJWT)
+        public SendForgotPasswordEmailCommandHandler(IMediator mediator, IEmailService emailSender, IGenerateResetPasswordJWT generateResetPasswordJWT)
         {
             _mediator = mediator;
             _emailSender = emailSender;
@@ -24,10 +24,7 @@ namespace MoneyManager.Application.Functions.Users.Commands.SendForgotPasswordEm
 
             var token = _generateResetPasswordJWT.GenerateToken(request.UserEmail, (int)userId, "").Token;
 
-            string rer = @"https://www.moneymanager.hostingasp.pl/forgotpassword?&access_token=" + token;
-            string url = "<a href=" + rer + ">Reset password</a>";
-
-            await _emailSender.SendForgotPasswordEmailAsync(url, request.UserEmail);
+            await _emailSender.SendForgotPasswordEmailAsync(request.UserEmail, token);
 
             return true;
         }

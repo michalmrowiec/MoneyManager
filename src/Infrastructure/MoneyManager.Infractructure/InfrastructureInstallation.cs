@@ -12,6 +12,7 @@ using MoneyManager.Infractructure.Repositories.Items;
 using MoneyManager.Infractructure.Repositories.Users;
 using MoneyManager.Infractructure.Services.CryptocurrencyServices;
 using MoneyManager.Infractructure.Services.EmailService;
+using MoneyManager.Infractructure.Services.EmailService.EmailSender;
 using MoneyManager.Infractructure.Services.JWTService;
 using System.Text;
 
@@ -64,7 +65,9 @@ namespace MoneyManager.Infractructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddMemoryCache();
 
-            services.AddScoped<IEmailSender, Email>();
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IEmailService, EmailService>();
+
             services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
             services.AddScoped<IAsyncCryptocurrencyService, CryptoService>();
             services.AddScoped<ICryptoApiProvider, CoingeckoApiService>();
