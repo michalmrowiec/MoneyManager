@@ -1,4 +1,5 @@
-﻿using MoneyManager.Application.Contracts.Services;
+﻿using Microsoft.Extensions.Configuration;
+using MoneyManager.Application.Contracts.Services;
 using MoneyManager.Infractructure.Services.EmailService.EmailSender;
 
 namespace MoneyManager.Infractructure.Services.EmailService
@@ -6,25 +7,27 @@ namespace MoneyManager.Infractructure.Services.EmailService
     public class EmailService : IEmailService
     {
         private readonly IEmailSender _emailSender;
-        public EmailService(IEmailSender emailSender)
+        private readonly IConfiguration _configuration;
+        public EmailService(IEmailSender emailSender, IConfiguration configuration)
         {
             _emailSender = emailSender;
+            _configuration = configuration;
         }
 
         public async Task SendChangeEmailEmailAsync(string recipient, string keyConfirmingEmailChange)
         {
-            string rer = @"https://www.moneymanager.hostingasp.pl/confirm-change-email?&keyConfirmingEmailChange=" + keyConfirmingEmailChange;
-            string url = "<a href=" + rer + ">Confirm change emial</a>";
+            string url = _configuration["Url:ForgotPassword"] + keyConfirmingEmailChange;
+            string htmlContent = "<a href=" + url + ">Confirm change emial</a>";
 
-            await _emailSender.SendEmailWithHtmlBody(recipient, "Change email", url);
+            await _emailSender.SendEmailWithHtmlBody(recipient, "Change email", htmlContent);
         }
 
         public async Task SendForgotPasswordEmailAsync(string recipient, string token)
         {
-            string rer = @"https://www.moneymanager.hostingasp.pl/forgotpassword?&access_token=" + token;
-            string url = "<a href=" + rer + ">Reset password</a>";
+            string url = _configuration["Url:ChangeEmail"] + token;
+            string htmlContent = "<a href=" + url + ">Reset password</a>";
 
-            await _emailSender.SendEmailWithHtmlBody(recipient, "Reset password", url);
+            await _emailSender.SendEmailWithHtmlBody(recipient, "Reset password", htmlContent);
         }
     }
 }

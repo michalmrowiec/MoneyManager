@@ -20,7 +20,7 @@ namespace MoneyManager.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMoneyManagerApplication();
-            services.AddEFRegistrationServices(Configuration);
+            services.AddInfrastructureRegistrationServices(Configuration);
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddTransient<ApiKeyMiddleware>();
             services.AddHttpContextAccessor();
@@ -67,9 +67,6 @@ namespace MoneyManager.API
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
-                //endpoints.MapDefaultControllerRoute();
-                //endpoints.MapRazorPages();
-
             });
         }
     }

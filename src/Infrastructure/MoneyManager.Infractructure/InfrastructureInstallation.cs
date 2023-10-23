@@ -20,7 +20,7 @@ namespace MoneyManager.Infractructure
 {
     public static class InfrastructureInstallation
     {
-        public static IServiceCollection AddEFRegistrationServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructureRegistrationServices(this IServiceCollection services, IConfiguration configuration)
         {
             var emailParams = new EmailParams();
             configuration.GetSection("EmailParams").Bind(emailParams);
