@@ -1,4 +1,5 @@
 ﻿using MoneyManager.Domain.Authentication;
+using MoneyManager.Domain.Entities;
 
 namespace MoneyManager.Application.Contracts.Persistence.Users
 {
@@ -10,5 +11,6 @@ namespace MoneyManager.Application.Contracts.Persistence.Users
         Task<bool> ChangePassword(int userId, string password, string repeatPassword);
         Task<bool> ChangeEmail(int userId, string NewEmail);
         Task<int?> GetUserId(string userEmail);
+        Task<User> GetUserByIdAsync(int userId);
     }
 }

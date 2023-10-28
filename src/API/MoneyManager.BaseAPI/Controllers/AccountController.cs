@@ -8,6 +8,7 @@ using MoneyManager.Application.Functions.Users.Commands.ChangePasswordUser;
 using MoneyManager.Application.Functions.Users.Commands.LoginUser;
 using MoneyManager.Application.Functions.Users.Commands.RegisterUser;
 using MoneyManager.Application.Functions.Users.Commands.SendChangeEmailEmail;
+using MoneyManager.Application.Functions.Users.Commands.SendChangeEmailEmail.Dto;
 using MoneyManager.Application.Functions.Users.Commands.SendForgotPasswordEmail;
 using MoneyManager.Domain.Authentication;
 
@@ -74,14 +75,17 @@ namespace MoneyManager.API.Controllers
             sendChangeEmailEmail.UserId = _userContextService.GetUserId;
             var response = await _mediator.Send(sendChangeEmailEmail);
 
-            return response ? Ok() : BadRequest();
+            if (!response.Success)
+                return BadRequest(response);
+
+            return Ok(response);
         }
 
         [HttpPatch]
         [Route("confirm-change-email")]
-        public async Task<IActionResult> ConfirmChangeEmail([FromQuery] Guid keyConfirmingEmailChange)
+        public async Task<IActionResult> ConfirmChangeEmail([FromQuery] Guid keyConfirmingEmailChange, [FromBody] LoginWithNewEmailModel login)
         {
-            var response = await _mediator.Send(new ChangeEmailCommand(keyConfirmingEmailChange));
+            var response = await _mediator.Send(new ChangeEmailCommand(keyConfirmingEmailChange, login));
 
             return response.Success ? Ok(response) : BadRequest(response);
         }

@@ -141,5 +141,13 @@ namespace MoneyManager.Infractructure.Repositories.Users
 
             return true;
         }
+
+        public async Task<User> GetUserByIdAsync(int userId)
+        {
+            var user = await _dbContext.Users
+                .Select(u => new User { Id = u.Id, Name = u.Name, Email = u.Email })
+                .FirstAsync(u => u.Id == userId);
+            return user;
+        }
     }
 }
