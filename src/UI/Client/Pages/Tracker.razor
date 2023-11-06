@@ -342,6 +342,8 @@ else
             {
                 var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
                 _listOfRecords = JsonConvert.DeserializeObject<List<RecordVM>>(jsonResponse) ?? new List<RecordVM>();
+                
+                _listOfRecords.ForEach(x => { x.CategoryName = x?.Category?.Name; });
             }
             else
                 errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
