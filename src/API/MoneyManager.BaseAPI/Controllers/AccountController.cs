@@ -68,7 +68,7 @@ namespace MoneyManager.API.Controllers
         }
 
         [Authorize]
-        [HttpPatch]
+        [HttpPut]
         [Route("change-email")]
         public async Task<IActionResult> ChangeEmail([FromBody] SendChangeEmailEmailCommand sendChangeEmailEmail)
         {
@@ -81,7 +81,7 @@ namespace MoneyManager.API.Controllers
             return Ok(response);
         }
 
-        [HttpPatch]
+        [HttpPut]
         [Route("confirm-change-email")]
         public async Task<IActionResult> ConfirmChangeEmail([FromQuery] Guid keyConfirmingEmailChange, [FromBody] LoginWithNewEmailModel login)
         {
