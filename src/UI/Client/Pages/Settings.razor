@@ -1,21 +1,35 @@
 ﻿@page "/settings"
 @using System.Globalization
+@using MoneyManager.Client.Components
 @using MoneyManager.Client.Services;
 @inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Settings</PageTitle>
 
-<p>Select currency:</p>
-<select>
-    @foreach (var item in CultureInfo.GetCultures(CultureTypes.AllCultures))
-    {
-        <option>@item.Name</option>
-    }
-</select>
+<h3>Change password</h3>
+<button class="btn btn-primary"
+@onclick="@(x => { _passwordDialogIsOpen = true; StateHasChanged(); })">
+    Change
+</button>
+
+@if (_passwordDialogIsOpen)
+{
+    <ChangePasswordDialog TypeOfDialog="ChangePasswordDialog.TypeOfChangePasswordDialog.ChangePassword"
+                          EventCallbacks="OnClosePasswordDialog" />
+}
 
 @code {
+    private bool _passwordDialogIsOpen = false;
+    private List<EventCallback>? OnClosePasswordDialog { get; set; }
+
     protected override void OnInitialized()
     {
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Settings;
+
+        OnClosePasswordDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, StateHasChanged),
+            EventCallback.Factory.Create(this,  x => _passwordDialogIsOpen = false)
+        };
     }
 }

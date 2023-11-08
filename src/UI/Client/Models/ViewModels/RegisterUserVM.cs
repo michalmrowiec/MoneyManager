@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MoneyManager.Client.ViewModels
 {
@@ -16,6 +11,7 @@ namespace MoneyManager.Client.ViewModels
         [MinLength(6)]
         public string Password { get; set; } = null!;
         [Required]
+        [MinLength(6)]
         public string RepeatPassword { get; set; } = null!;
         [Required]
         [MaxLength(25)]
