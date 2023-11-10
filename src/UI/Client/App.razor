@@ -1,6 +1,8 @@
-﻿@using MoneyManager.Client.Services;
+﻿@using MoneyManager.Client.Pages.LoginUsers;
+@using MoneyManager.Client.Services;
 @inject ILocalStorageService localStorage
-
+@inject IHttpRecordService httpService
+@inject AuthenticationState authenticationState
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
@@ -13,7 +15,7 @@
             <p role="alert">Sorry, there's nothing at this address.</p>
         </LayoutView>
     </NotFound>
-</Router>   
+</Router>
 
 <Alert class="mb-0" Position="Position.Fixed.Bottom" Width="Width.Is100" Color="Color.Info" @bind-Visible="@visible">
     <div class="w-75 m-auto">
@@ -36,5 +38,16 @@
     {
         visible = await localStorage.GetItem<bool?>("showCookieAlert") ?? true;
         StateHasChanged();
+
+        var response = await httpService.GetListOfItems("api/recurring/ex");
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            Logout();
+    }
+
+    private async void Logout()
+    {
+        await localStorage.RemoveItem("user");
+        authenticationState.LoggedIn = false;
     }
 }

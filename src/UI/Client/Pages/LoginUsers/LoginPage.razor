@@ -11,6 +11,7 @@
 @inject AuthenticationState authenticationState
 @inject ErrorMessage errorMessage
 @inject IHttpRecordService httpService
+@inject IAuthenticationService authenticationService
 @inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Login</PageTitle>
@@ -68,13 +69,7 @@
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                UserTokenVM userToken = JsonConvert.DeserializeObject<UserTokenVM>(await result.Content.ReadAsStringAsync()) ?? new();
-                var tokenHandler = new JwtSecurityTokenHandler();
-                userToken.UserId = int.Parse(tokenHandler.ReadJwtToken(userToken.Token).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                await localStorage.SetItem<UserTokenVM>("user", userToken);
-                authenticationState.LoggedIn = true;
-                navigationManager.NavigateTo("tracker");
-                await httpService.GetListOfItems("api/recurring/ex");
+                await authenticationService.LoginUserHelper(result);
             }
             else
             {

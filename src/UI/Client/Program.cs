@@ -14,7 +14,11 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<IDisplayService, DisplayService>(provider => new DisplayService(new CultureInfo("en-US")));
+builder.Services.AddScoped<IDisplayService, DisplayService>(provider => new DisplayService(new CultureInfo("en-US")));
+builder.Services.AddScoped<ILocalStorageService, LocalStorage>();
+builder.Services.AddScoped<IHttpRecordService, HttpRecordService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 builder.Services.AddSingleton<AuthenticationState>();
 builder.Services.AddSingleton<RecordFormDialogEventHelper>();
 builder.Services.AddSingleton<ErrorMessage>();
@@ -27,10 +31,6 @@ builder.Services.AddScoped(sp =>
     httpClient.DefaultRequestHeaders.Add("X-Api-Key", builder.Configuration["ApiKey"]);
     return httpClient;
 });
-
-
-builder.Services.AddScoped<ILocalStorageService, LocalStorage>();
-builder.Services.AddScoped<IHttpRecordService, HttpRecordService>();
 
 builder.Services
     .AddBlazorise(options =>

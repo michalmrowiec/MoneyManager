@@ -9,6 +9,7 @@
 @inject IHttpRecordService httpService
 @inject NavigationManager navManager
 @inject ILocalStorageService localStorage
+@inject IAuthenticationService authenticationService
 @inject AuthenticationState authenticationState
 @inject ErrorMessage errorMessage
 @inject NameOfSubpage nameOfSubpage
@@ -54,9 +55,9 @@
     private LoginUserVM _loginUserVM = new LoginUserVM();
     private bool _loading;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Logout();
+        await authenticationService.LogoutUser();
         Navigate();
     }
 
@@ -71,18 +72,8 @@
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                UserTokenVM userToken = JsonConvert.DeserializeObject<UserTokenVM>(await result.Content.ReadAsStringAsync()) ?? new();
-                var tokenHandler = new JwtSecurityTokenHandler();
-                userToken.UserId = int.Parse(tokenHandler.ReadJwtToken(userToken.Token).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-                await localStorage.SetItem<UserTokenVM>("user", userToken);
-                authenticationState.LoggedIn = true;
-                navManager.NavigateTo("tracker");
-                await httpService.GetListOfItems("api/recurring/ex");
+                await authenticationService.LoginUserHelper(result);
                 _success = true;
-            }
-            else
-            {
-                StateHasChanged();
             }
         }
         catch (Exception ex)
@@ -92,12 +83,6 @@
         }
 
         _loading = false;
-    }
-
-    private async void Logout()
-    {
-        await localStorage.RemoveItem("user");
-        authenticationState.LoggedIn = false;
     }
 
     void Navigate()
