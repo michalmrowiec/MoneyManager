@@ -70,7 +70,7 @@ namespace MoneyManager.API.Controllers
         [Authorize]
         [HttpPut]
         [Route("change-email")]
-        public async Task<IActionResult> ChangeEmail([FromBody] SendChangeEmailEmailCommand sendChangeEmailEmail)
+        public async Task<ActionResult> ChangeEmail([FromBody] SendChangeEmailEmailCommand sendChangeEmailEmail)
         {
             sendChangeEmailEmail.UserId = _userContextService.GetUserId;
             var response = await _mediator.Send(sendChangeEmailEmail);
@@ -83,11 +83,11 @@ namespace MoneyManager.API.Controllers
 
         [HttpPut]
         [Route("confirm-change-email")]
-        public async Task<IActionResult> ConfirmChangeEmail([FromQuery] Guid keyConfirmingEmailChange, [FromBody] LoginWithNewEmailModel login)
+        public async Task<ActionResult<UserToken>> ConfirmChangeEmail([FromQuery] Guid keyConfirmingEmailChange, [FromBody] LoginWithNewEmailModel login)
         {
             var response = await _mediator.Send(new ChangeEmailCommand(keyConfirmingEmailChange, login));
 
-            return response.Success ? Ok(response) : BadRequest(response);
+            return response.Success ? Ok(response.UserToken) : BadRequest(response);
         }
     }
 }

@@ -37,14 +37,14 @@ namespace MoneyManager.Application.Functions.Users.Commands.ChangeEmail
 
             var changeEmailResult = await _userAsyncRepository.ChangeEmail(changeEmail.UserId, changeEmail.NewEmail);
 
-            if (!changeEmailResult)
+            if (!changeEmailResult || loginResult.UserToken == null)
             {
                 return new ChangeEmailCommandResponse("Something went wrong. Contact support.", false);
             }
 
             _memoryCache.Remove(request.KeyConfirmingEmailChange);
 
-            return new ChangeEmailCommandResponse("Email has been changed.", true);
+            return new ChangeEmailCommandResponse("Email has been changed.", true, loginResult.UserToken);
         }
     }
 }

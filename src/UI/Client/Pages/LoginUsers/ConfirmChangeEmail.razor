@@ -54,8 +54,9 @@
     private LoginUserVM _loginUserVM = new LoginUserVM();
     private bool _loading;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        Logout();
         Navigate();
     }
 
@@ -93,6 +94,11 @@
         _loading = false;
     }
 
+    private async void Logout()
+    {
+        await localStorage.RemoveItem("user");
+        authenticationState.LoggedIn = false;
+    }
 
     void Navigate()
     {
@@ -106,6 +112,5 @@
         {
             _key = param.First();
         }
-
     }
 }
