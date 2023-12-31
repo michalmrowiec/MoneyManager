@@ -2,6 +2,7 @@
 using MoneyManager.Client.Models.ViewModels.Interfaces;
 using MoneyManager.Client.ViewModels;
 using MoneyManager.Client.ViewModels.Interfaces;
+using System.Reflection;
 
 namespace MoneyManager.Client.Services
 {
@@ -51,21 +52,31 @@ namespace MoneyManager.Client.Services
 
         internal static void SortByType<T>(RecordField sortBy, bool descending, ref List<T> listOfRecords, ref string[] str) where T : IId
         {
-            if (listOfRecords is null) return;
+            if (listOfRecords is null)
+                return;
 
             SetArrow(sortBy, descending, ref str);
 
             var obj = listOfRecords.FirstOrDefault();
-            if (obj == null) return;
+            if (obj == null)
+                return;
+
             var objType = obj.GetType();
+
             var prop = objType.GetProperty(sortBy.ToString());
-            if (prop == null) return;
+            if (prop == null)
+                return;
+
             var propValue = prop.GetValue(obj);
-            if (propValue == null) return;
+            if (propValue == null)
+                return;
+
             var propType = propValue.GetType();
 
             var propertyInfo = typeof(T).GetProperty(sortBy.ToString());
-            if (propertyInfo == null) return;
+            if (propertyInfo == null)
+                return;
+
             if (descending)
                 listOfRecords = listOfRecords.OrderByDescending(x => propertyInfo.GetValue(x)).ToList<T>();
             else

@@ -1,20 +1,21 @@
 ﻿@page "/statistics"
 @using MoneyManager.Client.Components.Charts
+@using MoneyManager.Client.Components.Charts.ChartCategoryForYear
 @using MoneyManager.Client.Services;
 @inject ErrorMessage errorMessage
+@inject NameOfSubpage nameOfSubpage
 
 <PageTitle>Statistics</PageTitle>
 
-
 <div class="card mb-2">
     <div class="card-body">
-        <CategoryBarChartForTheYear ErrorMessage="ErrorMessageSetter"></CategoryBarChartForTheYear>
+        <ChartCategoryForYear />
     </div>
 </div>
 
 <div class="card mb-2">
     <div class="card-body">
-        <BarChartForTotal ErrorMessage="ErrorMessageSetter"></BarChartForTotal>
+        <ChartForAllCategories />
     </div>
 </div>
 
@@ -23,5 +24,10 @@
     private void ErrorMessageSetter(string msg)
     {
         errorMessage.Message = msg;
+    }
+
+    protected override void OnInitialized()
+    {
+        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Statistics;
     }
 }

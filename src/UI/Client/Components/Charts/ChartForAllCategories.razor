@@ -33,12 +33,12 @@
     @if (_monthsToo)
     {
         <Dropdown Class="d-inline pe-2">
-            <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@displayService.DisplayMonth(_selectedMonth)</DropdownToggle>
+            <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@displayService.DisplayNameOfMonth(_selectedMonth)</DropdownToggle>
             <DropdownMenu>
                 @foreach (var month in _months)
                 {
                     <DropdownItem @onclick="@(async () => {_selectedMonth = month; await HandleRedraw();})">
-                        @displayService.DisplayMonth(month)
+                        @displayService.DisplayNameOfMonth(month)
                     </DropdownItem>
                 }
             </DropdownMenu>
@@ -222,12 +222,12 @@ else
         if (_monthsToo)
         {
             await GetDataFromYear(_selectedYear, _selectedMonth);
-            titleOfChart = $"Total - {_selectedYear} {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(_selectedMonth)}";
+            titleOfChart = $"{displayService.DisplayNameOfMonth(_selectedMonth)} {_selectedYear} - total";
         }
         else
         {
             await GetDataFromYear(_selectedYear);
-            titleOfChart = $"Total - {_selectedYear}";
+            titleOfChart = $"{_selectedYear} - total";
         }
 
         dataset = GetBarChartDatasetGenerator(titleOfChart, data, backgroundColors, borderColors);

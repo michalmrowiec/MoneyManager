@@ -25,7 +25,7 @@ namespace MoneyManager.Application.Functions.Users.Commands.ChangePasswordUser
             if (changePasswordResult is false)
                 return new ChangePasswordUserCommandResposne("Something went wrong. Contact support.", false);
 
-            return new ChangePasswordUserCommandResposne();
+            return new ChangePasswordUserCommandResposne("Password has been changed.", true);
         }
     }
 }

@@ -1,0 +1,252 @@
+﻿@using MoneyManager.Client.Services
+@using MoneyManager.Client.ViewModels
+@using Newtonsoft.Json
+@using System.Globalization;
+@using Blazorise
+@inject IHttpRecordService httpService
+@inject IDisplayService displayService
+@inject ErrorMessage errorMessage
+
+@if (!_loading)
+{
+    <div class="d-flex justify-content-between">
+        <h4>Category chart</h4>
+
+        <div class="d-flex align-items-center">
+            <h5 style="text-align: right; margin: auto;">Average: @_averageNonZero</h5>
+            <button class="btn btn-sm"
+            @onclick="@( () => { _selectMonthsDialogIsOpen = true; StateHasChanged(); } )">
+                <span class="oi oi-cog" />
+            </button>
+        </div>
+    </div>
+
+    <Dropdown Class="d-inline pe-2">
+        <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedCategory.Name</DropdownToggle>
+         <DropdownMenu>
+             @foreach (var category in _categories)
+            {
+                <DropdownItem @onclick="@(async () => {_selectedCategory = category; await HandleRedraw();})">@category.Name</DropdownItem>
+            }
+        </DropdownMenu>
+    </Dropdown>
+
+    <Dropdown Class="d-inline pe-2">
+        <DropdownToggle Outline Color="Color.Primary" Size="Size.Default">@_selectedYear</DropdownToggle>
+         <DropdownMenu>
+             @foreach (var year in _years)
+            {
+                <DropdownItem @onclick="@(async () => {_selectedYear = year; await HandleRedraw();})">@year</DropdownItem>
+            }
+        </DropdownMenu>
+    </Dropdown>
+
+    <Chart @ref="_barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
+}
+else
+{
+    <div class="vh-100 d-flex align-items-center justify-content-center gap-3">
+        <div class="h2">Loading</div>
+        <div class="h5 spinner-border"></div>
+    </div>
+}
+
+@if (_selectMonthsDialogIsOpen)
+{
+    <MonthSelectorForAverageCalculation SelectedMonthsPassed="_dataWithAvgParam"
+                                        SelectedMonths="HandleCallBack"
+                                        EventCallbacks="_onCloseMonthSelector">
+    </MonthSelectorForAverageCalculation>
+}
+
+@code {
+    private bool _loading = true;
+    private decimal _averageNonZero = 0;
+
+    private List<int> _years = new();
+    private List<CategoryVM> _categories = new();
+    private int _selectedYear;
+    private CategoryVM _selectedCategory;
+
+    private Chart<decimal> _barChart = new();
+    private BarChartDataset<decimal> _dataset;
+    private List<(decimal Amount, bool InAverage)> _dataWithAvgParam = new() { (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true) };
+
+    private List<string> _backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
+    private List<string> _borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+    private string[] _chartXAxisLabels = new string[12];
+
+    private bool _selectMonthsDialogIsOpen = false;
+    private List<EventCallback>? _onCloseMonthSelector { get; set; }
+
+    private void HandleCallBack(bool[] months)
+    {
+        if (months.Length != 12)
+            return;
+
+        for (int i = 0; i < 12; i++)
+        {
+            _dataWithAvgParam[i] = (_dataWithAvgParam[i].Amount, months[i]);
+        }
+    }
+
+    private async Task GetDataFrom(int catId, int yearId)
+    {
+        try
+        {
+            var respond = await httpService.GetListOfItems($"/api/stat/totalcatformonths/{catId}/{yearId}");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonResponse = await respond.Content.ReadAsStringAsync();
+                var resData = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(jsonResponse) ?? new();
+
+                _dataWithAvgParam = new() { (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true), (0, true) };
+                foreach (var item in resData)
+                {
+                    _dataWithAvgParam[item.Key - 1] = (item.Value, item.Value != 0);
+                }
+
+                for (int i = 0; i < 12; i++)
+                    if (_dataWithAvgParam[i].Amount == 0)
+                        _dataWithAvgParam[i] = (0, false);
+            }
+            else
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
+
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Message = ex.Message;
+        }
+    }
+
+    private async Task GetCategory()
+    {
+        try
+        {
+            var respond = await httpService.GetListOfItems("/api/category");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryVM>>(json);
+
+                _categories = categories ?? new();
+                _selectedCategory = _categories.First();
+            }
+            else
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Message =  ex.Message;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GetaYearsWithMonths()
+    {
+        try
+        {
+            var respond = await httpService.GetListOfItems("/api/tracker/dates");
+            if (respond == null) return;
+            if (respond.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var json = await respond.Content.ReadAsStringAsync();
+                var yearsWithMonths = JsonConvert.DeserializeObject<Dictionary<int, List<int>>>(json);
+
+                _years = yearsWithMonths?.Keys.OrderByDescending(x => x).ToList() ?? new();
+                _selectedYear = _years.First();
+            }
+            else
+                errorMessage.Message = respond.Content.ReadAsStringAsync().ToString();
+        }
+        catch (Exception ex)
+        {
+            errorMessage.Message = ex.Message;
+        }
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _onCloseMonthSelector = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, CalculateAverage),
+            EventCallback.Factory.Create(this,  x => _selectMonthsDialogIsOpen = false),
+            EventCallback.Factory.Create(this,  x => StateHasChanged())
+        };
+
+        for (int i = 0; i < 12; i++)
+        {
+            string month = displayService.DisplayNameOfMonth(i + 1);
+            month = char.ToUpper(month[0]) + month.Substring(1);
+            _chartXAxisLabels[i] = month;
+        }
+
+        await GetCategory();
+        await GetaYearsWithMonths();
+        _loading = false;
+
+        StateHasChanged();
+
+        await HandleRedraw();
+
+        StateHasChanged();
+    }
+
+    async Task HandleRedraw()
+    {
+        await GetDataFrom(_selectedCategory.Id, _selectedYear);
+
+        _dataset = GetBarChartDatasetGenerator($"{_selectedCategory.Name} - {_selectedYear}", _dataWithAvgParam.Select(x => x.Amount).ToList(), _backgroundColors, _borderColors);
+
+        await _barChart.Clear();
+
+        await _barChart.AddLabelsDatasetsAndUpdate(_chartXAxisLabels, _dataset);
+
+        CalculateAverage();
+
+        StateHasChanged();
+    }
+
+    private void CalculateAverage()
+    {
+        decimal sum = 0;
+
+        var inAverageArr = _dataWithAvgParam.Select(x => x.InAverage).ToArray();
+        for (int i = 0; i < 12; i++)
+        {
+            if (inAverageArr[i] == true)
+                sum += _dataWithAvgParam[i].Amount;
+        }
+
+        if (_dataWithAvgParam.Select(x => x.InAverage).Where(x => x == true).Count() != 0)
+            _averageNonZero = Math.Round(sum / _dataWithAvgParam.Select(x => x.InAverage).Where(x => x == true).Count(), 2);
+        else
+            _averageNonZero = 0;
+    }
+
+    private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
+    {
+        return new()
+            {
+                Label = label,
+                Data = _dataWithAvgParam.Select(x => x.Amount).ToList(),
+                BackgroundColor = backgroundColors,
+                BorderColor = borderColors,
+                BorderWidth = 1,
+            };
+    }
+
+    Task OnClicked(ChartMouseEventArgs e)
+    {
+        var model = e.Model as BarChartModel;
+
+        Console.WriteLine($"Handling event for {nameof(BarChartModel)}: x:{model.X} y:{model.Y}");
+        return Task.CompletedTask;
+    }
+}

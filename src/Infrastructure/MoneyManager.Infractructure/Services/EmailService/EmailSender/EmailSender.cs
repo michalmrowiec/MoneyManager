@@ -1,11 +1,10 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using System.Text;
-using MoneyManager.Application.Contracts.Services;
 
-namespace MoneyManager.Infractructure.Services.EmailService
+namespace MoneyManager.Infractructure.Services.EmailService.EmailSender
 {
-    public class Email : IEmailSender
+    internal class EmailSender : IEmailSender
     {
         private SmtpClient _smtp;
         private MailMessage _mail;
@@ -17,7 +16,7 @@ namespace MoneyManager.Infractructure.Services.EmailService
         private string _senderEmailPassword;
         private string _senderName;
 
-        public Email(EmailParams emailParams)
+        public EmailSender(EmailParams emailParams)
         {
             _hostSmtp = emailParams.HostSmtp;
             _enableSsl = emailParams.EnableSsl;
@@ -27,19 +26,19 @@ namespace MoneyManager.Infractructure.Services.EmailService
             _senderName = emailParams.SenderName;
         }
 
-        public async Task SendForgotPasswordEmailAsync(string urlToResetPassword, string to)
+        virtual public async Task SendEmailWithHtmlBody(string recipient, string subject, string body)
         {
-            _mail = new MailMessage();
+            _mail = new MailMessage
+            {
+                From = new MailAddress(_senderEmail, _senderName),
+                SubjectEncoding = Encoding.UTF8,
+                Subject = subject,
+                BodyEncoding = Encoding.UTF8,
+                IsBodyHtml = true,
+                Body = body
+            };
 
-            _mail.From = new MailAddress(_senderEmail, _senderName);
-            _mail.To.Add(new MailAddress(to));
-
-            _mail.SubjectEncoding = Encoding.UTF8;
-            _mail.Subject = "Reset Password";
-
-            _mail.BodyEncoding = Encoding.UTF8;
-            _mail.IsBodyHtml = true;
-            _mail.Body = urlToResetPassword;
+            _mail.To.Add(new MailAddress(recipient));
 
             _smtp = new SmtpClient
             {

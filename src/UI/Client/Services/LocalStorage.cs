@@ -1,5 +1,4 @@
 ﻿using Microsoft.JSInterop;
-using MoneyManager.Client.ViewModels;
 using System.Text.Json;
 
 namespace MoneyManager.Client.Services

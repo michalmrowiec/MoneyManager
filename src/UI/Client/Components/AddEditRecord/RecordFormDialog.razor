@@ -180,7 +180,10 @@
         }
 
         if (addEvents.TypeOfDialog == TypeOfAddEditFormDialog.Add)
+        {
             TransactionDate = DateTime.Today;
+            _record.IsActive = true;
+        }
 
         if (addEvents.TypeOfDialog == TypeOfAddEditFormDialog.EditRecurringRecord)
             RecurringRecordsPanelIsOpen = true;
@@ -196,7 +199,6 @@
     {
         _btnIsDisabled = true;
         _record.Amount = _isIncome ? Math.Abs(_record.Amount) : Math.Abs(_record.Amount) * -1;
-        _record.IsActive = true;
 
         Dictionary<(TypeOfAddEditFormDialog RDType, bool rec), (Func<Task<HttpResponseMessage>> Operations, HttpStatusCode StatusCode)> operationsOnSubmit = new()
         {

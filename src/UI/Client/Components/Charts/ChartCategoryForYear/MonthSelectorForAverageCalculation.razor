@@ -1,0 +1,141 @@
+﻿@using MoneyManager.Client.Services;
+@inject IHttpRecordService httpRecordService
+@inject ErrorMessage errorMessage
+@inject IDisplayService displayService
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Month Selector for Average Calculation</h4>
+                <button type="button" class="btn-close" @onclick="@ModalCancel"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[0]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(1) (@SelectedMonthsPassed[0].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[1]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(2) (@SelectedMonthsPassed[1].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[2]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(3) (@SelectedMonthsPassed[2].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[3]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(4) (@SelectedMonthsPassed[3].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[4]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(5) (@SelectedMonthsPassed[4].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[5]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(6) (@SelectedMonthsPassed[5].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[6]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(7) (@SelectedMonthsPassed[6].Amount)
+                    </label>
+                </div>                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[7]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(8) (@SelectedMonthsPassed[7].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[8]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(9) (@SelectedMonthsPassed[8].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[9]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(10) (@SelectedMonthsPassed[9].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[10]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(11) (@SelectedMonthsPassed[10].Amount)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @bind="_selectedMonthsPassed[11]">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        @displayService.DisplayNameOfMonth(12) (@SelectedMonthsPassed[11].Amount)
+                    </label>
+                </div>
+
+                <button class="btn btn-sm btn-outline-primary pt-1" @onclick="@(() => {
+                    if(_selectedMonthsPassed.All(x => x == true))
+                    {
+                        for (int i = 0; i < 12; i++)
+                        {
+                            _selectedMonthsPassed[i] = false;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 12; i++)
+                        {
+                            _selectedMonthsPassed[i] = true;
+                        }
+                    }
+                    StateHasChanged(); })">
+                    All
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" @onclick="@ModalCancel">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick=@ModalOk>Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<(decimal Amount, bool InAverage)> SelectedMonthsPassed { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<bool[]> SelectedMonths { get; set; }
+
+    [Parameter]
+    public List<EventCallback>? EventCallbacks { get; set; }
+
+    private bool[] _selectedMonthsPassed;
+    private void ExecuteAll() => EventCallbacks?.ForEach(async x => await x.InvokeAsync());
+
+    private void ModalCancel()
+    {
+        ExecuteAll();
+    }
+
+    private async Task ModalOk()
+    {
+        await SelectedMonths.InvokeAsync(_selectedMonthsPassed);
+        ExecuteAll();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _selectedMonthsPassed = SelectedMonthsPassed.Select(x => x.InAverage).ToArray();
+    }
+}

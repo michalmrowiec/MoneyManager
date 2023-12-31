@@ -12,14 +12,15 @@ using MoneyManager.Infractructure.Repositories.Items;
 using MoneyManager.Infractructure.Repositories.Users;
 using MoneyManager.Infractructure.Services.CryptocurrencyServices;
 using MoneyManager.Infractructure.Services.EmailService;
+using MoneyManager.Infractructure.Services.EmailService.EmailSender;
 using MoneyManager.Infractructure.Services.JWTService;
 using System.Text;
 
 namespace MoneyManager.Infractructure
 {
-    public static class EFRegistration
+    public static class InfrastructureInstallation
     {
-        public static IServiceCollection AddEFRegistrationServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructureRegistrationServices(this IServiceCollection services, IConfiguration configuration)
         {
             var emailParams = new EmailParams();
             configuration.GetSection("EmailParams").Bind(emailParams);
@@ -62,8 +63,11 @@ namespace MoneyManager.Infractructure
             services.AddScoped(typeof(ICryptoSimpleDatasRepository), typeof(CryptoSimpleDatasRepository));
             services.AddScoped<IRecordRepository, RecordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddMemoryCache();
 
-            services.AddScoped<IEmailSender, Email>();
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IEmailService, EmailService>();
+
             services.AddScoped<IGenerateResetPasswordJWT, GenerateResetPasswordJWT>();
             services.AddScoped<IAsyncCryptocurrencyService, CryptoService>();
             services.AddScoped<ICryptoApiProvider, CoingeckoApiService>();

@@ -1,21 +1,75 @@
 ﻿@page "/settings"
 @using System.Globalization
+@using MoneyManager.Client.Components
+@using MoneyManager.Client.Models.Response;
 @using MoneyManager.Client.Services;
+@using System.Net;
+@using Newtonsoft.Json;
+@inject IHttpRecordService httpService
 @inject NameOfSubpage nameOfSubpage
+@inject ErrorMessage errorMessage
 
 <PageTitle>Settings</PageTitle>
 
-<p>Select currency:</p>
-<select>
-    @foreach (var item in CultureInfo.GetCultures(CultureTypes.AllCultures))
-    {
-        <option>@item.Name</option>
-    }
-</select>
+<h4>Change password</h4>
+<button class="btn btn-secondary"
+@onclick="@(x => { _passwordDialogIsOpen = true; StateHasChanged(); })">
+    Change
+</button>
+
+<h4>Change email address</h4>
+<div class="form-group">
+    <label>Email</label>
+    <input @bind="_newEmail" class="form-control" />
+</div>
+<button class="btn btn-secondary my-2"
+@onclick="@(async x => { await ChangeEmail(); })">
+    Change
+</button>
+@if (_success)
+{
+    <div class="alert alert-success mb-0">Check your email and confrim change.</div>
+}
+
+@if (_passwordDialogIsOpen)
+{
+    <ChangePasswordDialog TypeOfDialog="ChangePasswordDialog.TypeOfChangePasswordDialog.ChangePassword"
+                          EventCallbacks="OnClosePasswordDialog" />
+}
 
 @code {
+    private bool _passwordDialogIsOpen = false;
+    private List<EventCallback>? OnClosePasswordDialog { get; set; }
+    private string? _newEmail;
+    private bool _success = false;
+
     protected override void OnInitialized()
     {
         nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Settings;
+
+        OnClosePasswordDialog = new List<EventCallback>
+        {
+            EventCallback.Factory.Create(this, StateHasChanged),
+            EventCallback.Factory.Create(this,  x => _passwordDialogIsOpen = false)
+        };
+    }
+
+    private async Task ChangeEmail()
+    {
+        var responseMessage = await httpService.UpdateItem(new { NewEmail = _newEmail }, "/api/account/change-email");
+
+        if (responseMessage.StatusCode == HttpStatusCode.OK)
+        {
+            _success = true;
+        }
+        else
+        {
+            var response = await responseMessage.Content.ReadAsStringAsync();
+            var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
+            errorMessage.Message = baseResponse.Message;
+            baseResponse?.ValidationErrors?.ForEach(e => errorMessage.Message += $"{e}. ");
+        }
+
+        StateHasChanged();
     }
 }

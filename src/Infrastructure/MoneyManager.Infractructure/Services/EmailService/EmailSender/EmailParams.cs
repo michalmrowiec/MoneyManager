@@ -1,4 +1,4 @@
-﻿namespace MoneyManager.Infractructure.Services.EmailService
+﻿namespace MoneyManager.Infractructure.Services.EmailService.EmailSender
 {
     public class EmailParams
     {

@@ -1,29 +1,29 @@
-﻿@page "/login"
-@using MoneyManager.Client.Models.Response
-@using MoneyManager.Client.Services
-@using MoneyManager.Client.ViewModels
-@using Newtonsoft.Json
-@using System.IdentityModel.Tokens.Jwt
-@using System.Security.Claims
-@inject HttpClient httpClient;
-@inject NavigationManager navigationManager
+﻿@page "/confirm-change-email"
+@using Microsoft.AspNetCore.WebUtilities;
+@using MoneyManager.Client.Services;
+@using System.Net;
+@using MoneyManager.Client.ViewModels;
+@using System.IdentityModel.Tokens.Jwt;
+@using Newtonsoft.Json;
+@using System.Security.Claims;
+@inject IHttpRecordService httpService
+@inject NavigationManager navManager
 @inject ILocalStorageService localStorage
+@inject IAuthenticationService authenticationService
 @inject AuthenticationState authenticationState
 @inject ErrorMessage errorMessage
-@inject IHttpRecordService httpService
-@inject IAuthenticationService authenticationService
 @inject NameOfSubpage nameOfSubpage
 
-<PageTitle>Login</PageTitle>
+<h3>ConfirmChangeEmail</h3>
 
 <div class="col-md-6 offset-md-3 mt-5">
     <div class="card">
-        <h4 class="card-header">Login</h4>
+        <h4 class="card-header">Confirm email change</h4>
         <div class="card-body">
             <EditForm Model="@_loginUserVM" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <div class="form-group">
-                    <label>Email</label>
+                    <label>New email</label>
                     <InputText @bind-Value="_loginUserVM.Email" class="form-control" />
                     <ValidationMessage For="@(() => _loginUserVM.Email)" />
                 </div>
@@ -50,14 +50,15 @@
 </div>
 
 @code {
+    private bool _success = false;
+    private string? _key;
     private LoginUserVM _loginUserVM = new LoginUserVM();
     private bool _loading;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        nameOfSubpage.NamesOfSubpage = NamesOfSubpageEnum.Empty;
-        // redirect to home if already logged in i
-
+        await authenticationService.LogoutUser();
+        Navigate();
     }
 
     private async void HandleValidSubmit()
@@ -65,26 +66,36 @@
         _loading = true;
         try
         {
-            var result = await httpClient.PostAsJsonAsync("/api/account/login", _loginUserVM);
+            var result = await httpService.UpdateItem(
+                new { NewEmail = _loginUserVM.Email, Password = _loginUserVM.Password },
+                $"/api/account/confirm-change-email?&keyConfirmingEmailChange={_key}");
 
             if (result.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 await authenticationService.LoginUserHelper(result);
-            }
-            else
-            {
-                var response = await result.Content.ReadAsStringAsync();
-                var baseResponse = JsonConvert.DeserializeObject<UserResponse>(response) ?? new();
-                errorMessage.Message = baseResponse.Message;
-                _loading = false;
-                StateHasChanged();
+                _success = true;
             }
         }
         catch (Exception ex)
         {
             errorMessage.Message = ex.Message;
-            _loading = false;
             StateHasChanged();
+        }
+
+        _loading = false;
+    }
+
+    void Navigate()
+    {
+        var query = new Dictionary<string, string>();
+
+        navManager.NavigateTo(QueryHelpers.AddQueryString(navManager.Uri, query));
+
+        var uri = navManager.ToAbsoluteUri(navManager.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("keyConfirmingEmailChange", out var param))
+        {
+            _key = param.First();
         }
     }
 }
