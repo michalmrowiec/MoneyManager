@@ -45,7 +45,7 @@
         </Dropdown>
     }
 
-    <Chart @ref="barChart" Type="ChartType.Bar" TItem="decimal" Clicked="@OnClicked" />
+    <Chart @ref="barChart" Type="ChartType.Doughnut" TItem="decimal" Clicked="@OnClicked" Options="chartOptions" />
 }
 else
 {
@@ -74,12 +74,14 @@ else
 
     Chart<decimal> barChart = new();
     List<decimal> data = new();
-    BarChartDataset<decimal> dataset;
+    DoughnutChartDataset<decimal> dataset;
+    //BarChartDataset<decimal> dataset;
     private decimal _total = 0;
 
     List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
     List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
     string[] chartXAxisLabels;
+    ChartOptions chartOptions = new();
 
     private async Task GetDataFromYear(int year)
     {
@@ -217,6 +219,7 @@ else
 
     async Task HandleRedraw()
     {
+        chartOptions.AspectRatio = 2;
         string titleOfChart = "";
 
         if (_monthsToo)
@@ -239,7 +242,7 @@ else
         _total = data.Sum();
     }
 
-    private BarChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
+    private DoughnutChartDataset<decimal> GetBarChartDatasetGenerator(string label, List<decimal> data, List<string> backgroundColors, List<string> borderColors)
     {
         return new()
             {
@@ -247,7 +250,7 @@ else
                 Data = data,
                 BackgroundColor = backgroundColors,
                 BorderColor = borderColors,
-                BorderWidth = 1
+                BorderWidth = 1,
             };
     }
 
