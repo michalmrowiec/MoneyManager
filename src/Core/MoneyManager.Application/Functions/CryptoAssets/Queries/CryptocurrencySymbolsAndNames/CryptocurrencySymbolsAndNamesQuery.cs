@@ -2,5 +2,5 @@
 
 namespace MoneyManager.Application.Functions.CryptoAssets.Queries.CryptocurrencySymbolsAndNames
 {
-    public record class CryptocurrencySymbolsAndNamesQuery() : IRequest<Dictionary<string, string>>;
+    public record class CryptocurrencySymbolsAndNamesQuery() : IRequest<List<CryptoSymbolName>>;
 }

@@ -12,6 +12,6 @@ namespace MoneyManager.Application.Contracts.Services
         /// <param name="currency">The currency in which the given cryptocurrencies are to be valued, e.g.: "USD", "EUR".</param>
         /// <returns></returns>
         Task<(ApiResponseStatus Status, List<CryptocurrencySimpleData> Value)> GetSimplePriceForCryptocurrencies(string[] cryptocurrencies, string currency);
-        Task<Dictionary<string, string>> GetCryptocurrencySymbolsAndNames();
+        Task<List<CryptoSymbolName>> GetCryptocurrencySymbolsAndNames();
     }
 }

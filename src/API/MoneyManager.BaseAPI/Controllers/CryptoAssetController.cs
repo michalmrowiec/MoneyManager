@@ -35,7 +35,7 @@ namespace MoneyManager.API.Controllers
         }
 
         [HttpGet("symbols-and-names")]
-        public async Task<ActionResult<Dictionary<string, string>>> GetCryptocurrencySymbolsAndNames()
+        public async Task<ActionResult<List<CryptoSymbolName>>> GetCryptocurrencySymbolsAndNames()
         {
             return Ok(await _mediator.Send(new CryptocurrencySymbolsAndNamesQuery()));
         }
