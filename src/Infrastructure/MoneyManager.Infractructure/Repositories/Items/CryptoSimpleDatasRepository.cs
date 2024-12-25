@@ -48,9 +48,12 @@ namespace MoneyManager.Infractructure.Repositories.Items
             return await _dbContext.CryptoSimpleDatas.Where(c => names.Contains(c.Name)).ToListAsync();
         }
 
-        public async Task<Dictionary<string, string>> GetSymbolsAndNames()
+        public async Task<List<CryptoSymbolName>> GetSymbolsAndNames()
         {
-            return await _dbContext.CryptoSimpleDatas.AsNoTracking().ToDictionaryAsync(c => c.Symbol, c => c.Name);
+            return await _dbContext.CryptoSimpleDatas
+                 .AsNoTracking()
+                 .Select(c => new CryptoSymbolName { Id = c.Id.ToString(), Symbol = c.Symbol, Name = c.Name })
+                 .ToListAsync();
         }
 
         public async Task UpdateAsync(CryptocurrencySimpleData entity)

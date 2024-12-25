@@ -16,7 +16,7 @@ namespace MoneyManager.Infractructure.Services.CryptocurrencyServices
             _cryptoApiProvider = cryptoApiProvider;
         }
 
-        public async Task<Dictionary<string, string>> GetCryptocurrencySymbolsAndNames()
+        public async Task<List<CryptoSymbolName>> GetCryptocurrencySymbolsAndNames()
         {
             return await _datasRepository.GetSymbolsAndNames();
         }

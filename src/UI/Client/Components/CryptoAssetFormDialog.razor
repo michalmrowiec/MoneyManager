@@ -32,7 +32,7 @@
                                 <datalist id="symbolsAndNames">
                                     @foreach (var s in _symbolsAndNames)
                                     {
-                                        <option value="@s.Value">@($"{s.Key} {s.Value}")</option>
+                                        <option value="@s.Name">@($"[{s.Symbol}] {s.Name}")</option>
                                     }
                                 </datalist>
                             }
@@ -69,7 +69,7 @@
 
 @code {
     private CreateCryptoAsset _cryptoAsset = new();
-    private Dictionary<string, string> _symbolsAndNames = new();
+    private List<CryptoSymbolNameVM> _symbolsAndNames = new();
     private string _modalTitle = "";
 
     [Parameter]
@@ -111,7 +111,7 @@
             {TypeOfCryptoDialog.Update, (async () => { return await httpService.UpdateItem(_cryptoAsset, "/api/crypto-assets"); }, HttpStatusCode.OK) }
     };
 
-        _cryptoAsset.Symbol = _symbolsAndNames.First(x => x.Value == _cryptoAsset.Name).Key;
+        _cryptoAsset.Symbol = _symbolsAndNames.First(x => x.Name == _cryptoAsset.Name).Symbol;
 
         var responseMessage = await operationsOnSubmit[DialogType].Operations.Invoke();
 
@@ -130,7 +130,7 @@
         if (responseMessage.StatusCode == System.Net.HttpStatusCode.OK)
         {
             var a = await responseMessage.Content.ReadAsStringAsync();
-            _symbolsAndNames = JsonConvert.DeserializeObject<Dictionary<string, string>>(a) ?? new();
+            _symbolsAndNames = JsonConvert.DeserializeObject<List<CryptoSymbolNameVM>>(a) ?? new();
         }
         else
             errorMessage.Message = await responseMessage.Content.ReadAsStringAsync();
